@@ -1,7 +1,7 @@
 let s:requireRegex = {
 \ 'exist': '^\(const\|var\)\s*',
 \ 'import': "const __FNAME__ = require('__FPATH__');",
-\ 'lastimport': '^\(const\|var\)\s.*require(.*;'
+\ 'lastimport': '^\(const\|var\)\s.*require(.*;\?'
 \ }
 
 let s:importRegex = {
@@ -64,7 +64,7 @@ function! FileImport()
       let name = '{ ' . name . ' }'
     endif
 
-    if search(rgx['exist'] . regexNameExists . '.*;') > 0
+    if search(rgx['exist'] . regexNameExists . '.*;\?') > 0
       throw "Import already exists"
     endif
   catch /.*/
