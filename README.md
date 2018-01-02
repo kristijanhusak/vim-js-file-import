@@ -1,12 +1,16 @@
-# Vim js file import
+# Vim js file import (Alpha)
 
-This plugin allows importing js files using ctags.
-
-Tested with [Universal ctags](https://github.com/universal-ctags/ctags)
+This plugin allows importing js files using ctags. Tested only with [Universal ctags](https://github.com/universal-ctags/ctags)
 
 [Ctags quick installation](#ctags-quick-installation)
 
-Add binding to vimrc
+
+Add plugin
+```vimL
+Plug 'kristijanhusak/vim-js-file-import'
+```
+
+Add binding
 
 ```vimL
 nnoremap <F5> :call JsFileImport()<CR>
@@ -55,4 +59,6 @@ class App extends React.Component {
 $ git clone https://github.com/universal-ctags/ctags
 $ cd ctags && ./autogen.sh && ./configure && make && sudo make install
 ```
+
+Also, it is recommended to use some package for auto-updating ctags, for example [gutentags](https://github.com/ludovicchabant/vim-gutentags)
 

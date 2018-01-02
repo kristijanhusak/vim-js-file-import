@@ -1,13 +1,17 @@
 let s:requireRegex = {
 \ 'exist': '^\(const\|var\)\s*',
 \ 'import': "const __FNAME__ = require('__FPATH__');",
-\ 'lastimport': '^\(const\|var\)\s.*require(.*;\?'
+\ 'lastimport': '^\(const\|var\)\s.*require(.*;\?',
+\ 'defaultExport': 'module.exports\s*=.*',
+\ 'partialExport': 'module.exports.',
 \ }
 
 let s:importRegex = {
 \ 'exist': 'import\s*',
 \ 'import': "import __FNAME__ from '__FPATH__';",
-\ 'lastimport': 'import\s.*from.*;'
+\ 'lastimport': 'import\s.*from.*;',
+\ 'defaultExport': 'export\s*default.*',
+\ 'partialExport': 'export\s\(const\|var\).*',
 \ }
 
 function! JsFileImport()
@@ -27,7 +31,8 @@ function! JsFileImport()
     endif
 
     let tag = tagData['tag']
-    call s:checkIfExists(tag, name, rgx)
+    let name = s:getImportName(tag, name, rgx)
+    call s:checkIfExists(name, rgx)
   catch /.*/
     exe "normal! `z"
     echo v:exception
@@ -47,17 +52,17 @@ function! JsFileImport()
   exe "normal! `z"
 endfunction
 
-function! s:removeObsolete(idx, val)
+function! s:removeObsolete(idx, val) "{{{
   let v = a:val['cmd']
   let k = a:val['kind']
-  if v =~ 'import\s*from' || v =~ 'require(' || (k != 'C' && k != 'c')
+  if v =~ 'import\s*from' || v =~ 'require(' || k !~ '\(C\|c\|m\)'
     return 0
   endif
 
   return 1
-endfunction
+endfunction "}}}
 
-function! s:getGlobalPackage(name)
+function! s:isGlobalPackage(name) "{{{
   let packageJson = getcwd().'/package.json'
   if !filereadable(packageJson)
     return 0
@@ -75,15 +80,15 @@ function! s:getGlobalPackage(name)
   endif
 
   return 0
-endfunction
+endfunction "}}}
 
-function! s:getTag(name, rgx)
+function! s:getTag(name, rgx) "{{{
   let tags = taglist("^".a:name."$")
   let result = { 'tag': 0, 'global': 0 }
   call filter(tags, function('s:removeObsolete'))
 
   if len(tags) <= 0
-    if s:getGlobalPackage(a:name) > 0
+    if s:isGlobalPackage(a:name) > 0
       let result['global'] = 1
       return result
     endif
@@ -104,9 +109,7 @@ function! s:getTag(name, rgx)
   endfor
 
   call inputsave()
-
   let selection = inputlist(options)
-
   call inputrestore()
 
   if selection > 0 && selection < len(options)
@@ -115,17 +118,17 @@ function! s:getTag(name, rgx)
   endif
 
   throw 'Wrong selection!'
-endfunction
+endfunction "}}}
 
-function! s:determineImportType()
+function! s:determineImportType() "{{{
   if search(s:requireRegex['lastimport']) > 0
     return s:requireRegex
   endif
 
   return s:importRegex
-endfunction
+endfunction "}}}
 
-function! s:doImport(name, path, rgx)
+function! s:doImport(name, path, rgx) "{{{
   let importRgx = a:rgx['import']
   let importRgx = substitute(importRgx, '__FNAME__', a:name, '')
   let importRgx = substitute(importRgx, '__FPATH__', a:path, '')
@@ -135,20 +138,50 @@ function! s:doImport(name, path, rgx)
   else
     call append(0, importRgx)
   endif
-endfunction
+endfunction "}}}
 
-function! s:checkIfExists(tag, name, rgx)
-  let regexNameExists = a:name
-  let name = a:name
-  if a:tag['cmd'] =~ 'export\s\(const\|var\).*'.name || a:tag['cmd'] =~ 'module.exports.'.name
-    let regexNameExists = '{\.*' . a:name . '\.*}'
-    let name = '{ ' . a:name . ' }'
-  endif
+function! s:checkIfExists(name, rgx) "{{{
+  let name = substitute(a:name, '\s', '\\s', 'g')
 
-  if search(a:rgx['exist'] . regexNameExists . '.*;\?') > 0
+  if search(a:rgx['exist'] . name . '.*;\?') > 0
     throw "Import already exists"
   endif
 
   return 0
-endfunction
+endfunction "}}}
 
+function! s:getImportName(tag, name, rgx) "{{{
+  let name = a:name
+  let destructedName = '{ ' . a:name . ' }'
+
+  " Method or partial export
+  if a:tag['kind'] == 'm' || a:tag['cmd'] =~ a:rgx['partialExport']
+    return destructedName
+  endif
+
+  if a:tag['cmd'] =~ a:rgx['defaultExport']
+    return name
+  endif
+
+  " Read file and try finding export in case when tag points to line
+  " that is not descriptive enough
+  let filePath = getcwd().'/'.a:tag['filename']
+
+  if !filereadable(filePath)
+    return name
+  endif
+
+  let fileContent = readfile(filePath, '')
+
+  if match(fileContent, a:rgx['defaultExport'].name) > -1
+    return name
+  endif
+
+  if match(fileContent, a:rgx['partialExport'].name) > -1
+    return destructedName
+  endif
+
+  return name
+endfunction "}}}
+
+" vim:foldenable:foldmethod=marker
