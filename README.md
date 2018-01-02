@@ -1,22 +1,47 @@
-# Vim js file import (Alpha)
+# Vim js file import (alpha)
 
-This plugin allows importing js files using ctags. Tested only with [Universal ctags](https://github.com/universal-ctags/ctags)
+This plugin allows importing js files using ctags. Tested only with [Universal ctags](https://github.com/universal-ctags/ctags).
 
-[Ctags quick installation](#ctags-quick-installation)
+If you want more robust solution, check [vim-import-js](https://github.com/Galooshi/vim-import-js).
 
+## Why?
+I tried using [vim-import-js](https://github.com/Galooshi/vim-import-js), but it's really slow when used on big projects.
 
-Add plugin
+This plugin is written in vimscript and uses only python to generate relative paths, so it's performance is much better.
+
+It doesn't handle all the cases that vim-import-js do (partial imports of npm packages, sorting of imports, configuration), but works most of the time.
+There are still a lot of things to be done and fixed. Check [Todo](#todo) section.
+
+## Table of contents
+
+* [Installation](#installation)
+* [Examples](#examples)
+* [Todo](#todo)
+* [Contributing](#contributing)
+
+### Installation
+
+Install [Universal ctags](https://github.com/universal-ctags/ctags)
+```sh
+$ git clone https://github.com/universal-ctags/ctags
+$ cd ctags && ./autogen.sh && ./configure && make && sudo make install
+```
+
+It's also recommended to install some plugin for auto-updating ctags, since this plugin heavily relies on it.
+[gutentags](https://github.com/ludovicchabant/vim-gutentags) is good choice.
+
+Add plugin to vimrc
 ```vimL
+Plug 'ludovicchabant/vim-gutentags'
 Plug 'kristijanhusak/vim-js-file-import'
 ```
 
-Add binding
-
+Add binding to vimrc
 ```vimL
 nnoremap <F5> :call JsFileImport()<CR>
 ```
 
-Example:
+### Examples
 ```js
 import React from 'react';
 
@@ -54,11 +79,37 @@ class App extends React.Component {
 }
 ```
 
-### Ctags quick installation
-```sh
-$ git clone https://github.com/universal-ctags/ctags
-$ cd ctags && ./autogen.sh && ./configure && make && sudo make install
+Partial imports are also handled (`import { <name> } from <file>`)
+
+```js
+import { MyButton } from './components/AllComponents';
+
+class App extends React.Component {
+  render() {
+    return (<div><MyButton>Submit</MyButton></div>)
+  }
+}
 ```
 
-Also, it is recommended to use some package for auto-updating ctags, for example [gutentags](https://github.com/ludovicchabant/vim-gutentags)
+**Note** that multiple partial imports are still not handled properly
+(example: `import { MyButton, MyInput } from './components/AllComponents'`).
+Each one is added on it's own line.
+It's planned to be fixed in near future.
+
+### Todo
+
+* Allow multiple partial imports from same file (`import { method1, method2 } from 'filepath'`) instead of adding each separately
+* Improve existence check (multiple partial imports from same file separated with new line are not checked properly)
+* Allow forcing `require` or `import` (currently it defaults to `import`, and uses `require` only if file already contains that type of import)
+* Allow adding flag to sort imports
+* Test with exuberant ctags
+* Add tests
+
+### Contributing
+There are no any special guidelines for contributing.
+
+All types of contributions, suggestions and bug reports are very welcome!
+
+### Thanks to:
+* [Vim php namespace](https://github.com/arnaud-lb/vim-php-namespace) for inspiration
 
