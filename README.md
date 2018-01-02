@@ -2,10 +2,14 @@
 
 This plugin allows importing js files using ctags.
 
+Tested with [Universal ctags](https://github.com/universal-ctags/ctags)
+
+[Ctags quick installation](#ctags-quick-installation)
+
 Add binding to vimrc
 
 ```vimL
-nnoremap <F5> :call FileImport()<CR>
+nnoremap <F5> :call JsFileImport()<CR>
 ```
 
 Example:
@@ -19,7 +23,7 @@ class App extends React.Component {
 }
 ```
 
-Hovering over `MyButton` and pressing `<F5>` finds the component and adds import at top
+Setting cursor on `MyButton` and pressing `<F5>` finds the component and adds import at top
 
 ```js
 import React from 'react'
@@ -44,5 +48,11 @@ class App extends React.Component {
     return (<div><MyButton>Submit</MyButton></div>)
   }
 }
+```
+
+### Ctags quick installation
+```sh
+$ git clone https://github.com/universal-ctags/ctags
+$ cd ctags && ./autogen.sh && ./configure && make && sudo make install
 ```
 
