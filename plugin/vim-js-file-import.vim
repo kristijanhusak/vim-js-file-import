@@ -27,7 +27,8 @@ function! JsFileImport()
         throw "Import already exists"
       endif
       call s:doImport(name, name, rgx)
-      return 0
+      exe "normal! `z"
+      return 1
     endif
 
     let tag = tagData['tag']
@@ -36,7 +37,7 @@ function! JsFileImport()
   catch /.*/
     exe "normal! `z"
     echo v:exception
-    return
+    return 0
   endtry
 
   let currentFilePath = expand('%:p:h')
@@ -50,6 +51,7 @@ function! JsFileImport()
   endif
   call s:doImport(name, path, rgx)
   exe "normal! `z"
+  return 1
 endfunction
 
 function! s:removeObsolete(idx, val) "{{{
