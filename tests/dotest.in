@@ -1,0 +1,5 @@
+:set runtimepath=../
+:runtime plugin/vim-js-file-import.vim
+:map U :call JsFileImport()<CR>
+:map dotest /^STARTTESTj:set ff=unix cpo-=A:.,/ENDTEST/-1w! Xdotest:set ff& cpo+=Anj0:so! Xdotestdotest
+dotest
