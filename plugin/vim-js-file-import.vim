@@ -56,8 +56,7 @@ endfunction
 
 function! s:removeObsolete(idx, val) "{{{
   let v = a:val['cmd']
-  let k = a:val['kind']
-  if v =~ 'import\s*from' || v =~ 'require(' || k !~ '\(C\|c\|m\)'
+  if v =~ 'import\s*from' || v =~ 'require('
     return 0
   endif
 
@@ -71,7 +70,7 @@ function! s:isGlobalPackage(name) "{{{
   endif
 
   let packageJsonData = readfile(packageJson, '')
-  let data = json_decode(packageJsonData)
+  let data = json_decode(join(packageJsonData))
 
   if has_key(data, 'dependencies') && has_key(data['dependencies'], a:name)
     return 1
@@ -157,7 +156,7 @@ function! s:getImportName(tag, name, rgx) "{{{
   let destructedName = '{ ' . a:name . ' }'
 
   " Method or partial export
-  if a:tag['kind'] == 'm' || a:tag['cmd'] =~ a:rgx['partialExport']
+  if a:tag['kind'] =~ '\(m\|p\)' || a:tag['cmd'] =~ a:rgx['partialExport']
     return destructedName
   endif
 

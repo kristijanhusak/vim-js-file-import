@@ -1,2 +1,0 @@
-import Bar from './test-basic-1.fixtures/a';
-const obj = new Bar()

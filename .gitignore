@@ -1,3 +1,4 @@
+!tags
 tests/*.failed
 tests/*.out
 tests/test.log

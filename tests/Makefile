@@ -9,7 +9,7 @@ SCRIPTS = $(patsubst %.ok,%.out,$(wildcard *.ok))
 
 .SUFFIXES: .in .out
 
-nongui:	nolog $(SCRIPTS) report
+nongui:	clean nolog $(SCRIPTS) report
 
 report:
 	@echo

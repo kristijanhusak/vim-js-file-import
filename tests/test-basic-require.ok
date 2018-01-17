@@ -1,0 +1,3 @@
+const package = require('package');
+const Bar = require('./test-basic-require.fixtures/a');
+const obj = new Bar()

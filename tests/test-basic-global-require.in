@@ -1,0 +1,12 @@
+
+Basic test 1
+
+STARTTEST
+:%d
+aconst Foo = require('./test-basic-global-require.fixtures/a');
+
+const randomNumber = lodash:call JsFileImport()
+a.random();:w! test.out
+:qa!
+ENDTEST
+

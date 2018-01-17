@@ -1,0 +1,10 @@
+
+Basic test 1
+
+STARTTEST
+:%d
+aconst randomNumber = lodash:call JsFileImport()
+a.random();:w! test.out
+:qa!
+ENDTEST
+

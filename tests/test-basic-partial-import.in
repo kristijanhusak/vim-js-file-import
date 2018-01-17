@@ -1,0 +1,10 @@
+
+Basic test 1
+
+STARTTEST
+:%d
+aconst obj = new Bar:call JsFileImport()
+a():w! test.out
+:qa!
+ENDTEST
+
