@@ -27,7 +27,6 @@ function! JsFileImport()
         throw "Import already exists"
       endif
       call s:doImport(name, name, rgx)
-      exe "normal! `z"
       return 1
     endif
 
@@ -50,7 +49,6 @@ function! JsFileImport()
     let path = './'.path
   endif
   call s:doImport(name, path, rgx)
-  exe "normal! `z"
   return 1
 endfunction
 
@@ -148,7 +146,9 @@ function! s:doImport(name, path, rgx) "{{{
     call append(line("."), importRgx)
   else
     call append(0, importRgx)
+    call append(1, '')
   endif
+  exe "normal! `z"
 endfunction "}}}
 
 function! s:checkIfExists(name, rgx) "{{{

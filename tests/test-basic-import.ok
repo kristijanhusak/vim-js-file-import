@@ -1,2 +1,3 @@
 import Bar from './test-basic-import.fixtures/a';
+
 const obj = new Bar()

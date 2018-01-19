@@ -1,2 +1,3 @@
 import lodash from 'lodash';
+
 const randomNumber = lodash.random();
