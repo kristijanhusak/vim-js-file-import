@@ -56,7 +56,8 @@ endfunction
 
 function! s:removeObsolete(idx, val) "{{{
   let v = a:val['cmd']
-  if v =~ 'import\s*from' || v =~ 'require('
+  let f = a:val['filename']
+  if v =~ 'import\s*from' || v =~ 'require(' || f =~ 'package.lock'
     return 0
   endif
 
@@ -83,6 +84,13 @@ function! s:isGlobalPackage(name) "{{{
   return 0
 endfunction "}}}
 
+function! s:checkIfGlobalTag(tag)
+  if a:tag['filename'] =~ 'package.json'
+    return 1
+  endif
+  return 0
+endfunction
+
 function! s:getTag(name, rgx) "{{{
   let tags = taglist("^".a:name."$")
   let result = { 'tag': 0, 'global': 0 }
@@ -97,6 +105,7 @@ function! s:getTag(name, rgx) "{{{
   endif
 
   if len(tags) == 1
+    let result['global'] = s:checkIfGlobalTag(tags[0])
     let result['tag'] = tags[0]
     return result
   endif
@@ -114,6 +123,7 @@ function! s:getTag(name, rgx) "{{{
   call inputrestore()
 
   if selection > 0 && selection < len(options)
+    let result['global'] = s:checkIfGlobalTag(tags[selection - 1])
     let result['tag'] = tags[selection - 1]
     return result
   endif
