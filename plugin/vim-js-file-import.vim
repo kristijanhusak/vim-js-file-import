@@ -14,6 +14,8 @@ let s:importRegex = {
 \ 'partialExport': 'export\s\(const\|var\).*',
 \ }
 
+let g:js_file_import_force_require = get(g:, 'js_file_import_force_require', 0)
+
 function! JsFileImport()
   exe "normal mz"
   let name = expand("<cword>")
@@ -23,33 +25,19 @@ function! JsFileImport()
     let tagData = s:getTag(name, rgx)
 
     if tagData['global']
-      if search(rgx['exist'] . name . '.*;\?') > 0
-        throw "Import already exists"
-      endif
       call s:doImport(name, name, rgx)
       return 1
     endif
 
-    let tag = tagData['tag']
-    let name = s:getImportName(tag, name, rgx)
-    call s:checkIfExists(name, rgx)
+    let name = s:getImportName(tagData['tag'], name, rgx)
+    let path = s:getFilePath(tagData['tag']['filename'])
+    call s:doImport(name, path, rgx)
+    return 1
   catch /.*/
     exe "normal! `z"
     echo v:exception
     return 0
   endtry
-
-  let currentFilePath = expand('%:p:h')
-  let tagFile = fnamemodify(tag['filename'], ':p')
-
-  let path = system('python -c "import os.path; print os.path.relpath('''.tagFile.''', '''.currentFilePath.''')"')
-  let path = fnamemodify(substitute(path, '\n\+$', '', ''), ':r')
-  let firstChar = strpart(path, 0, 1)
-  if  firstChar != '.' && firstChar != '/'
-    let path = './'.path
-  endif
-  call s:doImport(name, path, rgx)
-  return 1
 endfunction
 
 function! s:removeObsolete(idx, val) "{{{
@@ -130,7 +118,7 @@ function! s:getTag(name, rgx) "{{{
 endfunction "}}}
 
 function! s:determineImportType() "{{{
-  if search(s:requireRegex['lastimport']) > 0
+  if g:js_file_import_force_require || search(s:requireRegex['lastimport']) > 0
     return s:requireRegex
   endif
 
@@ -138,6 +126,7 @@ function! s:determineImportType() "{{{
 endfunction "}}}
 
 function! s:doImport(name, path, rgx) "{{{
+  call s:checkIfExists(a:name, a:rgx)
   let importRgx = a:rgx['import']
   let importRgx = substitute(importRgx, '__FNAME__', a:name, '')
   let importRgx = substitute(importRgx, '__FPATH__', a:path, '')
@@ -193,6 +182,21 @@ function! s:getImportName(tag, name, rgx) "{{{
   endif
 
   return name
+endfunction "}}}
+
+function! s:getFilePath(filepath) "{{{
+  let currentFilePath = expand('%:p:h')
+  let tagFile = fnamemodify(a:filepath, ':p')
+
+  let path = system('python -c "import os.path; print os.path.relpath('''.tagFile.''', '''.currentFilePath.''')"')
+  let path = fnamemodify(substitute(path, '\n\+$', '', ''), ':r')
+  let firstChar = strpart(path, 0, 1)
+
+  if  firstChar != '.' && firstChar != '/'
+    let path = './'.path
+  endif
+
+  return path
 endfunction "}}}
 
 " vim:foldenable:foldmethod=marker
