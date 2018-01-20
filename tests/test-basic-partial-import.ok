@@ -1,3 +1,0 @@
-import { Bar } from './test-basic-partial-import.fixtures/a';
-
-const obj = new Bar()

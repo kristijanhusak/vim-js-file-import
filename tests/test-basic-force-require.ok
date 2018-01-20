@@ -1,3 +1,0 @@
-const Bar = require('./test-basic-force-require.fixtures/a');
-
-const obj = new Bar()

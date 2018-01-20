@@ -3,7 +3,7 @@ Basic test 1
 
 STARTTEST
 :%d
-aconst Foo = require('./test-basic-global-require.fixtures/a');
+aconst Foo = require('./test-global-require.fixtures/a');
 
 const randomNumber = lodash:call JsFileImport()
 a.random();:w! test.out

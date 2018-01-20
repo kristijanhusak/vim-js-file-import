@@ -1,19 +1,3 @@
-let s:requireRegex = {
-\ 'exist': '^\(const\|var\)\s*',
-\ 'import': "const __FNAME__ = require('__FPATH__');",
-\ 'lastimport': '^\(const\|var\)\s.*require(.*;\?',
-\ 'defaultExport': 'module.exports\s*=.*',
-\ 'partialExport': 'module.exports.',
-\ }
-
-let s:importRegex = {
-\ 'exist': 'import\s*',
-\ 'import': "import __FNAME__ from '__FPATH__';",
-\ 'lastimport': 'import\s.*from.*;',
-\ 'defaultExport': 'export\s*default.*',
-\ 'partialExport': 'export\s\(const\|var\).*',
-\ }
-
 let g:js_file_import_force_require = get(g:, 'js_file_import_force_require', 0)
 
 function! JsFileImport()
@@ -25,14 +9,12 @@ function! JsFileImport()
     let tagData = s:getTag(name, rgx)
 
     if tagData['global']
-      call s:doImport(name, name, rgx)
-      return 1
+      return s:doImport(name, name, rgx)
     endif
 
     let name = s:getImportName(tagData['tag'], name, rgx)
     let path = s:getFilePath(tagData['tag']['filename'])
-    call s:doImport(name, path, rgx)
-    return 1
+    return s:doImport(name, path, rgx)
   catch /.*/
     exe "normal! `z"
     echo v:exception
@@ -70,30 +52,26 @@ function! s:isGlobalPackage(name) "{{{
   return 0
 endfunction "}}}
 
-function! s:checkIfGlobalTag(tag)
+function! s:checkIfGlobalTag(tag) "{{{
   if a:tag['filename'] =~ 'package.json'
     return 1
   endif
   return 0
-endfunction
+endfunction "}}}
 
 function! s:getTag(name, rgx) "{{{
   let tags = taglist("^".a:name."$")
-  let result = { 'tag': 0, 'global': 0 }
   call filter(tags, function('s:removeObsolete'))
 
   if len(tags) <= 0
     if s:isGlobalPackage(a:name) > 0
-      let result['global'] = 1
-      return result
+      return { 'global': 1 }
     endif
     throw 'No tag found!'
   endif
 
   if len(tags) == 1
-    let result['global'] = s:checkIfGlobalTag(tags[0])
-    let result['tag'] = tags[0]
-    return result
+    return { 'tag': tags[0], 'global': s:checkIfGlobalTag(tags[0]) }
   endif
 
   let options = ['Select file to import:']
@@ -109,20 +87,36 @@ function! s:getTag(name, rgx) "{{{
   call inputrestore()
 
   if selection > 0 && selection < len(options)
-    let result['global'] = s:checkIfGlobalTag(tags[selection - 1])
-    let result['tag'] = tags[selection - 1]
-    return result
+    let selectedTag = tags[selection - 1]
+    return { 'tag': selectedTag, 'global': s:checkIfGlobalTag(selectedTag) }
   endif
 
   throw 'Wrong selection!'
 endfunction "}}}
 
 function! s:determineImportType() "{{{
-  if g:js_file_import_force_require || search(s:requireRegex['lastimport']) > 0
-    return s:requireRegex
+  let requireRegex = {
+  \ 'exist': '^\(const\|var\)\s*',
+  \ 'import': "const __FNAME__ = require('__FPATH__');",
+  \ 'lastimport': '^\(const\|var\)\s.*require(.*;\?',
+  \ 'defaultExport': 'module.exports\s*=.*',
+  \ 'partialExport': 'module.exports.',
+  \ }
+
+  let importRegex = {
+  \ 'exist': 'import\s*',
+  \ 'import': "import __FNAME__ from '__FPATH__';",
+  \ 'lastimport': 'import\s.*from.*;',
+  \ 'defaultExport': 'export\s*default.*',
+  \ 'partialExport': 'export\s\(const\|var\).*',
+  \ }
+
+
+  if g:js_file_import_force_require || search(requireRegex['lastimport']) > 0
+    return requireRegex
   endif
 
-  return s:importRegex
+  return importRegex
 endfunction "}}}
 
 function! s:doImport(name, path, rgx) "{{{
@@ -138,6 +132,7 @@ function! s:doImport(name, path, rgx) "{{{
     call append(1, '')
   endif
   exe "normal! `z"
+  return 1
 endfunction "}}}
 
 function! s:checkIfExists(name, rgx) "{{{
