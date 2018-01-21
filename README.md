@@ -16,6 +16,7 @@ There are still a lot of things to be done and fixed. Check [Todo](#todo) sectio
 
 * [Installation](#installation)
 * [Examples](#examples)
+* [Settings](#settings)
 * [Todo](#todo)
 * [Contributing](#contributing)
 
@@ -96,14 +97,23 @@ class App extends React.Component {
 Each one is added on it's own line.
 It's planned to be fixed in near future.
 
+
+### Settings
+
+By default `import [name] from [file]` is used to add new imports, in case when there are no any other existing imports.
+If file contains at least one `require([file])`, it will use the `require()` to import files.
+
+To force using `require()` always, add this flag to settings:
+
+```vimL
+let g:js_file_import_force_require = 1
+```
+
 ### Todo
 
 * Allow multiple partial imports from same file (`import { method1, method2 } from 'filepath'`) instead of adding each separately
-* Improve existence check (multiple partial imports from same file separated with new line are not checked properly)
-* Allow forcing `require` or `import` (currently it defaults to `import`, and uses `require` only if file already contains that type of import)
 * Allow adding flag to sort imports
 * Test with exuberant ctags
-* Add tests
 
 ### Contributing
 There are no any special guidelines for contributing.
