@@ -40,7 +40,7 @@ function! s:getTag(name, rgx) "{{{
 
   for tag in tags
     let index += 1
-    call add(options, index . ' - ' . tag['filename'] . ' - '.tag['kind'].' - ('.tag['cmd'].')')
+    call add(options, index.' - '.tag['filename'].' - '.tag['kind'].' - ('.tag['cmd'].')')
   endfor
 
   call inputsave()
@@ -56,7 +56,7 @@ function! s:getTag(name, rgx) "{{{
 endfunction "}}}
 
 function! s:checkIfPartialExists(name, rgx) "{{{
-  let pattern = a:rgx['exist'] . '{\_.[^}]*' . a:name . '\_.\{-\}};\?'
+  let pattern = a:rgx['exist'].'{\_.[^}]*'.a:name.'\_.\{-\}};\?'
 
   if search(pattern) > 0
     throw "Import already exists"
@@ -147,6 +147,31 @@ function! s:importTag(tag, name, rgx) "{{{
   endif
 
   call s:checkIfPartialExists(a:name, a:rgx)
+
+  let existingPathRgx = substitute(a:rgx['existPath'], '__FPATH__', fnameescape(escape(path, './')), '')
+
+  let existingImport = search(existingPathRgx, 'n')
+  if existingImport > 0
+    let existingImports = matchstr(getline(existingImport), existingPathRgx)
+  endif
+
+  let existingImports = existingImports.', '.a:name
+
+
+  " echo existingImports
+
+  exe ':'.existingImport.'s/'.existingPathRgx.'/'.escape(existingImports, ' ')
+
+  exe 'normal! `z'
+
+
+
+  " if search(existingPathRgx) > 0
+  "   " TODO: Append to existing
+  "   return s:processImport('{ '.a:name.' }', path, a:rgx)
+  " endif
+
+  " return s:processImport('{ '.a:name.' }', path, a:rgx)
 endfunction "}}}
 
 function! s:determineImportType() "{{{
@@ -156,6 +181,7 @@ function! s:determineImportType() "{{{
         \ 'lastimport': '^\(const\|var\)\s.*require(.*;\?',
         \ 'defaultExport': 'module.exports\s*=.*',
         \ 'partialExport': 'module.exports.',
+        \ 'existPath': '^\(const\|var\)\s*{.\{-\}}\s*=\s*require([''"]__FPATH__[''"]);\?'
         \ }
 
   let importRegex = {
@@ -164,6 +190,7 @@ function! s:determineImportType() "{{{
         \ 'lastimport': 'import\s.*from.*;',
         \ 'defaultExport': 'export\s*default.*',
         \ 'partialExport': 'export\s\(const\|var\).*',
+        \ 'existPath': '^import\s*{\s*\zs.\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?',
         \ }
 
   if g:js_file_import_force_require || search(requireRegex['lastimport']) > 0
