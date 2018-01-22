@@ -171,7 +171,7 @@ function! s:importTag(tag, name, rgx) "{{{
   return s:processImport('{ '.a:name.' }', path, a:rgx)
 endfunction "}}}
 
-function! s:processSingleLinePartialImport(name)
+function! s:processSingleLinePartialImport(name) "{{{
   let charUnderCursor = getline('.')[col('.') - 1]
   let firstChar = charUnderCursor == ',' ? ' ' : ', '
   let lastChar = charUnderCursor == ',' ? ',' : ''
@@ -180,9 +180,9 @@ function! s:processSingleLinePartialImport(name)
   exe ':normal! `z'
 
   return 1
-endfunction
+endfunction "}}}
 
-function! s:processMultiLinePartialImport(name)
+function! s:processMultiLinePartialImport(name) "{{{
   let charUnderCursor = getline('.')[col('.') - 1]
   let firstChar = charUnderCursor != ',' ? ',': ''
   let lastChar = charUnderCursor == ',' ? ',' : ''
@@ -192,7 +192,7 @@ function! s:processMultiLinePartialImport(name)
   exe ':normal! `z'
 
   return 1
-endfunction
+endfunction "}}}
 
 function! s:determineImportType() "{{{
   let requireRegex = {
@@ -263,4 +263,4 @@ function! s:checkIfGlobalTag(tag) "{{{
   return 0
 endfunction "}}}
 
-" vim:foldenable:foldmethod=marker
+" vim:foldenable:foldmethod=marker:sw=2
