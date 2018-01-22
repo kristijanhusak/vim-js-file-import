@@ -1,0 +1,4 @@
+const Bar = require('./test-sort-after-require.fixtures/bar');
+const Foo = require('./test-sort-after-require.fixtures/foo');
+
+const obj = new Bar()

@@ -1,4 +1,6 @@
 let g:js_file_import_force_require = get(g:, 'js_file_import_force_require', 0)
+let g:js_file_import_sort = get(g:, 'js_file_import_sort', "'{,'}-1sort i")
+let g:js_file_import_sort_after_insert = get(g:, 'js_file_import_sort_after_insert', 0)
 
 function! JsFileImport()
   exe "normal mz"
@@ -18,6 +20,21 @@ function! JsFileImport()
     echo v:exception
     return 0
   endtry
+endfunction
+
+function! SortJsFileImport(...)
+  if a:0 == 0
+    exe "normal mz"
+  endif
+
+  let rgx = s:determineImportType()
+
+  if search(rgx['selectForSort'], 'be') > 0
+    exe g:js_file_import_sort
+  endif
+
+  exe "normal! `z"
+  return 1
 endfunction
 
 function! s:getTag(name, rgx) "{{{
@@ -127,8 +144,7 @@ function! s:processImport(name, path, rgx) "{{{
     call append(0, importRgx)
     call append(1, '')
   endif
-  exe "normal! `z"
-  return 1
+  return s:finishImport()
 endfunction "}}}
 
 function! s:checkIfExists(name, rgx) "{{{
@@ -177,9 +193,8 @@ function! s:processSingleLinePartialImport(name) "{{{
   let lastChar = charUnderCursor == ',' ? ',' : ''
 
   exe ':normal!a'.firstChar.a:name.lastChar
-  exe ':normal! `z'
 
-  return 1
+  return s:finishImport()
 endfunction "}}}
 
 function! s:processMultiLinePartialImport(name) "{{{
@@ -189,9 +204,8 @@ function! s:processMultiLinePartialImport(name) "{{{
 
   exe ':normal!a'.firstChar
   exe ':normal!o'.a:name.lastChar
-  exe ':normal! `z'
 
-  return 1
+  return s:finishImport()
 endfunction "}}}
 
 function! s:determineImportType() "{{{
@@ -205,6 +219,7 @@ function! s:determineImportType() "{{{
         \ 'lastimport': '^\(const\|let\|var\)\s\_.*require(.*;\?',
         \ 'defaultExport': 'module.exports\s*=.*',
         \ 'partialExport': 'module.exports.',
+        \ 'selectForSort': '^\(const\|let\|var\)\s*\zs.*\ze.*;\?$',
         \ }
 
   let importRegex = {
@@ -214,9 +229,10 @@ function! s:determineImportType() "{{{
         \ 'existingPath': '^import\s*{\s*\zs.\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?',
         \ 'existingMultiLinePath': '^import\s*{\s*\n\zs\_.\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?',
         \ 'import': "import __FNAME__ from '__FPATH__';",
-        \ 'lastimport': 'import\s\_.from.*;',
+        \ 'lastimport': 'import\s\_.*from.*;',
         \ 'defaultExport': 'export\s*default.*',
         \ 'partialExport': 'export\s\(const\|var\).*',
+        \ 'selectForSort': '^import\s*\zs.*\ze.*;\?$',
         \ }
 
   if g:js_file_import_force_require || search(requireRegex['lastimport'], 'n') > 0
@@ -261,6 +277,15 @@ function! s:checkIfGlobalTag(tag) "{{{
     return 1
   endif
   return 0
+endfunction "}}}
+
+function! s:finishImport() "{{{
+  if g:js_file_import_sort_after_insert > 0
+    call SortJsFileImport(1)
+  endif
+
+  exe "normal! `z"
+  return 1
 endfunction "}}}
 
 " vim:foldenable:foldmethod=marker:sw=2

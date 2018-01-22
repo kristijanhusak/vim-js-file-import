@@ -1,0 +1,13 @@
+
+Basic test 1
+
+STARTTEST
+:%d
+:let g:js_file_import_sort_after_insert = 1
+aconst Foo = require('./test-sort-after-require.fixtures/foo');
+
+const obj = new Bar:call JsFileImport()
+a():w! test.out
+:qa!
+ENDTEST
+

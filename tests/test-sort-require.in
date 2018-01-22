@@ -1,0 +1,12 @@
+
+Basic test 1
+
+STARTTEST
+:%d
+aconst Foo = require('./test-sort-import.fixtures/a');
+const Bar = require('./test-sort-import.fixtures/a');
+:call SortJsFileImport()
+:w! test.out
+:qa!
+ENDTEST
+

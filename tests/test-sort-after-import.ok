@@ -1,0 +1,4 @@
+import Bar from './test-sort-after-import.fixtures/bar';
+import Foo from './test-sort-after-import.fixtures/foo';
+
+const obj = new Bar()

@@ -1,0 +1,3 @@
+import Bar from './test-sort-import.fixtures/a';
+import Foo from './test-sort-import.fixtures/a';
+

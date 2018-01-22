@@ -16,6 +16,7 @@ There are still some things to be done and fixed. Check [Todo](#todo) section.
 
 * [Installation](#installation)
 * [Examples](#examples)
+* [Sorting](#sorting)
 * [Settings](#settings)
 * [Todo](#todo)
 * [Contributing](#contributing)
@@ -90,6 +91,33 @@ class App extends React.Component {
     return (<div><MyButton>Submit</MyButton></div>)
   }
 }
+```
+
+### Sorting
+
+To sort imports alphabetically use `SortJsFileImport()` function:
+
+```vimL
+nnoremap <F6> :call SortJsFileImport()
+```
+
+This:
+```js
+  import Foo from './file_path'
+  import Bar from './another_file_path'
+```
+
+Becomes this:
+```js
+  import Bar from './another_file_path'
+  import Foo from './file_path'
+```
+
+If you want imports to be always sorted, add `let g:js_file_import_sort_after_insert = 1` to your vimrc
+and plugin will automatically sort imports after every insert
+
+```vimL
+let g:js_file_import_sort_after_insert = 1
 ```
 
 ### Settings
