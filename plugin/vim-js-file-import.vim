@@ -219,7 +219,7 @@ function! s:determineImportType() "{{{
         \ 'lastimport': '^\(const\|let\|var\)\s\_.*require(.*;\?',
         \ 'defaultExport': 'module.exports\s*=.*',
         \ 'partialExport': 'module.exports.',
-        \ 'selectForSort': '^\(const\|let\|var\)\s*\zs.*\ze.*;\?$',
+        \ 'selectForSort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
         \ }
 
   let importRegex = {
@@ -232,7 +232,7 @@ function! s:determineImportType() "{{{
         \ 'lastimport': 'import\s\_.*from.*;',
         \ 'defaultExport': 'export\s*default.*',
         \ 'partialExport': 'export\s\(const\|var\).*',
-        \ 'selectForSort': '^import\s*\zs.*\ze.*;\?$',
+        \ 'selectForSort': '^import\s*\zs.*\ze\s*from.*;\?$',
         \ }
 
   if g:js_file_import_force_require || search(requireRegex['lastimport'], 'n') > 0
