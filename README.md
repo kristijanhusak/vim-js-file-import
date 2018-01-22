@@ -1,4 +1,4 @@
-# Vim js file import (alpha)
+# Vim js file import
 
 This plugin allows importing js files using ctags. Tested only with [Universal ctags](https://github.com/universal-ctags/ctags).
 
@@ -9,8 +9,7 @@ I tried using [vim-import-js](https://github.com/Galooshi/vim-import-js), but it
 
 This plugin is written in vimscript and uses only python to generate relative paths, so it's performance is much better.
 
-It doesn't handle all the cases that vim-import-js do (partial imports of npm packages, sorting of imports, configuration), but works most of the time.
-There are still some things to be done and fixed. Check [Todo](#todo) section.
+It doesn't handle all the cases that vim-import-js do, but works most of the time.
 
 ## Table of contents
 
@@ -18,7 +17,6 @@ There are still some things to be done and fixed. Check [Todo](#todo) section.
 * [Examples](#examples)
 * [Sorting](#sorting)
 * [Settings](#settings)
-* [Todo](#todo)
 * [Contributing](#contributing)
 
 ### Installation
@@ -130,11 +128,6 @@ To force using `require()` always, add this flag to settings:
 ```vimL
 let g:js_file_import_force_require = 1
 ```
-
-### Todo
-
-* Allow adding flag to sort imports
-* Test with exuberant ctags
 
 ### Contributing
 There are no any special guidelines for contributing.
