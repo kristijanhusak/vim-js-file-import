@@ -1,0 +1,12 @@
+
+Basic test 1
+
+STARTTEST
+:%d
+aconst { Foo } = require('./test-partial-require-path-exists.fixtures/a');
+
+const obj = new Bar:call JsFileImport()
+a():w! test.out
+:qa!
+ENDTEST
+

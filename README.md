@@ -10,7 +10,7 @@ I tried using [vim-import-js](https://github.com/Galooshi/vim-import-js), but it
 This plugin is written in vimscript and uses only python to generate relative paths, so it's performance is much better.
 
 It doesn't handle all the cases that vim-import-js do (partial imports of npm packages, sorting of imports, configuration), but works most of the time.
-There are still a lot of things to be done and fixed. Check [Todo](#todo) section.
+There are still some things to be done and fixed. Check [Todo](#todo) section.
 
 ## Table of contents
 
@@ -92,12 +92,6 @@ class App extends React.Component {
 }
 ```
 
-**Note** that multiple partial imports are still not handled properly
-(example: `import { MyButton, MyInput } from './components/AllComponents'`).
-Each one is added on it's own line.
-It's planned to be fixed in near future.
-
-
 ### Settings
 
 By default `import [name] from [file]` is used to add new imports, in case when there are no any other existing imports.
@@ -111,7 +105,6 @@ let g:js_file_import_force_require = 1
 
 ### Todo
 
-* Allow multiple partial imports from same file (`import { method1, method2 } from 'filepath'`) instead of adding each separately
 * Allow adding flag to sort imports
 * Test with exuberant ctags
 
@@ -121,5 +114,5 @@ There are no any special guidelines for contributing.
 All types of contributions, suggestions and bug reports are very welcome!
 
 ### Thanks to:
-* [Vim php namespace](https://github.com/arnaud-lb/vim-php-namespace) for inspiration
+* [Vim php namespace](https://github.com/arnaud-lb/vim-php-namespace) for inspiration and tests structure
 

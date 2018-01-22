@@ -1,0 +1,7 @@
+const {
+  Foo,
+  Baz,
+  Bar,
+} = require('./test-partial-require-multiline-path-exists.fixtures/a');
+
+const obj = new Bar()

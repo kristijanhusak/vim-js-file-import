@@ -1,0 +1,12 @@
+
+Basic test 1
+
+STARTTEST
+:%d
+aimport { Foo } from './test-partial-import-path-exists.fixtures/a';
+
+const obj = new Bar:call JsFileImport()
+a():w! test.out
+:qa!
+ENDTEST
+
