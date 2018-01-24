@@ -74,10 +74,9 @@ function! s:getTag(name, rgx) "{{{
 endfunction "}}}
 
 function! s:checkIfPartialExists(name, rgx) "{{{
-  let pattern = substitute(a:rgx['checkPartialImportExists'], '__FNAME__', a:name, '')
-  let multilinePattern = substitute(a:rgx['checkPartialMultiLineImportExists'], '__FNAME__', a:name, '')
+  let pattern = substitute(a:rgx['checkPartialImportExists'], '__FNAME__', a:name, 'g')
 
-  if search(pattern, 'n') > 0 || search(multilinePattern, 'n') > 0
+  if search(pattern, 'n') > 0
     throw "Import already exists."
   endif
 
@@ -87,13 +86,14 @@ endfunction "}}}
 function! s:isPartialImport(tag, name, rgx) "{{{
   let full = { 'partial': 0, 'name': a:name }
   let partial = { 'partial': 1, 'name': a:name }
+  let partialRgx = substitute(a:rgx['partialExport'], '__FNAME__', a:name, 'g')
 
   " Method or partial export
-  if a:tag['kind'] =~ '\(m\|p\)' || a:tag['cmd'] =~ a:rgx['partialExport']
+  if a:tag['kind'] =~ '\(m\|p\)' || a:tag['cmd'] =~ partialRgx
     return 1
   endif
 
-  if a:tag['cmd'] =~ a:rgx['defaultExport']
+  if a:tag['cmd'] =~ a:rgx['defaultExport'].a:name
     return 0
   endif
 
@@ -105,13 +105,7 @@ function! s:isPartialImport(tag, name, rgx) "{{{
     return 0
   endif
 
-  let fileContent = readfile(filePath, '')
-
-  if match(fileContent, a:rgx['defaultExport'].a:name) > -1
-    return 0
-  endif
-
-  if match(fileContent, a:rgx['partialExport'].a:name) > -1
+  if match(join(readfile(filePath, '')), partialRgx) > -1
     return 1
   endif
 
@@ -210,26 +204,24 @@ endfunction "}}}
 function! s:determineImportType() "{{{
   let requireRegex = {
         \ 'checkImportExists': '^\(const\|let\|var\)\s*__FNAME__\s*=\s*require(',
-        \ 'checkPartialImportExists': '^\(const\|let\|var\)\s*{.*__FNAME__.*}\s*=\srequire(',
-        \ 'checkPartialMultiLineImportExists': '^\(const\|let\|var\)\s*{\n\_.\{-\}__FNAME__\_.\{-\}}\s*=\srequire(',
+        \ 'checkPartialImportExists': '^\(const\|let\|var\)\s*{\(.*__FNAME__.*\|\n\_.\{-\}__FNAME__\_.\{-\}\)}\s*=\srequire(',
         \ 'existingPath': '^\(const\|let\|var\)\s*{\s*\zs.\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?',
         \ 'existingMultiLinePath': '^\(const\|let\|var\)\s*{\s*\n\zs\_.\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?',
         \ 'import': "const __FNAME__ = require('__FPATH__');",
         \ 'lastimport': '^\(const\|let\|var\)\s\_.*require(.*;\?',
-        \ 'defaultExport': 'module.exports\s*=.*',
-        \ 'partialExport': 'module.exports.',
+        \ 'defaultExport': '^module.exports\s*=.*',
+        \ 'partialExport': 'module.exports.\(__FNAME__\|\s*=\s*{.*__FNAME__.*}\|\s*=\s*{\s*\n\_.*__FNAME__\_.*}\)',
         \ 'selectForSort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
         \ }
 
   let importRegex = {
-        \ 'checkImportExists': 'import\s*__FNAME__\s*from',
-        \ 'checkPartialImportExists': '^import\s*{.*__FNAME__.*}\s*from',
-        \ 'checkPartialMultiLineImportExists': '^import\s*{\n\_.\{-\}__FNAME__\_.\{-\}}\s*from',
+        \ 'checkImportExists': '^import\s*__FNAME__\s*from',
+        \ 'checkPartialImportExists': '^import\s*{\(.*__FNAME__.*\|\n\_.\{-\}__FNAME__\_.\{-\}\)}\s*from',
         \ 'existingPath': '^import\s*{\s*\zs.\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?',
         \ 'existingMultiLinePath': '^import\s*{\s*\n\zs\_.\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?',
         \ 'import': "import __FNAME__ from '__FPATH__';",
-        \ 'lastimport': 'import\s\_.*from.*;',
-        \ 'defaultExport': 'export\s*default.*',
+        \ 'lastimport': '^import\s\_.*from.*;',
+        \ 'defaultExport': '^export\s*default.*',
         \ 'partialExport': 'export\s\(const\|var\).*',
         \ 'selectForSort': '^import\s*\zs.*\ze\s*from.*;\?$',
         \ }

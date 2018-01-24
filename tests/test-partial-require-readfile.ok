@@ -1,0 +1,3 @@
+const { Bar } = require('./test-partial-require-readfile.fixtures/a');
+
+const obj = new Bar()
