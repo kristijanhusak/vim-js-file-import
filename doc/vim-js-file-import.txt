@@ -1,0 +1,33 @@
+*vim-js-file-import.txt*    Import js files and dependencies using ctags
+
+        Import js files and dependencies using ctags
+
+Author: Kristijan <husakkristijan at gmail.com>
+License: MIT
+
+vim-js-file-import			    *vim-js-file-import*
+
+1. Introduction					|Introduction|
+2. Install					|Install|
+
+==============================================================================
+1. Introduction					*Introduction*
+
+Vim js file import is plugin for importing js project files and dependencies
+using Universal ctags.
+
+Main features:
+
+1. Import project files using "import from 'path'" or "require('path')" syntax
+2. Import package.json dependencies
+3. Import partial dependencies (import { Dependency } from 'path')
+4. Sort dependencies automatically and manually
+
+
+==============================================================================
+2. Install					*Install*
+
+Requirements:
+
+- Universal ctags
+- `has("python3")` or `has("python3")`
