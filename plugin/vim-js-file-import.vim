@@ -4,10 +4,11 @@ let g:js_file_import_sort_after_insert = get(g:, 'js_file_import_sort_after_inse
 
 function! JsFileImport()
   exe "normal mz"
-  let name = expand("<cword>")
-  let rgx = s:determineImportType()
 
   try
+    call s:checkPythonSupport()
+    let name = expand("<cword>")
+    let rgx = s:determineImportType()
     let tagData = s:getTag(name, rgx)
 
     if tagData['global']
@@ -45,7 +46,7 @@ function! s:getTag(name, rgx) "{{{
     if s:isGlobalPackage(a:name) > 0
       return { 'global': 1 }
     endif
-    throw 'No tag found!'
+    throw 'No tag found.'
   endif
 
   if len(tags) == 1
@@ -69,7 +70,7 @@ function! s:getTag(name, rgx) "{{{
     return { 'tag': selectedTag, 'global': s:checkIfGlobalTag(selectedTag) }
   endif
 
-  throw 'Wrong selection!'
+  throw 'Wrong selection.'
 endfunction "}}}
 
 function! s:checkIfPartialExists(name, rgx) "{{{
@@ -77,7 +78,7 @@ function! s:checkIfPartialExists(name, rgx) "{{{
   let multilinePattern = substitute(a:rgx['checkPartialMultiLineImportExists'], '__FNAME__', a:name, '')
 
   if search(pattern, 'n') > 0 || search(multilinePattern, 'n') > 0
-    throw "Import already exists"
+    throw "Import already exists."
   endif
 
   return 0
@@ -118,16 +119,14 @@ function! s:isPartialImport(tag, name, rgx) "{{{
 endfunction "}}}
 
 function! s:getFilePath(filepath) "{{{
-  let currentFilePath = expand('%:p:h')
-  let tagFile = fnamemodify(a:filepath, ':p')
+  let pyCommand = has('python3') ? 'py3' : 'py'
 
-  let path = system('python -c "import os.path; print os.path.relpath('''.tagFile.''', '''.currentFilePath.''')"')
-  let path = fnamemodify(substitute(path, '\n\+$', '', ''), ':r')
-  let firstChar = strpart(path, 0, 1)
-
-  if  firstChar != '.' && firstChar != '/'
-    let path = './'.path
-  endif
+  exe pyCommand.' import vim, os.path'
+  exe pyCommand.' currentPath = vim.eval("expand(''%:p:h'')")'
+  exe pyCommand.' tagPath = vim.eval("fnamemodify(a:filepath, '':p'')")'
+  exe pyCommand.' path = os.path.splitext(os.path.relpath(tagPath, currentPath))[0]'
+  exe pyCommand.' leadingSlash = "./" if path[0] != "." else ""'
+  exe pyCommand.' vim.command(''let path = "%s%s"'' % (leadingSlash, path))'
 
   return path
 endfunction "}}}
@@ -151,7 +150,7 @@ function! s:checkIfExists(name, rgx) "{{{
   let pattern = substitute(a:rgx['checkImportExists'], '__FNAME__', a:name, '')
 
   if search(pattern, 'n') > 0
-    throw "Import already exists"
+    throw "Import already exists."
   endif
 
   return 0
@@ -285,6 +284,14 @@ function! s:finishImport() "{{{
   endif
 
   exe "normal! `z"
+  return 1
+endfunction "}}}
+
+function! s:checkPythonSupport() "{{{
+  if !has('python') && !has('python3')
+    throw 'Vim js file import requires python or python3 support.'
+  endif
+
   return 1
 endfunction "}}}
 
