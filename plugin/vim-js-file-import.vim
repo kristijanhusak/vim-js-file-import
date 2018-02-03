@@ -4,25 +4,11 @@ let g:js_file_import_sort_after_insert = get(g:, 'js_file_import_sort_after_inse
 let g:js_file_import_prompt_if_no_tag = get(g:, 'js_file_import_prompt_if_no_tag', 1)
 
 function! JsFileImport()
-  exe "normal mz"
+  return s:doImport('getTag')
+endfunction
 
-  try
-    call s:checkPythonSupport()
-    let name = expand("<cword>")
-    let rgx = s:determineImportType()
-    call s:checkIfExists(name, rgx)
-    let tagData = s:getTag(name, rgx)
-
-    if tagData['global']
-      return s:processImport(name, name, rgx)
-    endif
-
-    return s:importTag(tagData['tag'], name, rgx)
-  catch /.*/
-    exe "normal! `z"
-    echo v:exception
-    return 0
-  endtry
+function! PromptJsFileImport()
+  return s:doImport('getTagDataFromPrompt')
 endfunction
 
 function! SortJsFileImport(...)
@@ -40,16 +26,29 @@ function! SortJsFileImport(...)
   return 1
 endfunction
 
-function! PromptJsFileImport()
+function! s:doImport(tagFnName) "{{{
   exe "normal mz"
-  let name = expand("<cword>")
-  let rgx = s:determineImportType()
-  let tag = s:getTagFromPrompt(name, rgx)
 
-  return s:importTag(tag, name, rgx)
-endfunction
+  try
+    call s:checkPythonSupport()
+    let name = expand("<cword>")
+    let rgx = s:determineImportType()
+    call s:checkIfExists(name, rgx)
+    let tagData = call('s:'.a:tagFnName, [name, rgx])
 
-function! s:getTagFromPrompt(name, rgx) "{{{
+    if tagData['global'] != ''
+      return s:processImport(name, tagData['global'], rgx)
+    endif
+
+    return s:importTag(tagData['tag'], name, rgx)
+  catch /.*/
+    exe "normal! `z"
+    echo v:exception
+    return 0
+  endtry
+endfunction "}}}
+
+function! s:getTagDataFromPrompt(name, rgx) "{{{
   call inputsave()
   let path = input('File path: ', '', 'file')
   call inputrestore()
@@ -58,13 +57,18 @@ function! s:getTagFromPrompt(name, rgx) "{{{
     throw 'No path entered.'
   endif
 
-  let absPath = getcwd().'/'.path
+  let tagData = { 'global': '', 'tag': { 'filename': path, 'cmd': '', 'kind': '' } }
 
-  if !filereadable(absPath)
-    throw 'File not found.'
+  if !filereadable(getcwd().'/'.path)
+    let choice = confirm('File not found. Import as:', "&Global package\n&Cancel")
+    if choice == 2
+      throw ''
+    elseif choice == 1
+      let tagData['global'] = path
+    endif
   endif
 
-  return { 'filename': path, 'cmd': '', 'kind': '' }
+  return tagData
 endfunction "}}}
 
 function! s:getTag(name, rgx) "{{{
@@ -73,17 +77,17 @@ function! s:getTag(name, rgx) "{{{
 
   if len(tags) <= 0
     if s:isGlobalPackage(a:name) > 0
-      return { 'global': 1 }
+      return { 'global': a:name }
     endif
     if g:js_file_import_prompt_if_no_tag
       echo 'No tag found. Enter path to file from current working directory.'
-      return { 'tag': s:getTagFromPrompt(a:name, a:rgx), 'global': 0 }
+      return s:getTagDataFromPrompt(a:name, a:rgx)
     endif
     throw 'No tag found.'
   endif
 
   if len(tags) == 1
-    return { 'tag': tags[0], 'global': s:checkIfGlobalTag(tags[0]) }
+    return { 'tag': tags[0], 'global': s:checkIfGlobalTag(tags[0], a:name) }
   endif
 
   let options = ['Select file to import:']
@@ -100,7 +104,7 @@ function! s:getTag(name, rgx) "{{{
 
   if selection > 0 && selection < len(options)
     let selectedTag = tags[selection - 1]
-    return { 'tag': selectedTag, 'global': s:checkIfGlobalTag(selectedTag) }
+    return { 'tag': selectedTag, 'global': s:checkIfGlobalTag(selectedTag, a:name) }
   endif
 
   throw 'Wrong selection.'
@@ -192,7 +196,7 @@ function! s:importTag(tag, name, rgx) "{{{
     return s:processImport(a:name, path, a:rgx)
   endif
 
-  call s:checkIfFullImportExists(path, a:rgx)
+  call s:checkIfFullImportExists(escapedPath, a:rgx)
 
   "Partial single line
   let existingPathRgx = substitute(a:rgx['existingPath'], '__FPATH__', escapedPath, '')
@@ -244,7 +248,7 @@ function! s:determineImportType() "{{{
         \ 'import': "const __FNAME__ = require('__FPATH__');",
         \ 'lastimport': '^\(const\|let\|var\)\s\_.\{-\}require(.*;\?$',
         \ 'defaultExport': '^module.exports\s*=.\{-\}',
-        \ 'partialExport': 'module.exports.\(\<__FNAME__\>\|\s*=\s*{.\{-\}\<__FNAME__\>.*}\|\s*=\s*{\s*\n\_.\{-\}\<__FNAME__\>\_.*}\)',
+        \ 'partialExport': 'module.exports.\(\<__FNAME__\>\|\s*=.\{-\}{.\{-\}\<__FNAME__\>.*}\|\s*=.\{-\}{\s*\n\_.\{-\}\<__FNAME__\>\_.*}\)',
         \ 'selectForSort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
         \ }
 
@@ -298,11 +302,11 @@ function! s:isGlobalPackage(name) "{{{
   return 0
 endfunction "}}}
 
-function! s:checkIfGlobalTag(tag) "{{{
+function! s:checkIfGlobalTag(tag, name) "{{{
   if a:tag['filename'] =~ 'package.json'
-    return 1
+    return a:name
   endif
-  return 0
+  return ''
 endfunction "}}}
 
 function! s:finishImport() "{{{
