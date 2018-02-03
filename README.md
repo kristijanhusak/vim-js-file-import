@@ -120,6 +120,23 @@ let g:js_file_import_sort_after_insert = 1
 
 ### Settings
 
+In case tag is not found for the given word, you will be prompted to enter the file path manually.
+Path needs to be selected from the current (n)vim working directory. Plugin will take care of determining
+if it's full or partial import.
+
+To disable this option, set `g:js_file_import_prompt_if_no_tag` to `0`:
+
+```vimL
+let g:js_file_import_prompt_if_no_tag = 0
+```
+
+You can use prompt function whenever you want like this:
+
+```vimL
+nnoremap <F7> :call PromptJsFileImport()<CR>
+```
+
+
 By default `import [name] from [file]` is used to add new imports, in case when there are no any other existing imports.
 If file contains at least one `require([file])`, it will use the `require()` to import files.
 
