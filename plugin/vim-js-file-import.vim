@@ -1,6 +1,7 @@
 let g:js_file_import_force_require = get(g:, 'js_file_import_force_require', 0)
 let g:js_file_import_sort = get(g:, 'js_file_import_sort', "'{,'}-1sort i")
 let g:js_file_import_sort_after_insert = get(g:, 'js_file_import_sort_after_insert', 0)
+let g:js_file_import_prompt_if_no_tag = get(g:, 'js_file_import_prompt_if_no_tag', 1)
 
 function! JsFileImport()
   exe "normal mz"
@@ -39,6 +40,33 @@ function! SortJsFileImport(...)
   return 1
 endfunction
 
+function! PromptJsFileImport()
+  exe "normal mz"
+  let name = expand("<cword>")
+  let rgx = s:determineImportType()
+  let tag = s:getTagFromPrompt(name, rgx)
+
+  return s:importTag(tag, name, rgx)
+endfunction
+
+function! s:getTagFromPrompt(name, rgx) "{{{
+  call inputsave()
+  let path = input('File path: ', '', 'file')
+  call inputrestore()
+
+  if path == ''
+    throw 'No path entered.'
+  endif
+
+  let absPath = getcwd().'/'.path
+
+  if !filereadable(absPath)
+    throw 'File not found.'
+  endif
+
+  return { 'filename': path, 'cmd': '', 'kind': '' }
+endfunction "}}}
+
 function! s:getTag(name, rgx) "{{{
   let tags = taglist("^".a:name."$")
   call filter(tags, function('s:removeObsolete'))
@@ -46,6 +74,10 @@ function! s:getTag(name, rgx) "{{{
   if len(tags) <= 0
     if s:isGlobalPackage(a:name) > 0
       return { 'global': 1 }
+    endif
+    if g:js_file_import_prompt_if_no_tag
+      echo 'No tag found. Enter path to file from current working directory.'
+      return { 'tag': s:getTagFromPrompt(a:name, a:rgx), 'global': 0 }
     endif
     throw 'No tag found.'
   endif
@@ -141,6 +173,16 @@ function! s:checkIfExists(name, rgx) "{{{
   return 0
 endfunction "}}}
 
+function! s:checkIfFullImportExists(path, rgx) "{{{
+  let pattern = substitute(a:rgx['checkFullImportExists'], '__FPATH__', a:path, '')
+
+  if search(pattern, 'n') > 0
+    throw "Full import already exists."
+  endif
+
+  return 0
+endfunction "}}}
+
 function! s:importTag(tag, name, rgx) "{{{
   let isPartial = s:isPartialImport(a:tag, a:name, a:rgx)
   let path = s:getFilePath(a:tag['filename'])
@@ -149,6 +191,8 @@ function! s:importTag(tag, name, rgx) "{{{
   if isPartial == 0
     return s:processImport(a:name, path, a:rgx)
   endif
+
+  call s:checkIfFullImportExists(path, a:rgx)
 
   "Partial single line
   let existingPathRgx = substitute(a:rgx['existingPath'], '__FPATH__', escapedPath, '')
@@ -194,6 +238,7 @@ function! s:determineImportType() "{{{
   let requireRegex = {
         \ 'checkImportExists': '^\(const\|let\|var\)\s*\<__FNAME__\>\s*=\s*require(',
         \ 'checkPartialImportExists': '^\(const\|let\|var\)\s*{\(.\{-\}\<__FNAME__\>.*\|\n\_.\{-\}\<__FNAME__\>\_.\{-\}\)}\s*=\srequire(',
+        \ 'checkFullImportExists': '^\(const\|let\|var\)\s*\<.\{-\}\>\s*=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'existingPath': '^\(const\|let\|var\)\s*{\s*\zs.\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'existingMultiLinePath': '^\(const\|let\|var\)\s*{\s*\n\zs\_.\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'import': "const __FNAME__ = require('__FPATH__');",
@@ -206,6 +251,7 @@ function! s:determineImportType() "{{{
   let importRegex = {
         \ 'checkImportExists': '^import\s*\<__FNAME__\>\s*from',
         \ 'checkPartialImportExists': '^import\s*{\(.\{-\}\<__FNAME__\>.*\|\n\_.\{-\}\<__FNAME__\>\_.\{-\}\)}\s*from',
+        \ 'checkFullImportExists': '^import\s*\<.\{-\}\>\s*from\s[''"]__FPATH__[''"];\?$',
         \ 'existingPath': '^import\s*{\s*\zs.\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
         \ 'existingMultiLinePath': '^import\s*{\s*\n\zs\_.\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
         \ 'import': "import __FNAME__ from '__FPATH__';",
