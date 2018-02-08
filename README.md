@@ -146,6 +146,13 @@ To force using `require()` always, add this flag to settings:
 let g:js_file_import_force_require = 1
 ```
 
+Absolute imports (packages) are always imported first, which is recommended by most style guides.
+To import package the same way as files (last), add this flag to settings:
+
+```vimL
+let g:js_file_import_package_first = 0
+```
+
 ### Contributing
 There are no any special guidelines for contributing.
 

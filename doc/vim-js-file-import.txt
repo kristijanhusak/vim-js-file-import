@@ -7,11 +7,13 @@ License: MIT
 
 vim-js-file-import			    *vim-js-file-import*
 
-1. Introduction					|Introduction|
-2. Install					|Install|
+1. Introduction				    |vim-js-file-import-introduction|
+2. Install				    |vim-js-file-import-install|
+3. Functions				    |vim-js-file-import-functions|
+4. Settings				    |vim-js-file-import-settings|
 
 ==============================================================================
-1. Introduction					*Introduction*
+1. Introduction					*vim-js-file-import-introduction*
 
 Vim js file import is plugin for importing js project files and dependencies
 using Universal ctags.
@@ -22,12 +24,84 @@ Main features:
 2. Import package.json dependencies
 3. Import partial dependencies (import { Dependency } from 'path')
 4. Sort dependencies automatically and manually
+5. Manually import by typing in file path or package name
 
 
 ==============================================================================
-2. Install					*Install*
+2. Install					*vim-js-file-import-install*
 
 Requirements:
 
 - Universal ctags
 - `has("python3")` or `has("python3")`
+
+Install with `Plug`
+`Plug 'kristijanhusak/vim-js-file-import'`
+
+==============================================================================
+3. Functions					*vim-js-file-import-functions*
+
+					      *JsFileImport()*
+JsFileImport()
+		Used for importing package/filepath under cursor.
+
+					      *PromptJsFileImport()*
+PromptJsFileImport()
+		Used for importing package/filepath by prompting a user to
+		enter path to file or package name
+
+					      *SortJsFileImport()*
+SortJsFileImport()
+		Used for sorting imports alphabetically. If you want to sort
+		imports after each new import, check
+		|g:js_file_import_sort_after_insert|
+
+==============================================================================
+4. Settings					*vim-js-file-import-settings*
+
+					      *g:js_file_import_force_require*
+g:js_file_import_force_require
+		By default `import [name] from [file]` is used to add new
+		imports, in case when there are no any other existing imports.
+		If file contains at least one `require([file])`,
+		it will use the `require()` to import files.
+		Set this to `1` to force using `require()`.
+
+		Default value: 0
+
+					      *g:js_file_import_sort_after_insert*
+g:js_file_import_sort_after_insert
+		If you want all imports to be sorted after each new import,
+		set this value to `1`. If you want to do it manually,
+		check |PromptJsFileImport()|.
+
+		Default value: 0
+
+					      *g:js_file_import_package_first*
+g:js_file_import_package_first
+		Absolute imports (packages) are always imported first,
+		which is recommended by most style guides.
+		Set this to 0 to disable appending them first, and import them
+		last, same as files.
+
+		Default value: 1
+
+					      *g:js_file_import_prompt_if_no_tag*
+g:js_file_import_prompt_if_no_tag
+		In case tag is not found for the given word,
+		you are prompted to enter the file path or package name
+		manually.  Path needs to be selected from the current
+		(n)vim working directory. Plugin takes care of determining
+		if it's full or partial import. To disable this prompt, set
+		this value to `0`.
+
+		Default value: 1
+
+					      *g:js_file_import_sort_command*
+g:js_file_import_sort_command
+		command used for sorting imports.
+
+		Default value: `'{,'}-1sort i`
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:

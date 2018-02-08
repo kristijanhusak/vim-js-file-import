@@ -1,7 +1,8 @@
 let g:js_file_import_force_require = get(g:, 'js_file_import_force_require', 0)
-let g:js_file_import_sort = get(g:, 'js_file_import_sort', "'{,'}-1sort i")
+let g:js_file_import_sort_command = get(g:, 'js_file_import_sort_command', "'{,'}-1sort i")
 let g:js_file_import_sort_after_insert = get(g:, 'js_file_import_sort_after_insert', 0)
 let g:js_file_import_prompt_if_no_tag = get(g:, 'js_file_import_prompt_if_no_tag', 1)
+let g:js_file_import_package_first = get(g:, 'js_file_import_package_first', 1)
 
 function! JsFileImport()
   return s:doImport('getTag')
@@ -19,7 +20,7 @@ function! SortJsFileImport(...)
   let l:rgx = s:determineImportType()
 
   if search(l:rgx['selectForSort'], 'be') > 0
-    exe g:js_file_import_sort
+    exe g:js_file_import_sort_command
   endif
 
   exe 'normal! `z'
@@ -37,20 +38,22 @@ function! s:doImport(tagFnName) "{{{
     let l:tagData = call('s:'.a:tagFnName, [l:name, l:rgx])
 
     if l:tagData['global'] !=? ''
-      return s:processImport(l:name, l:tagData['global'], l:rgx)
+      return s:processImport(l:name, l:tagData['global'], l:rgx, 1)
     endif
 
     return s:importTag(l:tagData['tag'], l:name, l:rgx)
   catch /.*/
     exe 'normal! `z'
-    echo v:exception
+    if v:exception
+      echo v:exception
+    endif
     return 0
   endtry
 endfunction "}}}
 
 function! s:getTagDataFromPrompt(name, rgx) "{{{
   call inputsave()
-  let l:path = input('File path: ', '', 'file')
+  let l:path = input('Path to file or package name: ', '', 'file')
   call inputrestore()
 
   if l:path ==? ''
@@ -58,14 +61,22 @@ function! s:getTagDataFromPrompt(name, rgx) "{{{
   endif
 
   let l:tagData = { 'global': '', 'tag': { 'filename': l:path, 'cmd': '', 'kind': '' } }
+  let l:fullPath = getcwd().'/'.l:path
 
-  if !filereadable(getcwd().'/'.l:path)
-    let l:choice = confirm('File not found. Import as:', "&Global package\n&Cancel")
-    if l:choice == 2
-      throw ''
-    elseif l:choice == 1
-      let l:tagData['global'] = l:path
-    endif
+  if filereadable(l:fullPath)
+    return l:tagData
+  endif
+
+  if s:isGlobalPackage(l:path)
+    let l:tagData['global'] = l:path
+    return l:tagData
+  endif
+
+  let l:choice = confirm('File or package not found. Import as:', "&File\n&Package\n&Cancel")
+  if l:choice == 3
+    throw ''
+  elseif l:choice == 2
+    let l:tagData['global'] = l:path
   endif
 
   return l:tagData
@@ -153,13 +164,18 @@ function! s:getFilePath(filepath) "{{{
   return l:path
 endfunction "}}}
 
-function! s:processImport(name, path, rgx) "{{{
+function! s:processImport(name, path, rgx, ...) "{{{
   let l:importRgx = a:rgx['import']
   let l:importRgx = substitute(l:importRgx, '__FNAME__', a:name, '')
   let l:importRgx = substitute(l:importRgx, '__FPATH__', a:path, '')
+  let l:appendToLine = '.'
+
+  if a:0 > 0 && g:js_file_import_package_first
+    let l:appendToLine = 0
+  endif
 
   if search(a:rgx['lastimport'], 'be') > 0
-    call append(line('.'), l:importRgx)
+    call append(line(l:appendToLine), l:importRgx)
   else
     call append(0, l:importRgx)
     call append(1, '')

@@ -3,7 +3,8 @@ Basic test 1
 
 STARTTEST
 :%d
-aimport Foo from './test-global-import.fixtures/a';
+:let g:js_file_import_package_first = 0
+aconst Foo = require('./test-global-require.fixtures/a');
 
 const randomNumber = lodash:call JsFileImport()
 a.random();:w! test.out
