@@ -38,6 +38,9 @@ Requirements:
 Install with `Plug`
 `Plug 'kristijanhusak/vim-js-file-import'`
 
+Add mapping:
+`nnoremap <F5> call JsFileImport()`
+
 ==============================================================================
 3. Functions					*vim-js-file-import-functions*
 
@@ -45,16 +48,25 @@ Install with `Plug`
 JsFileImport()
 		Used for importing package/filepath under cursor.
 
+		`:call JsFileImport()`
+
 					      *PromptJsFileImport()*
 PromptJsFileImport()
 		Used for importing package/filepath by prompting a user to
-		enter path to file or package name
+		enter path to file or package name.
+		Path needs to be selected from the current
+		(n)vim working directory. Plugin takes care of determining
+		if it's full or partial import.
+
+		`:call PromptJsFileImport()`
 
 					      *SortJsFileImport()*
 SortJsFileImport()
 		Used for sorting imports alphabetically. If you want to sort
 		imports after each new import, check
 		|g:js_file_import_sort_after_insert|
+
+		`:call SortJsFileImport()`
 
 ==============================================================================
 4. Settings					*vim-js-file-import-settings*
@@ -73,7 +85,7 @@ g:js_file_import_force_require
 g:js_file_import_sort_after_insert
 		If you want all imports to be sorted after each new import,
 		set this value to `1`. If you want to do it manually,
-		check |PromptJsFileImport()|.
+		check |SortJsFileImport()|.
 
 		Default value: 0
 
@@ -90,10 +102,11 @@ g:js_file_import_package_first
 g:js_file_import_prompt_if_no_tag
 		In case tag is not found for the given word,
 		you are prompted to enter the file path or package name
-		manually.  Path needs to be selected from the current
+		manually. Path needs to be selected from the current
 		(n)vim working directory. Plugin takes care of determining
 		if it's full or partial import. To disable this prompt, set
-		this value to `0`.
+		this value to `0`. To manually use prompt check
+		|PromptJsFileImport|
 
 		Default value: 1
 
