@@ -264,7 +264,7 @@ function! s:determineImportType() "{{{
         \ 'existingMultiLinePath': '^\(const\|let\|var\)\s*{\s*\n\zs\_.\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'import': "const __FNAME__ = require('__FPATH__');",
         \ 'lastimport': '^\(const\|let\|var\)\s\_.\{-\}require(.*;\?$',
-        \ 'defaultExport': '^module.exports\s*=.\{-\}',
+        \ 'defaultExport': 'module.exports\s*=.\{-\}',
         \ 'partialExport': 'module.exports.\(\<__FNAME__\>\|\s*=.\{-\}{.\{-\}\<__FNAME__\>.*}\|\s*=.\{-\}{\s*\n\_.\{-\}\<__FNAME__\>\_.*}\)',
         \ 'selectForSort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
         \ }
@@ -277,7 +277,7 @@ function! s:determineImportType() "{{{
         \ 'existingMultiLinePath': '^import\s*{\s*\n\zs\_.\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
         \ 'import': "import __FNAME__ from '__FPATH__';",
         \ 'lastimport': '^import\s\_.\{-\}from.*;\?$',
-        \ 'defaultExport': '^export\s*default.\{-\}',
+        \ 'defaultExport': 'export\s*default.\{-\}',
         \ 'partialExport': 'export\s\(const\|var\|function\).\{-\}',
         \ 'selectForSort': '^import\s*\zs.*\ze\s*from.*;\?$',
         \ }
