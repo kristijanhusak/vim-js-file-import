@@ -91,7 +91,7 @@ function! s:getTag(name, rgx) "{{{
       return { 'global': a:name }
     endif
     if g:js_file_import_prompt_if_no_tag
-      echo 'No tag found. Enter path to file from current working directory.'
+      echo 'No tag found. Falling back to prompt.'
       return s:getTagDataFromPrompt(a:name, a:rgx)
     endif
     throw 'No tag found.'
@@ -108,17 +108,23 @@ function! s:getTag(name, rgx) "{{{
     let l:index += 1
     call add(l:options, l:index.' - '.l:tag['filename'].' - '.l:tag['kind'].' - ('.l:tag['cmd'].')')
   endfor
+  let l:lastIndex = l:index + 1
+  call add(l:options, l:lastIndex.' - Enter path to file or package name manually')
 
   call inputsave()
   let l:selection = inputlist(l:options)
   call inputrestore()
 
-  if l:selection > 0 && l:selection < len(l:options)
-    let l:selectedTag = l:tags[l:selection - 1]
-    return { 'tag': l:selectedTag, 'global': s:checkIfGlobalTag(l:selectedTag, a:name) }
+  if l:selection < 0 || l:selection >= len(l:options)
+    throw 'Wrong selection.'
   endif
 
-  throw 'Wrong selection.'
+  if l:selection == l:lastIndex
+    return s:getTagDataFromPrompt(a:name, a:rgx)
+  endif
+
+  let l:selectedTag = l:tags[l:selection - 1]
+  return { 'tag': l:selectedTag, 'global': s:checkIfGlobalTag(l:selectedTag, a:name) }
 endfunction "}}}
 
 function! s:isPartialImport(tag, name, rgx) "{{{
