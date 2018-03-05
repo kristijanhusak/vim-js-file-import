@@ -1,0 +1,3 @@
+import Bar, { Foo } from './test-full-import-alongside-partial.fixtures/a';
+
+const obj = new Bar()
