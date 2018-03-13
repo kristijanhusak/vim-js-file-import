@@ -44,7 +44,7 @@ function! s:doImport(tagFnName) "{{{
     return s:importTag(l:tagData['tag'], l:name, l:rgx)
   catch /.*/
     exe 'normal! `z'
-    if v:exception
+    if v:exception !=? ''
       echo v:exception
     endif
     return 0
