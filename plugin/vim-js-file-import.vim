@@ -284,13 +284,13 @@ endfunction "}}}
 
 function! s:determineImportType() "{{{
   let l:requireRegex = {
-        \ 'checkImportExists': '^\(const\|let\|var\)\s*.\{-\}\<__FNAME__\>\_.\{-\}\s*=\s*require(',
-        \ 'checkPartialImportExists': '^\(const\|let\|var\)\s*{\(.\{-\}\<__FNAME__\>.*\|\n\_.\{-\}\<__FNAME__\>\_.\{-\}\)}\s*=\srequire(',
-        \ 'checkFullImportExists': '^\(const\|let\|var\)\s*\<.\{-\}\>\s*=\s*require([''"]__FPATH__[''"]);\?$',
-        \ 'existingPath': '^\(const\|let\|var\)\s*{\s*\zs.\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
-        \ 'existingPathForFull': '^\(const\|let\|var\)\s*\zs{\s*.\{-\}\s*}\ze\s*=\s*require([''"]__FPATH__[''"]);\?$',
-        \ 'existingMultiLinePath': '^\(const\|let\|var\)\s*{\s*\n\zs\_.\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
-        \ 'existingMultiLinePathForFull': '^\(const\|let\|var\)\s*\zs{\s*\n\_.\{-\}\s*}\ze\s*=\s*require([''"]__FPATH__[''"]);\?$',
+        \ 'checkImportExists': '^\(const\|let\|var\)\s*\<__FNAME__\>\s*=\s*require(',
+        \ 'checkPartialImportExists': '^\(const\|let\|var\)\s*{\([^''"]\{-\}\<__FNAME__\>.*\|\n\_[^''"]\{-\}\<__FNAME__\>\_[^''"]\{-\}\)}\s*=\srequire(',
+        \ 'checkFullImportExists': '^\(const\|let\|var\)\s*\<[^''"]\{-\}\>\s*=\s*require([''"]__FPATH__[''"]);\?$',
+        \ 'existingPath': '^\(const\|let\|var\)\s*{\s*\zs[^''"]\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
+        \ 'existingPathForFull': '^\(const\|let\|var\)\s*\zs{\s*[^''"]\{-\}\s*}\ze\s*=\s*require([''"]__FPATH__[''"]);\?$',
+        \ 'existingMultiLinePath': '^\(const\|let\|var\)\s*{\s*\n\zs\_[^''"]\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
+        \ 'existingMultiLinePathForFull': '^\(const\|let\|var\)\s*\zs{\s*\n\_[^''"]\{-\}\s*}\ze\s*=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'import': "const __FNAME__ = require('__FPATH__');",
         \ 'lastimport': '^\(const\|let\|var\)\s\_.\{-\}require(.*;\?$',
         \ 'defaultExport': 'module.exports\s*=.\{-\}',
@@ -299,13 +299,13 @@ function! s:determineImportType() "{{{
         \ }
 
   let l:importRegex = {
-        \ 'checkImportExists': '^import\s*.\{-\}\<__FNAME__\>\_.\{-\}\s*from',
-        \ 'checkPartialImportExists': '^import\s*{\(.\{-\}\<__FNAME__\>.*\|\n\_.\{-\}\<__FNAME__\>\_.\{-\}\)}\s*from',
-        \ 'checkFullImportExists': '^import\s*\<.\{-\}\>\s*from\s[''"]__FPATH__[''"];\?$',
-        \ 'existingPath': '^import\s*{\s*\zs.\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
-        \ 'existingPathForFull': '^import\s*\zs{\s*.\{-\}\s*}\ze\s*from\s*[''"]__FPATH__[''"];\?$',
-        \ 'existingMultiLinePath': '^import\s*{\s*\n\zs\_.\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
-        \ 'existingMultiLinePathForFull': '^import\s*\zs{\s*\n\_.\{-\}\s*}\ze\s*from\s*[''"]__FPATH__[''"];\?$',
+        \ 'checkImportExists': '^import\s*[^''"]\{-\}\<__FNAME__\>\_[^''"]\{-\}\s*from',
+        \ 'checkPartialImportExists': '^import\s*{\([^''"]\{-\}\<__FNAME__\>.*\|\n\_[^''"]\{-\}\<__FNAME__\>\_[^''"]\{-\}\)}\s*from',
+        \ 'checkFullImportExists': '^import\s*\<[^''"]\{-\}\>\s*from\s[''"]__FPATH__[''"];\?$',
+        \ 'existingPath': '^import\s*{\s*\zs[^''"]\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
+        \ 'existingPathForFull': '^import\s*\zs{\s*[^''"]\{-\}\s*}\ze\s*from\s*[''"]__FPATH__[''"];\?$',
+        \ 'existingMultiLinePath': '^import\s*{\s*\n\zs\_[^''"]\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
+        \ 'existingMultiLinePathForFull': '^import\s*\zs{\s*\n\_[^''"]\{-\}\s*}\ze\s*from\s*[''"]__FPATH__[''"];\?$',
         \ 'import': "import __FNAME__ from '__FPATH__';",
         \ 'lastimport': '^import\s\_.\{-\}from.*;\?$',
         \ 'defaultExport': 'export\s*default.\{-\}',
