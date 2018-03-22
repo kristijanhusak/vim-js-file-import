@@ -12,6 +12,24 @@ function! PromptJsFileImport()
   return s:doImport('getTagDataFromPrompt')
 endfunction
 
+function! RemoveUnusedJsFileImports()
+  exe 'normal mz'
+  call cursor(1, 0)
+  let l:rgx = s:determineImportType()
+  let l:start = search(l:rgx['lastimport'])
+  let l:end = search(l:rgx['lastimport'], 'be')
+
+  for l:line in getline(l:start, l:end)
+    let l:list = matchlist(l:line, l:rgx['importName'])
+    if len(l:list) >= 3 && s:countWordInFile(l:list[2]) <= 1
+      exe l:start.'d'
+      continue
+    endif
+    let l:start += 1
+  endfor
+  silent exe 'normal! `z'
+endfunction
+
 function! SortJsFileImport(...)
   if a:0 == 0
     exe 'normal mz'
@@ -23,7 +41,7 @@ function! SortJsFileImport(...)
     exe g:js_file_import_sort_command
   endif
 
-  exe 'normal! `z'
+  silent exe 'normal! `z'
   return 1
 endfunction
 
@@ -43,7 +61,7 @@ function! s:doImport(tagFnName) "{{{
 
     return s:importTag(l:tagData['tag'], l:name, l:rgx)
   catch /.*/
-    exe 'normal! `z'
+    silent exe 'normal! `z'
     if v:exception !=? ''
       echo v:exception
     endif
@@ -174,14 +192,16 @@ function! s:processImport(name, path, rgx, ...) "{{{
   let l:importRgx = a:rgx['import']
   let l:importRgx = substitute(l:importRgx, '__FNAME__', a:name, '')
   let l:importRgx = substitute(l:importRgx, '__FPATH__', a:path, '')
-  let l:appendToLine = '.'
+  let l:appendToStart = 0
 
   if a:0 > 0 && g:js_file_import_package_first
-    let l:appendToLine = 0
+    let l:appendToStart = 1
   endif
 
-  if search(a:rgx['lastimport'], 'be') > 0
-    call append(line(l:appendToLine), l:importRgx)
+  if search(a:rgx['lastimport'], 'be') > 0 && l:appendToStart == 0
+    call append(line('.'), l:importRgx)
+  elseif search(a:rgx['lastimport']) > 0
+    call append(line('.') - 1, l:importRgx)
   else
     call append(0, l:importRgx)
     call append(1, '')
@@ -296,6 +316,7 @@ function! s:determineImportType() "{{{
         \ 'defaultExport': 'module.exports\s*=.\{-\}',
         \ 'partialExport': 'module.exports.\(\<__FNAME__\>\|\s*=.\{-\}{.\{-\}\<__FNAME__\>.*}\|\s*=.\{-\}{\s*\n\_.\{-\}\<__FNAME__\>\_.*}\)',
         \ 'selectForSort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
+        \ 'importName': '^\(const\|let\|var\)\s*\(\<[^''"]\{-\}\>\)\s*',
         \ }
 
   let l:importRegex = {
@@ -311,6 +332,7 @@ function! s:determineImportType() "{{{
         \ 'defaultExport': 'export\s*default.\{-\}',
         \ 'partialExport': 'export\s*\(const\|var\|function\)\s*\<__FNAME__\>',
         \ 'selectForSort': '^import\s*\zs.*\ze\s*from.*;\?$',
+        \ 'importName': '^\(import\)\s*\(\<[^''"]\{-\}\>\)\s*',
         \ }
 
   if g:js_file_import_force_require || search(l:requireRegex['lastimport'], 'n') > 0
@@ -362,7 +384,7 @@ function! s:finishImport() "{{{
     call SortJsFileImport(1)
   endif
 
-  exe 'normal! `z'
+  silent exe 'normal! `z'
   return 1
 endfunction "}}}
 
@@ -372,6 +394,15 @@ function! s:checkPythonSupport() "{{{
   endif
 
   return 1
+endfunction "}}}
+
+function! s:countWordInFile(word) "{{{
+  redir => count
+    silent exe '%s/\<' . a:word . '\>//gn'
+  redir END
+
+  let result = strpart(count, 0, stridx(count, " "))
+  return float2nr(str2float(result))
 endfunction "}}}
 
 " vim:foldenable:foldmethod=marker:sw=2
