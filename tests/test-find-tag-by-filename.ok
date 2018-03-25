@@ -1,0 +1,3 @@
+const mainHelpers = require('./test-find-tag-by-filename.fixtures/main_helpers');
+
+const fooValue = mainHelpers.Foo();

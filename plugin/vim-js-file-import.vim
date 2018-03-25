@@ -74,7 +74,7 @@ function! s:doImport(tagFnName) "{{{
   endtry
 endfunction "}}}
 
-function! s:getTagDataFromPrompt(name, rgx) "{{{
+function! s:getTagDataFromPrompt(rgx) "{{{
   call inputsave()
   let l:path = input('Path to file or package name: ', '', 'file')
   call inputrestore()
@@ -113,9 +113,13 @@ function! s:getTag(name, rgx) "{{{
     if s:isGlobalPackage(a:name) > 0
       return { 'global': a:name }
     endif
+    let l:tagByFilename = s:findTagByFilename(a:name, a:rgx)
+    if l:tagByFilename['tag']['filename'] !=? ''
+      return l:tagByFilename
+    endif
     if g:js_file_import_prompt_if_no_tag
       echo 'No tag found. Falling back to prompt.'
-      return s:getTagDataFromPrompt(a:name, a:rgx)
+      return s:getTagDataFromPrompt(a:rgx)
     endif
     throw 'No tag found.'
   endif
@@ -143,7 +147,7 @@ function! s:getTag(name, rgx) "{{{
   endif
 
   if l:selection == l:lastIndex
-    return s:getTagDataFromPrompt(a:name, a:rgx)
+    return s:getTagDataFromPrompt(a:rgx)
   endif
 
   let l:selectedTag = l:tags[l:selection - 1]
@@ -151,8 +155,6 @@ function! s:getTag(name, rgx) "{{{
 endfunction "}}}
 
 function! s:isPartialImport(tag, name, rgx) "{{{
-  let l:full = { 'partial': 0, 'name': a:name }
-  let l:partial = { 'partial': 1, 'name': a:name }
   let l:partialRgx = substitute(a:rgx['partialExport'], '__FNAME__', a:name, 'g')
 
   " Method or partial export
@@ -227,6 +229,12 @@ endfunction "}}}
 function! s:importTag(tag, name, rgx) "{{{
   let l:isPartial = s:isPartialImport(a:tag, a:name, a:rgx)
   let l:path = s:getFilePath(a:tag['filename'])
+  let l:currentFilePath = s:getFilePath(expand('%:p'))
+
+  if l:path ==# l:currentFilePath
+    throw 'Import failed. Selected import is in this file.'
+  endif
+
   let l:escapedPath = escape(l:path, './')
 
   if l:isPartial == 0
@@ -303,7 +311,7 @@ endfunction "}}}
 function! s:determineImportType() "{{{
   let l:requireRegex = {
         \ 'type': 'require',
-        \ 'checkImportExists': '^\(const\|let\|var\)\s*\_[^''"]\{-\}<__FNAME__\>\s*\_[^''"]\{-\}=\s*require(',
+        \ 'checkImportExists': '^\(const\|let\|var\)\s*\_[^''"]\{-\}\<__FNAME__\>\s*\_[^''"]\{-\}=\s*require(',
         \ 'existingPath': '^\(const\|let\|var\)\s*{\s*\zs\_[^''"]\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'existingFullPathOnly': '^\(const\|let\|var\)\s*\zs\<[^''"]\{-\}\>\ze\s*\_[^''"]\{-\}=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'existingPathForFull': '^\(const\|let\|var\)\s*\zs{\s*\_[^''"]\{-\}\s*}\ze\s*=\s*require([''"]__FPATH__[''"]);\?$',
@@ -334,6 +342,60 @@ function! s:determineImportType() "{{{
   endif
 
   return l:importRegex
+endfunction "}}}
+
+function! s:findTagByFilename(name, rgx) "{{{
+  let l:tagData = { 'global': '', 'tag': { 'filename': '', 'name': a:name, 'kind': 'C', 'cmd': '' } }
+  let l:list = []
+  let l:snakeCased =  substitute(a:name, '\C\(\<\u[a-z0-9]\+\|[a-z0-9]\+\)\(\u\)', '\l\1_\l\2', 'g')
+  let l:lowerCamelCased = substitute(a:name, '_\(\l\)', '\u\1', 'g')
+  let l:upperCamelCased = substitute(a:name, '\(\%(\<\l\+\)\%(_\)\@=\)\|_\(\l\)', '\u\1\2', 'g')
+
+  call add(l:list, findfile(l:snakeCased.'.js', '**/*'))
+  call add(l:list, findfile(l:lowerCamelCased.'.js', '**/*'))
+  call add(l:list, findfile(l:upperCamelCased.'.js', '**/*'))
+
+  if a:rgx['type'] ==? 'import'
+    call add(l:list, findfile(l:snakeCased.'.jsx', '**/*'))
+    call add(l:list, findfile(l:lowerCamelCased.'.jsx', '**/*'))
+    call add(l:list, findfile(l:upperCamelCased.'.jsx', '**/*'))
+  endif
+
+  call filter(l:list, "v:val !=? ''")
+
+  if len(l:list) == 0
+    return l:tagData
+  endif
+
+  if len(l:list) == 1
+    let l:tagData['tag']['filename'] = l:list[0]
+    return l:tagData
+  endif
+
+  let l:options = ['Select file to import:']
+  let l:index = 0
+
+  for l:file in l:list
+    let l:index += 1
+    call add(l:options, l:index.' - '.l:file)
+  endfor
+  let l:lastIndex = l:index + 1
+  call add(l:options, l:lastIndex.' - Enter path to file or package name manually')
+
+  call inputsave()
+  let l:selection = inputlist(l:options)
+  call inputrestore()
+
+  if l:selection < 0 || l:selection >= len(l:options)
+    throw 'Wrong selection.'
+  endif
+
+  if l:selection == l:lastIndex
+    return s:getTagDataFromPrompt(a:rgx)
+  endif
+
+  let l:tagData['tag']['filename'] = l:list[l:selection - 1]
+  return l:tagData
 endfunction "}}}
 
 function! s:removeObsolete(idx, val) "{{{
@@ -391,12 +453,12 @@ function! s:checkPythonSupport() "{{{
 endfunction "}}}
 
 function! s:countWordInFile(word) "{{{
-  redir => count
+  redir => l:count
     silent exe '%s/\<' . a:word . '\>//gn'
   redir END
 
-  let result = strpart(count, 0, stridx(count, " "))
-  return float2nr(str2float(result))
+  let l:result = strpart(l:count, 0, stridx(l:count, ' '))
+  return float2nr(str2float(l:result))
 endfunction "}}}
 
 " vim:foldenable:foldmethod=marker:sw=2
