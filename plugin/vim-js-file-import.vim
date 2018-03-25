@@ -233,23 +233,31 @@ function! s:importTag(tag, name, rgx) "{{{
     return s:processFullImport(a:name, a:rgx, l:path)
   endif
 
+  " Check if only full import exists for given path. ES6 allows partial imports alongside full import
+  let l:existingFullPathOnly = substitute(a:rgx['existingFullPathOnly'], '__FPATH__', l:escapedPath, '')
+
+  if a:rgx['type'] ==? 'import' && search(l:existingFullPathOnly, 'n') > 0
+    call search(l:existingFullPathOnly, 'e')
+    return s:processPartialImportAlongsideFull(a:name)
+  endif
+
   "Partial single line
   let l:existingPathRgx = substitute(a:rgx['existingPath'], '__FPATH__', l:escapedPath, '')
 
-  if search(l:existingPathRgx, 'n') > 0
-    call search(l:existingPathRgx, 'e')
-    return s:processSingleLinePartialImport(a:name)
+  if search(l:existingPathRgx, 'n') <= 0
+    return s:processImport('{ '.a:name.' }', l:path, a:rgx)
   endif
 
-  "Partial multi line
-  let l:existingMultiLinePathRgx = substitute(a:rgx['existingMultiLinePath'], '__FPATH__', l:escapedPath, '')
+  call search(l:existingPathRgx)
+  let l:startLine = line('.')
+  call search(l:existingPathRgx, 'e')
+  let l:endLine = line('.')
 
-  if search(l:existingMultiLinePathRgx, 'n') > 0
-    call search(l:existingMultiLinePathRgx, 'e')
+  if l:endLine > l:startLine
     return s:processMultiLinePartialImport(a:name)
   endif
 
-  return s:processImport('{ '.a:name.' }', l:path, a:rgx)
+  return s:processSingleLinePartialImport(a:name)
 endfunction "}}}
 
 function! s:processFullImport(name, rgx, path) "{{{
@@ -286,13 +294,19 @@ function! s:processMultiLinePartialImport(name) "{{{
   return s:finishImport()
 endfunction "}}}
 
+function! s:processPartialImportAlongsideFull(name) "{{{
+  exe ':normal!a, { '.a:name.' }'
+
+  return s:finishImport()
+endfunction "}}}
+
 function! s:determineImportType() "{{{
   let l:requireRegex = {
         \ 'type': 'require',
         \ 'checkImportExists': '^\(const\|let\|var\)\s*\_[^''"]\{-\}<__FNAME__\>\s*\_[^''"]\{-\}=\s*require(',
-        \ 'existingPath': '^\(const\|let\|var\)\s*{\s*\zs[^''"]\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
+        \ 'existingPath': '^\(const\|let\|var\)\s*{\s*\zs\_[^''"]\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
+        \ 'existingFullPathOnly': '^\(const\|let\|var\)\s*\zs\<[^''"]\{-\}\>\ze\s*\_[^''"]\{-\}=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'existingPathForFull': '^\(const\|let\|var\)\s*\zs{\s*\_[^''"]\{-\}\s*}\ze\s*=\s*require([''"]__FPATH__[''"]);\?$',
-        \ 'existingMultiLinePath': '^\(const\|let\|var\)\s*{\s*\n\zs\_[^''"]\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'import': "const __FNAME__ = require('__FPATH__');",
         \ 'lastimport': '^\(const\|let\|var\)\s\_.\{-\}require(.*;\?$',
         \ 'defaultExport': 'module.exports\s*=.\{-\}',
@@ -304,9 +318,9 @@ function! s:determineImportType() "{{{
   let l:importRegex = {
         \ 'type': 'import',
         \ 'checkImportExists': '^import\s*\_[^''"]\{-\}\<__FNAME__\>\_[^''"]\{-\}\s*from',
-        \ 'existingPath': '^import\s*{\s*\zs[^''"]\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
+        \ 'existingPath': '^import\s*[^{''"]\{-\}{\s*\zs\_[^''"]\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
+        \ 'existingFullPathOnly': '^import\s*\zs\<[^''"]\{-\}\>\ze\s*from\s*[''"]__FPATH__[''"];\?$',
         \ 'existingPathForFull': '^import\s*\zs{\s*\_[^''"]\{-\}\s*}\ze\s*from\s*[''"]__FPATH__[''"];\?$',
-        \ 'existingMultiLinePath': '^import\s*{\s*\n\zs\_[^''"]\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
         \ 'import': "import __FNAME__ from '__FPATH__';",
         \ 'lastimport': '^import\s\_.\{-\}from.*;\?$',
         \ 'defaultExport': 'export\s*default.\{-\}',
