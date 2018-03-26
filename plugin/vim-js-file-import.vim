@@ -19,9 +19,9 @@ endfunction
 
 function! RemoveUnusedJsFileImports()
   exe 'normal mz'
-  call cursor(1, 0)
   let l:rgx = s:determineImportType()
-  let l:start = search(l:rgx['lastimport'])
+  call cursor(1, 0)
+  let l:start = search(l:rgx['lastimport'], 'c')
   let l:end = search(l:rgx['lastimport'], 'be')
 
   for l:line in getline(l:start, l:end)
