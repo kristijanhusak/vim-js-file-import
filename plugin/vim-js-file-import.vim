@@ -74,7 +74,7 @@ function! s:doImport(tagFnName) "{{{
   endtry
 endfunction "}}}
 
-function! s:getTagDataFromPrompt(rgx) "{{{
+function! s:getTagDataFromPrompt(name, rgx) "{{{
   call inputsave()
   let l:path = input('Path to file or package name: ', '', 'file')
   call inputrestore()
@@ -116,7 +116,7 @@ function! s:getTag(name, rgx) "{{{
     endif
     if g:js_file_import_prompt_if_no_tag
       echo 'No tag found. Falling back to prompt.'
-      return s:getTagDataFromPrompt(a:rgx)
+      return s:getTagDataFromPrompt(a:name, a:rgx)
     endif
     throw 'No tag found.'
   endif
@@ -145,7 +145,7 @@ function! s:getTag(name, rgx) "{{{
   endif
 
   if l:selection == l:lastIndex
-    return s:getTagDataFromPrompt(a:rgx)
+    return s:getTagDataFromPrompt(a:name, a:rgx)
   endif
 
   let l:selectedTag = l:tags[l:selection - 1]
