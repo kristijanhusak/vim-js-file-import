@@ -108,14 +108,11 @@ endfunction "}}}
 function! s:getTag(name, rgx) "{{{
   let l:tags = taglist('^'.a:name.'$')
   call filter(l:tags, function('s:removeObsolete'))
+  call s:appendTagsByFilename(l:tags, a:name, a:rgx)
 
   if len(l:tags) <= 0
     if s:isGlobalPackage(a:name) > 0
       return { 'global': a:name }
-    endif
-    let l:tagByFilename = s:findTagByFilename(a:name, a:rgx)
-    if l:tagByFilename['tag']['filename'] !=? ''
-      return l:tagByFilename
     endif
     if g:js_file_import_prompt_if_no_tag
       echo 'No tag found. Falling back to prompt.'
@@ -133,7 +130,8 @@ function! s:getTag(name, rgx) "{{{
 
   for l:tag in l:tags
     let l:index += 1
-    call add(l:options, l:index.' - '.l:tag['filename'].' - '.l:tag['kind'].' - ('.l:tag['cmd'].')')
+    let l:cmd = l:tag['cmd'] != '' ? ' - ('.l:tag['cmd'].')' : ''
+    call add(l:options, l:index.' - '.l:tag['filename'].' - '.l:tag['kind'].l:cmd)
   endfor
   let l:lastIndex = l:index + 1
   call add(l:options, l:lastIndex.' - Enter path to file or package name manually')
@@ -344,58 +342,41 @@ function! s:determineImportType() "{{{
   return l:importRegex
 endfunction "}}}
 
-function! s:findTagByFilename(name, rgx) "{{{
-  let l:tagData = { 'global': '', 'tag': { 'filename': '', 'name': a:name, 'kind': 'C', 'cmd': '' } }
-  let l:list = []
-  let l:snakeCased =  substitute(a:name, '\C\(\<\u[a-z0-9]\+\|[a-z0-9]\+\)\(\u\)', '\l\1_\l\2', 'g')
-  let l:lowerCamelCased = substitute(a:name, '_\(\l\)', '\u\1', 'g')
-  let l:upperCamelCased = substitute(a:name, '\(\%(\<\l\+\)\%(_\)\@=\)\|_\(\l\)', '\u\1\2', 'g')
+function! s:appendTagsByFilename(tags, name, rgx) "{{{
+  let l:search = []
+  call add(l:search, substitute(a:name, '\C\(\<\u[a-z0-9]\+\|[a-z0-9]\+\)\(\u\)', '\l\1_\l\2', 'g')) "snake case
+  call add(l:search, substitute(a:name, '_\(\l\)', '\u\1', 'g')) "lower camel case
+  call add(l:search, substitute(a:name, '\(\%(\<\l\+\)\%(_\)\@=\)\|_\(\l\)', '\u\1\2', 'g')) "upper camel case
 
-  call add(l:list, findfile(l:snakeCased.'.js', '**/*'))
-  call add(l:list, findfile(l:lowerCamelCased.'.js', '**/*'))
-  call add(l:list, findfile(l:upperCamelCased.'.js', '**/*'))
+  for l:item in l:search
+    call s:appendFilenameToTags(a:tags, l:item, 'js')
 
-  if a:rgx['type'] ==? 'import'
-    call add(l:list, findfile(l:snakeCased.'.jsx', '**/*'))
-    call add(l:list, findfile(l:lowerCamelCased.'.jsx', '**/*'))
-    call add(l:list, findfile(l:upperCamelCased.'.jsx', '**/*'))
-  endif
-
-  call filter(l:list, "v:val !=? ''")
-
-  if len(l:list) == 0
-    return l:tagData
-  endif
-
-  if len(l:list) == 1
-    let l:tagData['tag']['filename'] = l:list[0]
-    return l:tagData
-  endif
-
-  let l:options = ['Select file to import:']
-  let l:index = 0
-
-  for l:file in l:list
-    let l:index += 1
-    call add(l:options, l:index.' - '.l:file)
+    if a:rgx['type'] ==? 'import'
+      call s:appendFilenameToTags(a:tags, l:item, 'jsx')
+    endif
   endfor
-  let l:lastIndex = l:index + 1
-  call add(l:options, l:lastIndex.' - Enter path to file or package name manually')
 
-  call inputsave()
-  let l:selection = inputlist(l:options)
-  call inputrestore()
+  return a:tags
+endfunction "}}}
 
-  if l:selection < 0 || l:selection >= len(l:options)
-    throw 'Wrong selection.'
+function! s:appendFilenameToTags(tags, name, extension) "{{{
+  let l:file = findfile(a:name.'.'.a:extension, '**/*')
+
+  if l:file != '' && !s:tagsHasFilename(a:tags, l:file)
+    call add(a:tags, { 'filename': l:file, 'name': a:name, 'kind': 'C', 'cmd': '' })
   endif
 
-  if l:selection == l:lastIndex
-    return s:getTagDataFromPrompt(a:rgx)
-  endif
+  return a:tags
+endfunction "}}}
 
-  let l:tagData['tag']['filename'] = l:list[l:selection - 1]
-  return l:tagData
+function! s:tagsHasFilename(tags, filename) "{{{
+  for l:tag in a:tags
+    if l:tag['filename'] ==? a:filename
+      return 1
+    endif
+  endfor
+
+  return 0
 endfunction "}}}
 
 function! s:removeObsolete(idx, val) "{{{
