@@ -8,7 +8,7 @@ Foo,
 Baz,
 } from './test-partial-import-multiline-path-exists.fixtures/a';
 
-const obj = new Bar:call JsFileImport()
+const obj = new Bar:JsFileImport
 a():w! test.out
 :qa!
 ENDTEST

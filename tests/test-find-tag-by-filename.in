@@ -4,7 +4,7 @@ Basic test 1
 STARTTEST
 :%d
 :let g:js_file_import_force_require = 1
-aconst fooValue = mainHelpers:call JsFileImport()
+aconst fooValue = mainHelpers:JsFileImport
 a.Foo();:w! test.out
 :qa!
 ENDTEST

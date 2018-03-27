@@ -9,8 +9,10 @@ vim-js-file-import			    *vim-js-file-import*
 
 1. Introduction				    |vim-js-file-import-introduction|
 2. Install				    |vim-js-file-import-install|
-3. Functions				    |vim-js-file-import-functions|
-4. Settings				    |vim-js-file-import-settings|
+3. Commands				    |vim-js-file-import-commands|
+4. Mappings				    |vim-js-file-import-mappings|
+5. Functions				    |vim-js-file-import-functions|
+6. Settings				    |vim-js-file-import-settings|
 
 ==============================================================================
 1. Introduction					*vim-js-file-import-introduction*
@@ -25,6 +27,7 @@ Main features:
 3. Import partial dependencies (import { Dependency } from 'path')
 4. Sort dependencies automatically and manually
 5. Manually import by typing in file path or package name
+6. Smarter go to definition
 
 
 ==============================================================================
@@ -39,34 +42,109 @@ Install with `Plug`
 `Plug 'kristijanhusak/vim-js-file-import'`
 
 Add mapping:
-`nnoremap <F5> call JsFileImport()`
+`nnoremap <F5> JsFileImport`
 
 ==============================================================================
-3. Functions					*vim-js-file-import-functions*
+3. Commands					*vim-js-file-import-commands*
 
-					      *JsFileImport()*
-JsFileImport()
+					      *JsFileImport*
+JsFileImport
 		Used for importing package/filepath under cursor.
 
-		`:call JsFileImport()`
+		`:JsFileImport`
 
-					      *PromptJsFileImport()*
-PromptJsFileImport()
+					      *PromptJsFileImport*
+PromptJsFileImport
 		Used for importing package/filepath by prompting a user to
 		enter path to file or package name.
 		Path needs to be selected from the current
 		(n)vim working directory. Plugin takes care of determining
 		if it's full or partial import.
 
-		`:call PromptJsFileImport()`
+		`:PromptJsFileImport`
 
-					      *SortJsFileImport()*
-SortJsFileImport()
+					      *JsGotoDefinition*
+JsGotoDefinition
+		Go to definition under cursor. It works much smarter than
+		default tag jump.
+
+		`:JsGotoDefinition`
+
+					      *SortJsFileImport*
+SortJsFileImport
 		Used for sorting imports alphabetically. If you want to sort
 		imports after each new import, check
 		|g:js_file_import_sort_after_insert|
 
-		`:call SortJsFileImport()`
+		`:SortJsFileImport`
+
+					      *RemoveUnusedJsFileImports*
+RemoveUnusedJsFileImports
+		Removes unused imports. Still experimental.
+
+		`:RemoveUnusedJsFileImports`
+
+==============================================================================
+4. Mappings					*vim-js-file-import-mappings*
+
+					      *<Leader>if*
+<leader>if
+		Executes *|JsFileImport|* command>
+
+					      *<Leader>ip*
+<leader>ip
+		Executes *|PromptJsFileImport|* command.
+
+					      *<Leader>ig*
+<leader>ig
+		Executes *|JsGotoDefinition|* command.
+
+					      *<Leader>is*
+<leader>is
+		Executes *|SortJsFileImport|* command.
+
+					      *<Leader>ic*
+<leader>ic
+		Executes *|RemoveUnusedJsFileImports|* command
+
+==============================================================================
+3. Functions					*vim-js-file-import-functions*
+
+					      *jsfileimport#word()*
+jsfileimport#word()
+		Used for importing package/filepath under cursor.
+
+		`:call jsfileimport#word()`
+
+					      *jsfileimport#prompt()*
+jsfileimport#prompt()
+		Used for importing package/filepath by prompting a user to
+		enter path to file or package name.
+		Path needs to be selected from the current
+		(n)vim working directory. Plugin takes care of determining
+		if it's full or partial import.
+
+		`:call jsfileimport#prompt()`
+
+					      *jsfileimport#goto()*
+jsfileimport#goto()
+		Go to definition under cursor. It works much smarter than
+		default tag jump.
+
+		`:call jsfileimport#goto()`
+
+					      *jsfileimport#sort()*
+jsfileimport#sort()
+		Used for sorting imports alphabetically. If you want to sort
+		imports after each new import, check
+		|g:js_file_import_sort_after_insert|
+
+		`:call jsfileimport#sort()`
+
+					      *jsfileimport#clean()*
+jsfileimport#clean()
+		Removes unused imports. Still experimental.
+		`:call jsfileimport#clean()`
 
 ==============================================================================
 4. Settings					*vim-js-file-import-settings*
@@ -110,9 +188,15 @@ g:js_file_import_prompt_if_no_tag
 
 		Default value: 1
 
+					      *g:js_file_import_no_mappings*
+g:js_file_import_no_mappings
+		Disable mappings.
+
+		Default value: 0
+
 					      *g:js_file_import_sort_command*
 g:js_file_import_sort_command
-		command used for sorting imports.
+		Command used for sorting imports.
 
 		Default value: `'{,'}-1sort i`
 

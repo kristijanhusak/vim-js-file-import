@@ -3,7 +3,7 @@ Basic test 1
 
 STARTTEST
 :%d
-aconst obj = new Bar:call JsFileImport()
+aconst obj = new Bar:JsFileImport
 a():w! test.out
 :qa!
 ENDTEST

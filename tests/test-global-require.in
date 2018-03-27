@@ -5,7 +5,7 @@ STARTTEST
 :%d
 aconst Foo = require('./test-global-require.fixtures/a');
 
-const randomNumber = lodash:call JsFileImport()
+const randomNumber = lodash:JsFileImport
 a.random();:w! test.out
 :qa!
 ENDTEST

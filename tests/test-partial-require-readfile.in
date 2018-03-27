@@ -4,7 +4,7 @@ Basic test 1
 STARTTEST
 :%d
 :let g:js_file_import_force_require = 1
-aconst obj = new Bar:call JsFileImport()
+aconst obj = new Bar:JsFileImport
 a():w! test.out
 :qa!
 ENDTEST

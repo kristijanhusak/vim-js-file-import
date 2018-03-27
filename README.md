@@ -6,8 +6,10 @@ If you want more robust solution, check [vim-import-js](https://github.com/Galoo
 
 ## Why?
 I tried using [vim-import-js](https://github.com/Galooshi/vim-import-js), but it's really slow when used on big projects.
+It is replacing the content of whole buffer when importing, which can cause losing some changes in the file.
 
 This plugin is written in vimscript and uses only python to generate relative paths, so it's performance is much better.
+Imports are only appended to the current buffer, instead of replacing the whole content.
 
 It doesn't handle all the cases that vim-import-js do, but works most of the time.
 
@@ -38,7 +40,7 @@ Plug 'kristijanhusak/vim-js-file-import'
 
 Add binding to vimrc
 ```vimL
-nnoremap <F5> :call JsFileImport()<CR>
+nnoremap <F5> :JsFileImport<CR>
 ```
 
 ### Examples
@@ -93,10 +95,10 @@ class App extends React.Component {
 
 ### Sorting
 
-To sort imports alphabetically use `SortJsFileImport()` function:
+To sort imports alphabetically use `SortJsFileImport` command:
 
 ```vimL
-nnoremap <F6> :call SortJsFileImport()
+nnoremap <F6> :SortJsFileImport<CR>
 ```
 
 This:
@@ -130,10 +132,10 @@ To disable this option, set `g:js_file_import_prompt_if_no_tag` to `0`:
 let g:js_file_import_prompt_if_no_tag = 0
 ```
 
-You can use prompt function whenever you want like this:
+You can use prompt command whenever you want like this:
 
 ```vimL
-nnoremap <F7> :call PromptJsFileImport()<CR>
+nnoremap <F7> :PromptJsFileImport<CR>
 ```
 
 
