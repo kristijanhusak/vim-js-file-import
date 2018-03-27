@@ -10,8 +10,8 @@ let g:js_file_import_prompt_if_no_tag = get(g:, 'js_file_import_prompt_if_no_tag
 let g:js_file_import_package_first = get(g:, 'js_file_import_package_first', 1)
 let g:js_file_import_no_mappings = get(g:, 'js_file_import_no_mappings', 0)
 
-command! JsFileImport call jsfileimport#word()<CR>
-command! PromptJsFileImport call jsfileimport#prompt()<CR>
-command! JsGotoDefinition call jsfileimport#goto()<CR>
-command! SortJsFileImport call jsfileimport#sort()<CR>
-command! RemoveUnusedJsFileImports call jsfileimport#clean()<CR>
+command! JsFileImport call jsfileimport#word()
+command! PromptJsFileImport call jsfileimport#prompt()
+command! JsGotoDefinition call jsfileimport#goto()
+command! SortJsFileImport call jsfileimport#sort()
+command! RemoveUnusedJsFileImports call jsfileimport#clean()
