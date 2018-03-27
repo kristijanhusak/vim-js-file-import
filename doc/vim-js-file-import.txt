@@ -89,23 +89,33 @@ RemoveUnusedJsFileImports
 
 					      *<Leader>if*
 <leader>if
-		Executes *|JsFileImport|* command>
+		Executes *|JsFileImport|* command.
+		To remove this mapping, check
+		*|g:js_file_import_no_mappings|*.
 
 					      *<Leader>ip*
 <leader>ip
 		Executes *|PromptJsFileImport|* command.
+		To remove this mapping, check
+		*|g:js_file_import_no_mappings|*.
 
 					      *<Leader>ig*
 <leader>ig
 		Executes *|JsGotoDefinition|* command.
+		To remove this mapping, check
+		*|g:js_file_import_no_mappings|*.
 
 					      *<Leader>is*
 <leader>is
 		Executes *|SortJsFileImport|* command.
+		To remove this mapping, check
+		*|g:js_file_import_no_mappings|*.
 
 					      *<Leader>ic*
 <leader>ic
-		Executes *|RemoveUnusedJsFileImports|* command
+		Executes *|RemoveUnusedJsFileImports|* command.
+		To remove this mapping, check
+		*|g:js_file_import_no_mappings|*.
 
 ==============================================================================
 3. Functions					*vim-js-file-import-functions*
