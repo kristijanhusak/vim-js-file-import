@@ -5,7 +5,7 @@ STARTTEST
 :%d
 aimport Foo from './test-sort-import.fixtures/a';
 import Bar from './test-sort-import.fixtures/a';
-:call SortJsFileImport()
+:SortJsFileImport
 :w! test.out
 :qa!
 ENDTEST

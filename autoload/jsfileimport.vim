@@ -460,7 +460,7 @@ endfunction "}}}
 
 function! s:finishImport() abort "{{{
   if g:js_file_import_sort_after_insert > 0
-    call SortJsFileImport(1)
+    call jsfileimport#sort(1)
   endif
 
   silent exe 'normal! `z'

@@ -5,7 +5,7 @@ STARTTEST
 :%d
 aconst Foo = require('./test-sort-import.fixtures/a');
 const Bar = require('./test-sort-import.fixtures/a');
-:call SortJsFileImport()
+:SortJsFileImport
 :w! test.out
 :qa!
 ENDTEST

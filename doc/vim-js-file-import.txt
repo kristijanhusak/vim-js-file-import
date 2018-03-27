@@ -163,7 +163,7 @@ g:js_file_import_force_require
 g:js_file_import_sort_after_insert
 		If you want all imports to be sorted after each new import,
 		set this value to `1`. If you want to do it manually,
-		check |SortJsFileImport()|.
+		check |SortJsFileImport|.
 
 		Default value: 0
 
