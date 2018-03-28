@@ -421,12 +421,17 @@ function! s:tagsHasFilename(tags, filename) abort "{{{
   return 0
 endfunction "}}}
 
-function! s:removeObsolete(idx, val) abort "{{{
-  let l:v = a:val['cmd']
-  let l:f = a:val['filename']
-  if l:v =~? 'import\s*from' || l:v =~? 'require(' || l:f =~? 'package.lock'
+function! s:removeObsolete(idx, tag) abort "{{{
+  if a:tag['filename'] =~? 'package.lock'
     return 0
   endif
+
+  let l:filters = extend(['import\s*from', 'require('], g:js_file_import_filters)
+  for l:filter in l:filters
+    if a:tag['cmd'] =~? l:filter
+      return 0
+    endif
+  endfor
 
   return 1
 endfunction "}}}

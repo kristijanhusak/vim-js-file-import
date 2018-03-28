@@ -9,6 +9,7 @@ let g:js_file_import_sort_after_insert = get(g:, 'js_file_import_sort_after_inse
 let g:js_file_import_prompt_if_no_tag = get(g:, 'js_file_import_prompt_if_no_tag', 1)
 let g:js_file_import_package_first = get(g:, 'js_file_import_package_first', 1)
 let g:js_file_import_no_mappings = get(g:, 'js_file_import_no_mappings', 0)
+let g:js_file_import_filters = get(g:, 'js_file_import_filters', [])
 
 command! JsFileImport call jsfileimport#word()
 command! PromptJsFileImport call jsfileimport#prompt()
