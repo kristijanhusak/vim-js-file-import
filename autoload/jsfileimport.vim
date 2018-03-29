@@ -60,7 +60,11 @@ function! jsfileimport#goto() abort
   let l:selection = inputlist(l:options)
   call inputrestore()
 
-  if l:selection < 0 || l:selection >= len(l:options)
+  if l:selection < 1
+    return 0
+  endif
+
+  if l:selection >= len(l:options)
     return s:error('Wrong selection.')
   endif
 
@@ -163,7 +167,11 @@ function! s:getTag(name, rgx) abort "{{{
   let l:selection = inputlist(l:options)
   call inputrestore()
 
-  if l:selection < 0 || l:selection >= len(l:options)
+  if l:selection < 1
+    throw ''
+  endif
+
+  if l:selection >= len(l:options)
     throw 'Wrong selection.'
   endif
 
