@@ -7,7 +7,7 @@ function! jsfileimport#prompt() abort
 endfunction
 
 function! jsfileimport#clean() abort
-  exe 'normal mz'
+  silent exe 'normal mz'
   let l:rgx = s:determineImportType()
   call cursor(1, 0)
   let l:start = search(l:rgx['lastimport'], 'c')
@@ -16,7 +16,7 @@ function! jsfileimport#clean() abort
   for l:line in getline(l:start, l:end)
     let l:list = matchlist(l:line, l:rgx['importName'])
     if len(l:list) >= 3 && s:countWordInFile(l:list[2]) <= 1
-      exe l:start.'d'
+      silent exe l:start.'d'
       continue
     endif
     let l:start += 1
@@ -26,13 +26,13 @@ endfunction
 
 function! jsfileimport#sort(...) abort
   if a:0 == 0
-    exe 'normal mz'
+    silent exe 'normal mz'
   endif
 
   let l:rgx = s:determineImportType()
 
   if search(l:rgx['selectForSort'], 'be') > 0
-    exe g:js_file_import_sort_command
+    silent exe g:js_file_import_sort_command
   endif
 
   silent exe 'normal! `z'
@@ -68,18 +68,12 @@ function! jsfileimport#goto() abort
 endfunction
 
 function! s:jumpToTag(tag) abort "{{{
-  let l:regex = ''
-  if a:tag['cmd'] !=? ''
-    let l:regex = a:tag['cmd'][1:(len(a:tag['cmd']) - 2)]
-  endif
-
-  exe 'e '.a:tag['filename']
-  call search(l:regex)
+  silent exe 'e '.a:tag['filename'].'|'.a:tag['cmd']
   return 1
 endfunction "}}}
 
 function! s:doImport(tagFnName) abort "{{{
-  exe 'normal mz'
+  silent exe 'normal mz'
 
   try
     call s:checkPythonSupport()
@@ -225,12 +219,12 @@ function! s:getFilePath(filepath) abort "{{{
   let l:pyCommand = has('python3') ? 'py3' : 'py'
   let l:path = a:filepath
 
-  exe l:pyCommand.' import vim, os.path'
-  exe l:pyCommand.' currentPath = vim.eval("expand(''%:p:h'')")'
-  exe l:pyCommand.' tagPath = vim.eval("fnamemodify(a:filepath, '':p'')")'
-  exe l:pyCommand.' path = os.path.splitext(os.path.relpath(tagPath, currentPath))[0]'
-  exe l:pyCommand.' leadingSlash = "./" if path[0] != "." else ""'
-  exe l:pyCommand.' vim.command(''let l:path = "%s%s"'' % (leadingSlash, path))'
+  silent exe l:pyCommand.' import vim, os.path'
+  silent exe l:pyCommand.' currentPath = vim.eval("expand(''%:p:h'')")'
+  silent exe l:pyCommand.' tagPath = vim.eval("fnamemodify(a:filepath, '':p'')")'
+  silent exe l:pyCommand.' path = os.path.splitext(os.path.relpath(tagPath, currentPath))[0]'
+  silent exe l:pyCommand.' leadingSlash = "./" if path[0] != "." else ""'
+  silent exe l:pyCommand.' vim.command(''let l:path = "%s%s"'' % (leadingSlash, path))'
 
   return l:path
 endfunction "}}}
@@ -314,7 +308,7 @@ function! s:processFullImport(name, rgx, path) abort "{{{
 
   if a:rgx['type'] ==? 'import' && search(l:existingImportRgx, 'n') > 0
     call search(l:existingImportRgx)
-    exe ':normal!i'.a:name.', '
+    silent exe ':normal!i'.a:name.', '
     return s:finishImport()
   endif
 
@@ -326,7 +320,7 @@ function! s:processSingleLinePartialImport(name) abort "{{{
   let l:firstChar = l:charUnderCursor ==? ',' ? ' ' : ', '
   let l:lastChar = l:charUnderCursor ==? ',' ? ',' : ''
 
-  exe ':normal!a'.l:firstChar.a:name.lastChar
+  silent exe ':normal!a'.l:firstChar.a:name.lastChar
 
   return s:finishImport()
 endfunction "}}}
@@ -336,14 +330,14 @@ function! s:processMultiLinePartialImport(name) abort "{{{
   let l:firstChar = l:charUnderCursor !=? ',' ? ',': ''
   let l:lastChar = l:charUnderCursor ==? ',' ? ',' : ''
 
-  exe ':normal!a'.l:firstChar
-  exe ':normal!o'.a:name.l:lastChar
+  silent exe ':normal!a'.l:firstChar
+  silent exe ':normal!o'.a:name.l:lastChar
 
   return s:finishImport()
 endfunction "}}}
 
 function! s:processPartialImportAlongsideFull(name) abort "{{{
-  exe ':normal!a, { '.a:name.' }'
+  silent exe ':normal!a, { '.a:name.' }'
 
   return s:finishImport()
 endfunction "}}}
@@ -389,24 +383,36 @@ function! s:appendTagsByFilename(tags, name, rgx) abort "{{{
   call add(l:search, substitute(a:name, '\C\(\<\u[a-z0-9]\+\|[a-z0-9]\+\)\(\u\)', '\l\1_\l\2', 'g')) "snake case
   call add(l:search, substitute(a:name, '_\(\l\)', '\u\1', 'g')) "lower camel case
   call add(l:search, substitute(a:name, '\(\%(\<\l\+\)\%(_\)\@=\)\|_\(\l\)', '\u\1\2', 'g')) "upper camel case
+  call uniq(l:search)
 
   for l:item in l:search
-    call s:appendFilenameToTags(a:tags, l:item, 'js')
-
-    if a:rgx['type'] ==? 'import'
-      call s:appendFilenameToTags(a:tags, l:item, 'jsx')
-    endif
+    call s:appendFilenameToTags(a:tags, l:item, a:rgx)
   endfor
 
   return a:tags
 endfunction "}}}
 
-function! s:appendFilenameToTags(tags, name, extension) abort "{{{
-  let l:file = findfile(a:name.'.'.a:extension, '**/*')
+function! s:appendFilenameToTags(tags, name, rgx) abort "{{{
+  let l:files = []
 
-  if l:file !=? '' && !s:tagsHasFilename(a:tags, l:file)
-    call add(a:tags, { 'filename': l:file, 'name': a:name, 'kind': 'C', 'cmd': '' })
+  if executable('rg')
+    let l:files = systemlist('rg -g "'.a:name.'.js*" --files .', a:name)
+  elseif executable('ag')
+    let l:files = systemlist('ag -g "(/|^)'.a:name.'.js.*"')
+  elseif executable('ack')
+    let l:files = systemlist('ack -g "(/|^)'.a:name.'.js.*"')
+  else
+    let l:files = [findfile(a:name.'.js', '**/*')]
+    if a:rgx['type'] ==? 'import'
+      call add(l:files, findfile(a:name.'.jsx', '**/*'))
+    endif
   endif
+
+  for l:file in l:files
+    if l:file !=? '' && !s:tagsHasFilename(a:tags, l:file)
+      call add(a:tags, { 'filename': l:file, 'name': a:name, 'kind': 'C', 'cmd': '' })
+    endif
+  endfor
 
   return a:tags
 endfunction "}}}
