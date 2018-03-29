@@ -50,7 +50,7 @@ function! jsfileimport#goto() abort
   endif
 
   if len(l:tags) == 1 || s:getFilePath(l:tags[0]['filename']) ==? l:currentFilePath
-    return s:jumpToTag(l:tags[0])
+    return s:jumpToTag(l:tags[0], l:currentFilePath)
   endif
 
   let l:tagSelectionList = s:generateTagSelectionlist(l:tags)
@@ -64,11 +64,19 @@ function! jsfileimport#goto() abort
     return s:error('Wrong selection.')
   endif
 
-  return s:jumpToTag(l:tags[l:selection - 1])
+  return s:jumpToTag(l:tags[l:selection - 1], l:currentFilePath)
 endfunction
 
-function! s:jumpToTag(tag) abort "{{{
-  silent exe 'e '.a:tag['filename'].'|'.a:tag['cmd']
+function! s:jumpToTag(tag, currentFilePath) abort "{{{
+  let l:tagPath = s:getFilePath(a:tag['filename'])
+
+  if l:tagPath !=? a:currentFilePath && bufname('%') !=? a:tag['filename']
+    silent exe 'e '.a:tag['filename']
+  else
+    "Sets the previous context mark to allow jumping to this location with CTRL-O
+    silent exe 'norm!m`'
+  endif
+  silent exe a:tag['cmd']
   return 1
 endfunction "}}}
 
