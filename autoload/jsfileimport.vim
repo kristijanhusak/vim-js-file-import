@@ -1,9 +1,9 @@
-function! jsfileimport#word() abort
-  return s:doImport('getTag')
+function! jsfileimport#word(...) abort
+  return s:doImport('getTag', a:0)
 endfunction
 
 function! jsfileimport#prompt() abort
-  return s:doImport('getTagDataFromPrompt')
+  return s:doImport('getTagDataFromPrompt', 0)
 endfunction
 
 function! jsfileimport#clean() abort
@@ -39,40 +39,56 @@ function! jsfileimport#sort(...) abort
   return 1
 endfunction
 
-function! jsfileimport#goto() abort
-  let l:name = expand('<cword>')
-  let l:rgx = s:determineImportType()
-  let l:tags = s:getTaglist(l:name, l:rgx)
-  let l:currentFilePath = s:getFilePath(expand('%:p'))
+function! jsfileimport#goto(...) abort
+  try
+    call s:checkPythonSupport()
+    let l:name = s:getWord()
+    let l:rgx = s:determineImportType()
+    let l:tags = s:getTaglist(l:name, l:rgx)
+    let l:currentFilePath = expand('%:p')
 
-  if len(l:tags) == 0
-    return s:error('Tag not found.')
-  endif
+    if len(l:tags) == 0
+      throw 'Tag not found.'
+    endif
 
-  if len(l:tags) == 1 || s:getFilePath(l:tags[0]['filename']) ==? l:currentFilePath
-    return s:jumpToTag(l:tags[0], l:currentFilePath)
-  endif
+    if a:0 == 0
+      if len(l:tags) == 1
+        return s:jumpToTag(l:tags[0], l:currentFilePath)
+      endif
 
-  let l:tagSelectionList = s:generateTagSelectionlist(l:tags)
-  let l:options = extend(['Select definition:'], l:tagSelectionList)
+      let l:tagInCurrentFile = s:getTagInCurrentFile(l:tags, l:currentFilePath)
 
-  call inputsave()
-  let l:selection = inputlist(l:options)
-  call inputrestore()
+      if l:tagInCurrentFile['filename'] !=? ''
+        return s:jumpToTag(l:tagInCurrentFile, l:currentFilePath)
+      endif
+    endif
 
-  if l:selection < 1
+    let l:tagSelectionList = s:generateTagSelectionlist(l:tags)
+    let l:options = extend(['Current path: '.expand('%'), 'Select definition:'], l:tagSelectionList)
+
+    call inputsave()
+    let l:selection = inputlist(l:options)
+    call inputrestore()
+
+    if l:selection < 1
+      return 0
+    endif
+
+    if l:selection >= len(l:options) - 1
+      throw 'Wrong selection.'
+    endif
+
+    return s:jumpToTag(l:tags[l:selection - 1], l:currentFilePath)
+  catch /.*/
+    if v:exception !=? ''
+      return s:error(v:exception)
+    endif
     return 0
-  endif
-
-  if l:selection >= len(l:options)
-    return s:error('Wrong selection.')
-  endif
-
-  return s:jumpToTag(l:tags[l:selection - 1], l:currentFilePath)
+  endtry
 endfunction
 
 function! s:jumpToTag(tag, currentFilePath) abort "{{{
-  let l:tagPath = s:getFilePath(a:tag['filename'])
+  let l:tagPath = fnamemodify(a:tag['filename'], ':p')
 
   if l:tagPath !=? a:currentFilePath && bufname('%') !=? a:tag['filename']
     silent exe 'e '.a:tag['filename']
@@ -84,15 +100,15 @@ function! s:jumpToTag(tag, currentFilePath) abort "{{{
   return 1
 endfunction "}}}
 
-function! s:doImport(tagFnName) abort "{{{
+function! s:doImport(tagFnName, showList) abort "{{{
   silent exe 'normal mz'
 
   try
     call s:checkPythonSupport()
-    let l:name = expand('<cword>')
+    let l:name = s:getWord()
     let l:rgx = s:determineImportType()
     call s:checkIfExists(l:name, l:rgx)
-    let l:tagData = call('s:'.a:tagFnName, [l:name, l:rgx])
+    let l:tagData = call('s:'.a:tagFnName, [l:name, l:rgx, a:showList])
 
     if l:tagData['global'] !=? ''
       return s:processImport(l:name, l:tagData['global'], l:rgx, 1)
@@ -108,7 +124,7 @@ function! s:doImport(tagFnName) abort "{{{
   endtry
 endfunction "}}}
 
-function! s:getTagDataFromPrompt(name, rgx) abort "{{{
+function! s:getTagDataFromPrompt(name, rgx, ...) abort "{{{
   call inputsave()
   let l:path = input('Path to file or package name: ', '', 'file')
   call inputrestore()
@@ -139,8 +155,9 @@ function! s:getTagDataFromPrompt(name, rgx) abort "{{{
   return l:tagData
 endfunction "}}}
 
-function! s:getTag(name, rgx) abort "{{{
+function! s:getTag(name, rgx, showList) abort "{{{
   let l:tags = s:getTaglist(a:name, a:rgx)
+  call filter(l:tags, function('s:removeTagsWithCurrentPath'))
 
   if len(l:tags) <= 0
     if s:isGlobalPackage(a:name) > 0
@@ -153,7 +170,7 @@ function! s:getTag(name, rgx) abort "{{{
     throw 'No tag found.'
   endif
 
-  if len(l:tags) == 1
+  if a:showList == 0 && len(l:tags) == 1
     return { 'tag': l:tags[0], 'global': s:checkIfGlobalTag(l:tags[0], a:name) }
   endif
 
@@ -189,6 +206,15 @@ function! s:getTaglist(name, rgx) abort "{{{
   call s:appendTagsByFilename(l:tags, a:name, a:rgx)
 
   return l:tags
+endfunction "}}}
+
+function! s:getTagInCurrentFile(tags, currentFilePath) abort "{{{
+  for l:tag in a:tags
+    if fnamemodify(l:tag['filename'], ':p') ==? a:currentFilePath
+      return l:tag
+    endif
+  endfor
+  return { 'filename': '' }
 endfunction "}}}
 
 function! s:generateTagSelectionlist(tags) abort "{{{
@@ -458,6 +484,14 @@ function! s:removeObsolete(idx, tag) abort "{{{
   return 1
 endfunction "}}}
 
+function! s:removeTagsWithCurrentPath(idx, tag) abort "{{{
+  if expand('%:p') ==? fnamemodify(a:tag['filename'], ':p')
+    return 0
+  endif
+
+  return 1
+endfunction "}}}
+
 function! s:isGlobalPackage(name) abort "{{{
   let l:packageJson = getcwd().'/package.json'
   if !filereadable(l:packageJson)
@@ -500,6 +534,16 @@ function! s:checkPythonSupport() abort "{{{
   endif
 
   return 1
+endfunction "}}}
+
+function! s:getWord() abort "{{{
+  let l:word = expand('<cword>')
+
+  if l:word !~? '\(\d\|\w\)'
+    throw 'Invalid word.'
+  endif
+
+  return l:word
 endfunction "}}}
 
 function! s:countWordInFile(word) abort "{{{

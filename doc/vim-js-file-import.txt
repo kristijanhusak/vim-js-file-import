@@ -50,8 +50,18 @@ Add mapping:
 					      *JsFileImport*
 JsFileImport
 		Used for importing package/filepath under cursor.
+		If there is only one tag found, it imports it by default.
+		If you want to see the list of available imports even if there
+		is only one entry, use *|JsFileImportList|*
 
 		`:JsFileImport`
+
+					      *JsFileImportList*
+JsFileImportList
+		Same as *|JsFileImport|* but always shows the list.
+		similar to *|g]|* when selecting a tag
+
+		`:JsFileImportList`
 
 					      *PromptJsFileImport*
 PromptJsFileImport
@@ -66,9 +76,19 @@ PromptJsFileImport
 					      *JsGotoDefinition*
 JsGotoDefinition
 		Go to definition under cursor. It works much smarter than
-		default tag jump.
+		default tag jump. If any of the tags in list has the same
+		filename as current buffer, jumps to that definition.
+		If you want to select another definition, use
+		*|JsGotoDefinitionList|*
 
 		`:JsGotoDefinition`
+
+					      *JsGotoDefinitionList*
+JsGotoDefinitionList
+		Same as *|JsGotoDefinition|* but always shows the list.
+		Similar to *|]g* for selecting a tag
+
+		`:JsGotoDefinitionList`
 
 					      *SortJsFileImport*
 SortJsFileImport
@@ -93,6 +113,12 @@ RemoveUnusedJsFileImports
 		To remove this mapping, check
 		*|g:js_file_import_no_mappings|*.
 
+					      *<Leader>iF*
+<leader>iF
+		Executes *|JsFileImportList|* command.
+		To remove this mapping, check
+		*|g:js_file_import_no_mappings|*.
+
 					      *<Leader>ip*
 <leader>ip
 		Executes *|PromptJsFileImport|* command.
@@ -102,6 +128,12 @@ RemoveUnusedJsFileImports
 					      *<Leader>ig*
 <leader>ig
 		Executes *|JsGotoDefinition|* command.
+		To remove this mapping, check
+		*|g:js_file_import_no_mappings|*.
+
+					      *<Leader>iG*
+<leader>iG
+		Executes *|JsGotoDefinitionList|* command.
 		To remove this mapping, check
 		*|g:js_file_import_no_mappings|*.
 
@@ -121,8 +153,10 @@ RemoveUnusedJsFileImports
 3. Functions					*vim-js-file-import-functions*
 
 					      *jsfileimport#word()*
-jsfileimport#word()
+jsfileimport#word(showList)
 		Used for importing package/filepath under cursor.
+		if `showList` is true, forces showing the list even if there
+		is only one entry.
 
 		`:call jsfileimport#word()`
 
@@ -137,9 +171,11 @@ jsfileimport#prompt()
 		`:call jsfileimport#prompt()`
 
 					      *jsfileimport#goto()*
-jsfileimport#goto()
+jsfileimport#goto(showList)
 		Go to definition under cursor. It works much smarter than
 		default tag jump.
+		if `showList` is true, forces showing the list even if there
+		is only one entry.
 
 		`:call jsfileimport#goto()`
 
