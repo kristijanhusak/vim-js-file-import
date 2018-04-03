@@ -80,7 +80,7 @@ function! s:jumpToTag(tag, currentFilePath) abort "{{{
     "Sets the previous context mark to allow jumping to this location with CTRL-O
     silent exe 'norm!m`'
   endif
-  silent exe a:tag['cmd']
+  silent exe escape(a:tag['cmd'], '[]')
   return 1
 endfunction "}}}
 
