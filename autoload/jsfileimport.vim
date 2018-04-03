@@ -87,6 +87,60 @@ function! jsfileimport#goto(...) abort
   endtry
 endfunction
 
+function! jsfileimport#findusage() abort
+  try
+  if !executable('rg') && !executable('ag')
+    throw 'rg (ripgrep) or ag (silversearcher) needed.'
+  endif
+  let l:rgx = s:determineImportType()
+  let l:word = s:getWord()
+  let l:currentFilePath = expand('%')
+  let l:executable = executable('rg') ? 'rg' : 'ag'
+  let l:line = line('.')
+
+  let l:files = systemlist(l:executable.' '.l:word.' --vimgrep .')
+  call filter(l:files, {idx, val -> val !~ '^'.l:currentFilePath.':'.l:line.'.*$'})
+  let l:options = ['Select usage:']
+
+  let l:index = 0
+  for l:file in l:files
+    let l:index += 1
+    call add(l:options, l:index.' - '.l:file)
+  endfor
+
+  call inputsave()
+  let l:selection = inputlist(l:options)
+  call inputrestore()
+
+  if l:selection < 1
+    throw ''
+  endif
+
+  if l:selection >= len(l:options)
+    throw 'Wrong selection.'
+  endif
+
+  let [l:filename, l:row, l:column] = matchlist(l:files[l:selection - 1], '\([^:]*\):\(\d*\):\(\d*\):\(.*\)')[1:3]
+  let l:openFileCommand = ''
+
+  if expand('%:p') !=? fnamemodify(l:filename, ':p')
+    let l:openFileCommand = 'e '.l:filename
+  else
+    silent exe 'norm!m`'
+  endif
+
+  let l:command = printf('%s|call cursor(%s, %s)', l:openFileCommand, l:row, l:column)
+  silent exe l:command
+  return 1
+  catch /.*/
+    if v:exception !=? ''
+      return s:error(v:exception)
+    endif
+    return 0
+  endtry
+  endtry
+endfunction
+
 function! s:jumpToTag(tag, currentFilePath) abort "{{{
   let l:tagPath = fnamemodify(a:tag['filename'], ':p')
 

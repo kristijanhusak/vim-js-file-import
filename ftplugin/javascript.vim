@@ -29,3 +29,7 @@ endif
 if !hasmapto(':RemoveUnusedJsFileImports<CR>') && maparg('<Leader>ic', 'n') == ''
   silent! nnoremap <buffer> <unique> <silent> <Leader>ic :RemoveUnusedJsFileImports<CR>
 endif
+
+if !hasmapto(':JsFindUsage<CR>') && maparg('<Leader>iu', 'n') == ''
+  silent! nnoremap <buffer> <unique> <silent> <Leader>iu :JsFindUsage<CR>
+endif
