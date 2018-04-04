@@ -46,5 +46,20 @@ function! jsfileimport#utils#_count_word_in_file(word) abort
   return float2nr(str2float(l:result))
 endfunction
 
+function jsfileimport#utils#_remove_duplicate_files(files) abort
+  let l:added = []
+  let l:newFiles = []
+
+  for l:file in a:files
+    let l:filename = split(l:file, ':')[0]
+    if index(l:added, l:filename) > -1
+      continue
+    endif
+    call add(l:newFiles, l:file)
+    call add(l:added, l:filename)
+  endfor
+
+  return l:newFiles
+endfunction
 
 " vim:foldenable:foldmethod=marker:sw=2
