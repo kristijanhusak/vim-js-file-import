@@ -7,15 +7,15 @@ function! jsfileimport#utils#_check_python_support() abort
 endfunction
 
 function! jsfileimport#utils#_get_file_path(filepath) abort
-  let l:pyCommand = has('python3') ? 'py3' : 'py'
+  let l:py_command = has('python3') ? 'py3' : 'py'
   let l:path = a:filepath
 
-  silent exe l:pyCommand.' import vim, os.path'
-  silent exe l:pyCommand.' currentPath = vim.eval("expand(''%:p:h'')")'
-  silent exe l:pyCommand.' tagPath = vim.eval("fnamemodify(a:filepath, '':p'')")'
-  silent exe l:pyCommand.' path = os.path.splitext(os.path.relpath(tagPath, currentPath))[0]'
-  silent exe l:pyCommand.' leadingSlash = "./" if path[0] != "." else ""'
-  silent exe l:pyCommand.' vim.command(''let l:path = "%s%s"'' % (leadingSlash, path))'
+  silent exe l:py_command.' import vim, os.path'
+  silent exe l:py_command.' current_path = vim.eval("expand(''%:p:h'')")'
+  silent exe l:py_command.' tag_path = vim.eval("fnamemodify(a:filepath, '':p'')")'
+  silent exe l:py_command.' path = os.path.splitext(os.path.relpath(tag_path, current_path))[0]'
+  silent exe l:py_command.' leading_slash = "./" if path[0] != "." else ""'
+  silent exe l:py_command.' vim.command(''let l:path = "%s%s"'' % (leading_slash, path))'
 
   return l:path
 endfunction
@@ -48,18 +48,18 @@ endfunction
 
 function jsfileimport#utils#_remove_duplicate_files(files) abort
   let l:added = []
-  let l:newFiles = []
+  let l:new_files = []
 
   for l:file in a:files
     let l:filename = split(l:file, ':')[0]
     if index(l:added, l:filename) > -1
       continue
     endif
-    call add(l:newFiles, l:file)
+    call add(l:new_files, l:file)
     call add(l:added, l:filename)
   endfor
 
-  return l:newFiles
+  return l:new_files
 endfunction
 
 " vim:foldenable:foldmethod=marker:sw=2

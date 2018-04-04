@@ -1,9 +1,9 @@
-function! jsfileimport#tags#_get_tag(name, rgx, showList) abort
+function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
   let l:tags = jsfileimport#tags#_get_taglist(a:name, a:rgx)
-  call filter(l:tags, function('s:removeTagsWithCurrentPath'))
+  call filter(l:tags, function('s:remove_tags_with_current_path'))
 
   if len(l:tags) <= 0
-    if s:isGlobalPackage(a:name) > 0
+    if s:is_global_package(a:name) > 0
       return { 'global': a:name }
     endif
     if g:js_file_import_prompt_if_no_tag
@@ -13,14 +13,14 @@ function! jsfileimport#tags#_get_tag(name, rgx, showList) abort
     throw 'No tag found.'
   endif
 
-  if a:showList == 0 && len(l:tags) == 1
-    return { 'tag': l:tags[0], 'global': s:checkIfGlobalTag(l:tags[0], a:name) }
+  if a:show_list == 0 && len(l:tags) == 1
+    return { 'tag': l:tags[0], 'global': s:check_if_global_tag(l:tags[0], a:name) }
   endif
 
-  let l:tagSelectionList = jsfileimport#tags#_generate_tags_selection_list(l:tags)
-  let l:promptIndex = len(l:tagSelectionList) + 1
-  let l:promptImport = [l:promptIndex.' - Enter path to file or package name manually']
-  let l:options = ['Select file to import:'] + l:tagSelectionList + l:promptImport
+  let l:tag_selection_list = jsfileimport#tags#_generate_tags_selection_list(l:tags)
+  let l:prompt_index = len(l:tag_selection_list) + 1
+  let l:prompt_import = [l:prompt_index.' - Enter path to file or package name manually']
+  let l:options = ['Select file to import:'] + l:tag_selection_list + l:prompt_import
 
   call inputsave()
   let l:selection = inputlist(l:options)
@@ -34,12 +34,12 @@ function! jsfileimport#tags#_get_tag(name, rgx, showList) abort
     throw 'Wrong selection.'
   endif
 
-  if l:selection == l:promptIndex
+  if l:selection == l:prompt_index
     return jsfileimport#tags#_get_tag_data_from_prompt(a:name, a:rgx)
   endif
 
-  let l:selectedTag = l:tags[l:selection - 1]
-  return { 'tag': l:selectedTag, 'global': s:checkIfGlobalTag(l:selectedTag, a:name) }
+  let l:selected_tag = l:tags[l:selection - 1]
+  return { 'tag': l:selected_tag, 'global': s:check_if_global_tag(l:selected_tag, a:name) }
 endfunction
 
 function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
@@ -51,32 +51,32 @@ function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
     throw 'No path entered.'
   endif
 
-  let l:tagData = { 'global': '', 'tag': { 'filename': l:path, 'cmd': '', 'kind': '' } }
-  let l:fullPath = getcwd().'/'.l:path
+  let l:tag_data = { 'global': '', 'tag': { 'filename': l:path, 'cmd': '', 'kind': '' } }
+  let l:full_path = getcwd().'/'.l:path
 
-  if filereadable(l:fullPath)
-    return l:tagData
+  if filereadable(l:full_path)
+    return l:tag_data
   endif
 
-  if s:isGlobalPackage(l:path)
-    let l:tagData['global'] = l:path
-    return l:tagData
+  if s:is_global_package(l:path)
+    let l:tag_data['global'] = l:path
+    return l:tag_data
   endif
 
   let l:choice = confirm('File or package not found. Import as:', "&File\n&Package\n&Cancel")
   if l:choice == 3
     throw ''
   elseif l:choice == 2
-    let l:tagData['global'] = l:path
+    let l:tag_data['global'] = l:path
   endif
 
-  return l:tagData
+  return l:tag_data
 endfunction
 
 function! jsfileimport#tags#_get_taglist(name, rgx) abort
   let l:tags = taglist('^'.a:name.'$')
-  call filter(l:tags, function('s:removeObsolete'))
-  call s:appendTagsByFilename(l:tags, a:name, a:rgx)
+  call filter(l:tags, function('s:remove_obsolete'))
+  call s:append_tags_by_filename(l:tags, a:name, a:rgx)
 
   return l:tags
 endfunction
@@ -94,19 +94,19 @@ function! jsfileimport#tags#_generate_tags_selection_list(tags) abort
   return l:options
 endfunction
 
-function! jsfileimport#tags#_get_tag_in_current_file(tags, currentFilePath) abort
+function! jsfileimport#tags#_get_tag_in_current_file(tags, current_file_path) abort
   for l:tag in a:tags
-    if fnamemodify(l:tag['filename'], ':p') ==? a:currentFilePath
+    if fnamemodify(l:tag['filename'], ':p') ==? a:current_file_path
       return l:tag
     endif
   endfor
   return { 'filename': '' }
 endfunction
 
-function! jsfileimport#tags#_jump_to_tag(tag, currentFilePath) abort
-  let l:tagPath = fnamemodify(a:tag['filename'], ':p')
+function! jsfileimport#tags#_jump_to_tag(tag, current_file_path) abort
+  let l:tag_path = fnamemodify(a:tag['filename'], ':p')
 
-  if l:tagPath !=? a:currentFilePath && bufname('%') !=? a:tag['filename']
+  if l:tag_path !=? a:current_file_path && bufname('%') !=? a:tag['filename']
     silent exe 'e '.a:tag['filename']
   else
     "Sets the previous context mark to allow jumping to this location with CTRL-O
@@ -116,7 +116,7 @@ function! jsfileimport#tags#_jump_to_tag(tag, currentFilePath) abort
   return 1
 endfunction
 
-function! s:removeTagsWithCurrentPath(idx, tag) abort "{{{
+function! s:remove_tags_with_current_path(idx, tag) abort "{{{
   if expand('%:p') ==? fnamemodify(a:tag['filename'], ':p')
     return 0
   endif
@@ -124,7 +124,7 @@ function! s:removeTagsWithCurrentPath(idx, tag) abort "{{{
   return 1
 endfunction "}}}
 
-function! s:tagsHasFilename(tags, filename) abort "{{{
+function! s:tags_has_filename(tags, filename) abort "{{{
   for l:tag in a:tags
     if l:tag['filename'] ==? a:filename
       return 1
@@ -134,7 +134,7 @@ function! s:tagsHasFilename(tags, filename) abort "{{{
   return 0
 endfunction "}}}
 
-function! s:removeObsolete(idx, tag) abort "{{{
+function! s:remove_obsolete(idx, tag) abort "{{{
   if a:tag['filename'] =~? 'package.lock'
     return 0
   endif
@@ -149,7 +149,7 @@ function! s:removeObsolete(idx, tag) abort "{{{
   return 1
 endfunction "}}}
 
-function! s:appendTagsByFilename(tags, name, rgx) abort "{{{
+function! s:append_tags_by_filename(tags, name, rgx) abort "{{{
   let l:search = []
   call add(l:search, substitute(a:name, '\C\(\<\u[a-z0-9]\+\|[a-z0-9]\+\)\(\u\)', '\l\1_\l\2', 'g')) "snake case
   call add(l:search, substitute(a:name, '_\(\l\)', '\u\1', 'g')) "lower camel case
@@ -157,13 +157,13 @@ function! s:appendTagsByFilename(tags, name, rgx) abort "{{{
   call uniq(l:search)
 
   for l:item in l:search
-    call s:appendFilenameToTags(a:tags, l:item, a:rgx)
+    call s:append_filename_to_tags(a:tags, l:item, a:rgx)
   endfor
 
   return a:tags
 endfunction "}}}
 
-function! s:appendFilenameToTags(tags, name, rgx) abort "{{{
+function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
   let l:files = []
 
   if executable('rg')
@@ -180,7 +180,7 @@ function! s:appendFilenameToTags(tags, name, rgx) abort "{{{
   endif
 
   for l:file in l:files
-    if l:file !=? '' && !s:tagsHasFilename(a:tags, l:file)
+    if l:file !=? '' && !s:tags_has_filename(a:tags, l:file)
       call add(a:tags, { 'filename': l:file, 'name': a:name, 'kind': 'C', 'cmd': '' })
     endif
   endfor
@@ -188,14 +188,14 @@ function! s:appendFilenameToTags(tags, name, rgx) abort "{{{
   return a:tags
 endfunction "}}}
 
-function! s:isGlobalPackage(name) abort "{{{
-  let l:packageJson = getcwd().'/package.json'
-  if !filereadable(l:packageJson)
+function! s:is_global_package(name) abort "{{{
+  let l:package_json = getcwd().'/package.json'
+  if !filereadable(l:package_json)
     return 0
   endif
 
-  let l:packageJsonData = readfile(l:packageJson, '')
-  let l:data = json_decode(join(l:packageJsonData))
+  let l:package_json_data = readfile(l:package_json, '')
+  let l:data = json_decode(join(l:package_json_data))
 
   if has_key(l:data, 'dependencies') && has_key(l:data['dependencies'], a:name)
     return 1
@@ -208,7 +208,7 @@ function! s:isGlobalPackage(name) abort "{{{
   return 0
 endfunction "}}}
 
-function! s:checkIfGlobalTag(tag, name) abort "{{{
+function! s:check_if_global_tag(tag, name) abort "{{{
   if a:tag['filename'] =~? 'package.json'
     return a:name
   endif
