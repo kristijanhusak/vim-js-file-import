@@ -9,7 +9,6 @@ endfunction
 function! jsfileimport#clean() abort
   silent exe 'normal! mz'
   let l:rgx = s:determine_import_type()
-  call cursor(1, 0)
   let l:start = search(l:rgx['lastimport'], 'c')
   let l:end = search(l:rgx['lastimport'], 'be')
 
@@ -295,7 +294,7 @@ function! s:determine_import_type() abort "{{{
         \ 'existing_full_path_only': '^\(const\|let\|var\)\s*\zs\<[^''"]\{-\}\>\ze\s*\_[^''"]\{-\}=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'existing_path_for_full': '^\(const\|let\|var\)\s*\zs{\s*\_[^''"]\{-\}\s*}\ze\s*=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'import': "const __FNAME__ = require('__FPATH__');",
-        \ 'lastimport': '^\(const\|let\|var\)\s\_.\{-\}require(.*;\?$',
+        \ 'lastimport': '^\(const\|let\|var\)\s\_[^''"]\{-\}require(.*;\?$',
         \ 'default_export': 'module.exports\s*=.\{-\}',
         \ 'partial_export': 'module.exports.\(\<__FNAME__\>\|\s*=\_[^{]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
         \ 'select_for_sort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
@@ -309,7 +308,7 @@ function! s:determine_import_type() abort "{{{
         \ 'existing_full_path_only': '^import\s*\zs\<[^''"]\{-\}\>\ze\s*from\s*[''"]__FPATH__[''"];\?$',
         \ 'existing_path_for_full': '^import\s*\zs{\s*\_[^''"]\{-\}\s*}\ze\s*from\s*[''"]__FPATH__[''"];\?$',
         \ 'import': "import __FNAME__ from '__FPATH__';",
-        \ 'lastimport': '^import\s\_.\{-\}from.*;\?$',
+        \ 'lastimport': '^import\s\_[^''"]\{-\}from.*;\?$',
         \ 'default_export': 'export\s*default.\{-\}',
         \ 'partial_export': 'export\s*\(const\|var\|function\)\s*\<__FNAME__\>',
         \ 'select_for_sort': '^import\s*\zs.*\ze\s*from.*;\?$',
