@@ -11,7 +11,7 @@ vim-js-file-import			    *vim-js-file-import*
 2. Install				    |vim-js-file-import-install|
 3. Commands				    |vim-js-file-import-commands|
 4. Mappings				    |vim-js-file-import-mappings|
-5. Functions				    |vim-js-file-import-functions|
+5. Internal Mappings                        |vim-js-file-import-internal-mappings|
 6. Settings				    |vim-js-file-import-settings|
 
 ==============================================================================
@@ -45,7 +45,9 @@ Add mapping:
 `nnoremap <F5> JsFileImport`
 
 ==============================================================================
-3. Commands					*vim-js-file-import-commands*
+3. Commands (Deprecated)			  *vim-js-file-import-commands*
+
+Commands are deprecated, use `<Plug>` mappings.
 
 					      *JsFileImport*
 JsFileImport
@@ -109,88 +111,83 @@ RemoveUnusedJsFileImports
 
 					      *<Leader>if*
 <leader>if
-		Executes *|JsFileImport|* command.
+		Mapped to *|<Plug>JsFileImport|*
 		To remove this mapping, check
 		*|g:js_file_import_no_mappings|*.
+
+		`Modes: Normal, Visual`
 
 					      *<Leader>iF*
 <leader>iF
-		Executes *|JsFileImportList|* command.
+		Mapped to *|<Plug>JsFileImportList|*
 		To remove this mapping, check
 		*|g:js_file_import_no_mappings|*.
+
+		`Modes: Normal, Visual`
 
 					      *<Leader>ip*
 <leader>ip
-		Executes *|PromptJsFileImport|* command.
+		Mapped to *|<Plug>PromptJsFileImport|*
 		To remove this mapping, check
 		*|g:js_file_import_no_mappings|*.
 
+		`Modes: Normal`
 					      *<Leader>ig*
 <leader>ig
-		Executes *|JsGotoDefinition|* command.
+		Mapped to *|<Plug>JsGotoDefinition|*
 		To remove this mapping, check
 		*|g:js_file_import_no_mappings|*.
 
+		`Modes: Normal, Visual`
 					      *<Leader>iG*
 <leader>iG
-		Executes *|JsGotoDefinitionList|* command.
+		Mapped to *|<Plug>JsGotoDefinitionList|*
 		To remove this mapping, check
 		*|g:js_file_import_no_mappings|*.
 
+		`Modes: Normal, Visual`
 					      *<Leader>is*
 <leader>is
-		Executes *|SortJsFileImport|* command.
+		Mapped to *|<Plug>SortJsFileImport|*
 		To remove this mapping, check
 		*|g:js_file_import_no_mappings|*.
 
+		`Modes: Normal`
 					      *<Leader>ic*
 <leader>ic
-		Executes *|RemoveUnusedJsFileImports|* command.
+		Mapped to *|<Plug>RemoveUnusedJsFileImports|*
 		To remove this mapping, check
 		*|g:js_file_import_no_mappings|*.
 
+		`Modes: Normal`
+
 ==============================================================================
-3. Functions					*vim-js-file-import-functions*
+3. Internal mappings                      *vim-js-file-import-internal-mappings*
 
-					      *jsfileimport#word()*
-jsfileimport#word(showList)
-		Used for importing package/filepath under cursor.
-		if `showList` is true, forces showing the list even if there
-		is only one entry.
+nnoremap <silent> <Plug>(JsFileImport)
+xnoremap <silent> <Plug>(JsFileImport)
 
-		`:call jsfileimport#word()`
+nnoremap <silent> <Plug>(JsFileImportList)
+xnoremap <silent> <Plug>(JsFileImportList)
 
-					      *jsfileimport#prompt()*
-jsfileimport#prompt()
-		Used for importing package/filepath by prompting a user to
-		enter path to file or package name.
-		Path needs to be selected from the current
-		(n)vim working directory. Plugin takes care of determining
-		if it's full or partial import.
+nnoremap <silent> <Plug>(JsGotoDefinition)
+xnoremap <silent> <Plug>(JsGotoDefinition)
 
-		`:call jsfileimport#prompt()`
+nnoremap <silent> <Plug>(JsGotoDefinitionList)
+xnoremap <silent> <Plug>(JsGotoDefinitionList)
 
-					      *jsfileimport#goto()*
-jsfileimport#goto(showList)
-		Go to definition under cursor. It works much smarter than
-		default tag jump.
-		if `showList` is true, forces showing the list even if there
-		is only one entry.
+nnoremap <silent> <Plug>(JsFindUsage)
+xnoremap <silent> <Plug>(JsFindUsage)
 
-		`:call jsfileimport#goto()`
+nnoremap <silent> <Plug>(SortJsFileImport)
+nnoremap <silent> <Plug>(RemoveUnusedJsFileImports)
+nnoremap <silent> <Plug>(PromptJsFileImport)
 
-					      *jsfileimport#sort()*
-jsfileimport#sort()
-		Used for sorting imports alphabetically. If you want to sort
-		imports after each new import, check
-		|g:js_file_import_sort_after_insert|
-
-		`:call jsfileimport#sort()`
-
-					      *jsfileimport#clean()*
-jsfileimport#clean()
-		Removes unused imports. Still experimental.
-		`:call jsfileimport#clean()`
+Example usage:
+Map import to <C-u> in normal mode
+`nmap <C-u> <Plug>(JsFileImport)`
+Map import to <C-u> in visual mode
+`xmap <C-u> <Plug>(JsFileImport)`
 
 ==============================================================================
 4. Settings					*vim-js-file-import-settings*

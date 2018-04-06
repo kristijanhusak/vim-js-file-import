@@ -6,7 +6,7 @@ STARTTEST
 :let g:js_file_import_sort_after_insert = 1
 aimport Foo from './test-sort-after-import.fixtures/foo';
 
-const obj = new Bar:JsFileImport
+const obj = new Bar\if
 a():w! test.out
 :qa!
 ENDTEST

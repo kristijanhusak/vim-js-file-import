@@ -103,25 +103,29 @@ class App extends React.Component {
 By default, following mappings are used if they are not already taken:
 
 ```vimL
-nnoremap <Leader>if :JsFileImport<CR>
+nnoremap <Leader>if <Plug>(JsFileImport)
 
-nnoremap <Leader>ip :PromptJsFileImport<CR>
+nnoremap <Leader>iF <Plug>(JsFileImportList)
 
-nnoremap <Leader>ig :JsGotoDefinition<CR>
+nnoremap <Leader>ig <Plug>(JsGotoDefinition)
 
-nnoremap <Leader>is :SortJsFileImport<CR>
+nnoremap <Leader>iG <Plug>(JsGotoDefinition)
 
-nnoremap <Leader>ic :RemoveUnusedJsFileImports<CR>
+nnoremap <Leader>ip <Plug>(PromptJsFileImport)
+
+nnoremap <Leader>is <Plug>(SortJsFileImport)
+
+nnoremap <Leader>ic <Plug>(RemoveUnusedJsFileImports)
 ```
 
 ### Goto definition
 
-To jump to definition use `<Leader>ig` mapping or `JsGotoDefinition` command.
+To jump to definition use `<Leader>ig` mapping.
 It is much smarter than default (n)vim `tag <word>` jump.
 
 ### Sorting
 
-To sort imports alphabetically use `SortJsFileImport` command:
+To sort imports alphabetically use `SortJsFileImport` mapping `<Leader>is`:
 
 This:
 ```js
@@ -154,7 +158,7 @@ To disable this option, set `g:js_file_import_prompt_if_no_tag` to `0`:
 let g:js_file_import_prompt_if_no_tag = 0
 ```
 
-You can use prompt command whenever you want with mapping `<Leader>ip` or command `PromptJsFileImport`
+You can use prompt whenever you want with mapping `<Leader>ip`
 
 By default `import [name] from [file]` is used to add new imports, in case when there are no any other existing imports.
 If file contains at least one `require([file])`, it will use the `require()` to import files.
@@ -171,6 +175,22 @@ To import package the same way as files (last), add this flag to settings:
 ```vimL
 let g:js_file_import_package_first = 0
 ```
+
+
+#### Overriding mappings
+If you want to use different mappings, you can disable them all with this setting:
+```vimL
+let g:js_file_import_no_mappings = 1
+```
+
+And then add your mappings like this:
+
+```vimL
+nmap <C-i> <Plug>(JsFileImport)
+nmap <C-u> <Plug>(PromptJsFileImport)
+```
+
+Check help docs for more information.
 
 ### Contributing
 There are no any special guidelines for contributing.

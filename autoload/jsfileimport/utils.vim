@@ -27,8 +27,19 @@ function! jsfileimport#utils#_error(msg) abort
   return 0
 endfunction
 
-function! jsfileimport#utils#_get_word() abort
+function! jsfileimport#utils#_get_word(is_visual_mode) abort
   let l:word = expand('<cword>')
+
+  if a:is_visual_mode
+    let [l:line_start, l:column_start] = getpos("'<")[1:2]
+    let [l:line_end, l:column_end] = getpos("'>")[1:2]
+    let l:lines = getline(l:line_start, l:line_end)
+    if len(l:lines) !=? 0
+      let l:lines[-1] = l:lines[-1][:l:column_end - (&selection ==? 'inclusive' ? 1 : 2)]
+      let l:lines[0] = l:lines[0][l:column_start - 1:]
+      let l:word = join(l:lines, '\n')
+    endif
+  endif
 
   if l:word !~? '\(\d\|\w\)'
     throw 'Invalid word.'

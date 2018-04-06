@@ -152,9 +152,9 @@ endfunction "}}}
 function! s:append_tags_by_filename(tags, name, rgx) abort "{{{
   let l:search = []
   call add(l:search, substitute(a:name, '\C\(\<\u[a-z0-9]\+\|[a-z0-9]\+\)\(\u\)', '\l\1_\l\2', 'g')) "snake case
-  call add(l:search, substitute(a:name, '_\(\l\)', '\u\1', 'g')) "lower camel case
-  call add(l:search, substitute(a:name, '\(\%(\<\l\+\)\%(_\)\@=\)\|_\(\l\)', '\u\1\2', 'g')) "upper camel case
-  call uniq(l:search)
+  call add(l:search, substitute(l:search[0], '_\(\l\)', '\u\1', 'g')) "lower camel case
+  call add(l:search, substitute(l:search[0], '\(\%(\<\l\+\)\%(_\)\@=\)\|_\(\l\)', '\u\1\2', 'g')) "upper camel case
+  call uniq(sort(l:search))
 
   for l:item in l:search
     call s:append_filename_to_tags(a:tags, l:item, a:rgx)

@@ -1,9 +1,9 @@
-function! jsfileimport#word(...) abort
-  return s:do_import('jsfileimport#tags#_get_tag', a:0)
+function! jsfileimport#word(is_visual_mode, ...) abort
+  return s:do_import('jsfileimport#tags#_get_tag', a:is_visual_mode, a:0)
 endfunction
 
 function! jsfileimport#prompt() abort
-  return s:do_import('jsfileimport#tags#_get_tag_data_from_prompt', 0)
+  return s:do_import('jsfileimport#tags#_get_tag_data_from_prompt', 0, 0)
 endfunction
 
 function! jsfileimport#clean() abort
@@ -38,10 +38,10 @@ function! jsfileimport#sort(...) abort
   return 1
 endfunction
 
-function! jsfileimport#goto(...) abort
+function! jsfileimport#goto(is_visual_mode, ...) abort
   try
     call jsfileimport#utils#_check_python_support()
-    let l:name = jsfileimport#utils#_get_word()
+    let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
     let l:rgx = s:determine_import_type()
     let l:tags = jsfileimport#tags#_get_taglist(l:name, l:rgx)
     let l:current_file_path = expand('%:p')
@@ -86,13 +86,13 @@ function! jsfileimport#goto(...) abort
   endtry
 endfunction
 
-function! jsfileimport#findusage() abort
+function! jsfileimport#findusage(is_visual_mode) abort
   try
   if !executable('rg') && !executable('ag')
     throw 'rg (ripgrep) or ag (silversearcher) needed.'
   endif
   let l:rgx = s:determine_import_type()
-  let l:word = jsfileimport#utils#_get_word()
+  let l:word = jsfileimport#utils#_get_word(a:is_visual_mode)
   let l:current_file_path = expand('%')
   let l:executable = executable('rg') ? 'rg --sort-files' : 'ag'
   let l:line = line('.')
@@ -122,12 +122,12 @@ function! jsfileimport#findusage() abort
   endtry
 endfunction
 
-function! s:do_import(tag_fn_name, show_list) abort "{{{
+function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
   silent exe 'normal! mz'
 
   try
     call jsfileimport#utils#_check_python_support()
-    let l:name = jsfileimport#utils#_get_word()
+    let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
     let l:rgx = s:determine_import_type()
     call s:check_if_exists(l:name, l:rgx)
     let l:tag_data = call(a:tag_fn_name, [l:name, l:rgx, a:show_list])

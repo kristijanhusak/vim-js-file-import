@@ -4,7 +4,7 @@ STARTTEST
 :%d
 aimport Bar from './test-partial-import-alongside-full.fixtures/a';
 
-const obj = new Foo:JsFileImport
+const obj = new Foo\if
 a():w! test.out
 :qa!
 ENDTEST

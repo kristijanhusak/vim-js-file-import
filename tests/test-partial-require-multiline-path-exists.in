@@ -8,7 +8,7 @@ Foo,
 Baz,
 } = require('./test-partial-require-multiline-path-exists.fixtures/a');
 
-const obj = new Bar:JsFileImport
+const obj = new Bar\if
 a():w! test.out
 :qa!
 ENDTEST
