@@ -11,8 +11,6 @@ let g:js_file_import_package_first = get(g:, 'js_file_import_package_first', 1)
 let g:js_file_import_no_mappings = get(g:, 'js_file_import_no_mappings', 0)
 let g:js_file_import_filters = get(g:, 'js_file_import_filters', [])
 
-let s:use_list = 1
-
 command! JsFileImport call jsfileimport#word(0)
 command! JsFileImportList call jsfileimport#word(0, 1)
 command! PromptJsFileImport call jsfileimport#prompt()
@@ -25,8 +23,8 @@ command! JsFindUsage call jsfileimport#findusage(0)
 nnoremap <silent> <Plug>(JsFileImport) :<C-u>call jsfileimport#word(0)<CR>
 xnoremap <silent> <Plug>(JsFileImport) :<C-u>call jsfileimport#word(1)<CR>
 
-nnoremap <silent> <Plug>(JsFileImportList) :<C-u>call jsfileimport#word(0, s:use_list)<CR>
-xnoremap <silent> <Plug>(JsFileImportList) :<C-u>call jsfileimport#word(1, s:use_list)<CR>
+nnoremap <silent> <Plug>(JsFileImportList) :<C-u>call jsfileimport#word(0, 1)<CR>
+xnoremap <silent> <Plug>(JsFileImportList) :<C-u>call jsfileimport#word(1, 1)<CR>
 
 nnoremap <silent> <Plug>(JsGotoDefinition) :<C-u>call jsfileimport#goto(0)<CR>
 xnoremap <silent> <Plug>(JsGotoDefinition) :<C-u>call jsfileimport#goto(1)<CR>
