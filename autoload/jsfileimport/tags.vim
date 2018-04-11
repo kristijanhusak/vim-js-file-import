@@ -181,7 +181,7 @@ function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
   endif
 
   for l:file in l:files
-    if l:file !=? '' && !s:tags_has_filename(a:tags, l:file)
+    if l:file !=? '' && !s:tags_has_filename(a:tags, l:file) && expand('%:p') !=? fnamemodify(l:file, ':p')
       call add(a:tags, { 'filename': l:file, 'name': a:name, 'kind': 'C', 'cmd': '' })
     endif
   endfor
