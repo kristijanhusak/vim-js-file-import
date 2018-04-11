@@ -21,6 +21,7 @@ function! jsfileimport#utils#_get_file_path(filepath) abort
 endfunction
 
 function! jsfileimport#utils#_error(msg) abort
+  silent exe 'redraw'
   echohl Error
   echo a:msg
   echohl NONE

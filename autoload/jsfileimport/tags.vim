@@ -35,6 +35,7 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
   endif
 
   if l:selection == l:prompt_index
+    silent exe 'redraw'
     return jsfileimport#tags#_get_tag_data_from_prompt(a:name, a:rgx)
   endif
 
