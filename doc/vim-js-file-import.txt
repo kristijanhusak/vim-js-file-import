@@ -9,7 +9,7 @@ vim-js-file-import			    *vim-js-file-import*
 
 1. Introduction				    |vim-js-file-import-introduction|
 2. Install				    |vim-js-file-import-install|
-3. Commands				    |vim-js-file-import-commands|
+3. Commands (Deprecated)		    |vim-js-file-import-commands|
 4. Mappings				    |vim-js-file-import-mappings|
 5. Internal Mappings                        |vim-js-file-import-internal-mappings|
 6. Settings				    |vim-js-file-import-settings|
@@ -29,6 +29,8 @@ Main features:
 5. Manually import by typing in file path or package name
 6. Smarter go to definition
 
+Additional features:
+1. Supports repeat.vim
 
 ==============================================================================
 2. Install					*vim-js-file-import-install*
@@ -42,7 +44,7 @@ Install with `Plug`
 `Plug 'kristijanhusak/vim-js-file-import'`
 
 Add mapping:
-`nnoremap <F5> JsFileImport`
+`nnoremap <F5> <Plug>(JsFileImport)`
 
 ==============================================================================
 3. Commands (Deprecated)			  *vim-js-file-import-commands*

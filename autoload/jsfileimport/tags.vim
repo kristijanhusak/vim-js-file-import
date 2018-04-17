@@ -104,7 +104,7 @@ function! jsfileimport#tags#_get_tag_in_current_file(tags, current_file_path) ab
   return { 'filename': '' }
 endfunction
 
-function! jsfileimport#tags#_jump_to_tag(tag, current_file_path) abort
+function! jsfileimport#tags#_jump_to_tag(tag, current_file_path, show_list) abort
   let l:tag_path = fnamemodify(a:tag['filename'], ':p')
 
   if l:tag_path !=? a:current_file_path && bufname('%') !=? a:tag['filename']
@@ -114,6 +114,8 @@ function! jsfileimport#tags#_jump_to_tag(tag, current_file_path) abort
     silent exe 'norm!m`'
   endif
   silent exe escape(a:tag['cmd'], '[]')
+  let l:repeatMapping = a:show_list ? 'JsGotoDefinitionList' : 'JsGotoDefinition'
+  silent! call repeat#set("\<Plug>(".l:repeatMapping.')')
   return 1
 endfunction
 

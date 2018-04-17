@@ -1,9 +1,12 @@
 function! jsfileimport#word(is_visual_mode, ...) abort
-  return s:do_import('jsfileimport#tags#_get_tag', a:is_visual_mode, a:0)
+  call s:do_import('jsfileimport#tags#_get_tag', a:is_visual_mode, a:0)
+  let l:repeatMapping = a:0 > 0 ? 'JsFileImportList' : 'JsFileImport'
+  silent! call repeat#set("\<Plug>(".l:repeatMapping.')')
 endfunction
 
 function! jsfileimport#prompt() abort
-  return s:do_import('jsfileimport#tags#_get_tag_data_from_prompt', 0, 0)
+  call s:do_import('jsfileimport#tags#_get_tag_data_from_prompt', 0, 0)
+  silent! call repeat#set("\<Plug>(PromptJsFileImport)")
 endfunction
 
 function! jsfileimport#clean() abort
@@ -45,20 +48,21 @@ function! jsfileimport#goto(is_visual_mode, ...) abort
     let l:rgx = s:determine_import_type()
     let l:tags = jsfileimport#tags#_get_taglist(l:name, l:rgx)
     let l:current_file_path = expand('%:p')
+    let l:show_list = a:0 > 0
 
     if len(l:tags) == 0
       throw 'Tag not found.'
     endif
 
-    if a:0 == 0
+    if !l:show_list
       if len(l:tags) == 1
-        return jsfileimport#tags#_jump_to_tag(l:tags[0], l:current_file_path)
+        return jsfileimport#tags#_jump_to_tag(l:tags[0], l:current_file_path, l:show_list)
       endif
 
       let l:tag_in_current_file = jsfileimport#tags#_get_tag_in_current_file(l:tags, l:current_file_path)
 
       if l:tag_in_current_file['filename'] !=? ''
-        return jsfileimport#tags#_jump_to_tag(l:tag_in_current_file, l:current_file_path)
+        return jsfileimport#tags#_jump_to_tag(l:tag_in_current_file, l:current_file_path, l:show_list)
       endif
     endif
 
@@ -77,7 +81,7 @@ function! jsfileimport#goto(is_visual_mode, ...) abort
       throw 'Wrong selection.'
     endif
 
-    return jsfileimport#tags#_jump_to_tag(l:tags[l:selection - 1], l:current_file_path)
+    return jsfileimport#tags#_jump_to_tag(l:tags[l:selection - 1], l:current_file_path, l:show_list)
   catch /.*/
     if v:exception !=? ''
       return jsfileimport#utils#_error(v:exception)
@@ -88,37 +92,37 @@ endfunction
 
 function! jsfileimport#findusage(is_visual_mode) abort
   try
-  if !executable('rg') && !executable('ag')
-    throw 'rg (ripgrep) or ag (silversearcher) needed.'
-  endif
-  let l:rgx = s:determine_import_type()
-  let l:word = jsfileimport#utils#_get_word(a:is_visual_mode)
-  let l:current_file_path = expand('%')
-  let l:executable = executable('rg') ? 'rg --sort-files' : 'ag'
-  let l:line = line('.')
+    if !executable('rg') && !executable('ag')
+      throw 'rg (ripgrep) or ag (silversearcher) needed.'
+    endif
+    let l:rgx = s:determine_import_type()
+    let l:word = jsfileimport#utils#_get_word(a:is_visual_mode)
+    let l:current_file_path = expand('%')
+    let l:executable = executable('rg') ? 'rg --sort-files' : 'ag'
+    let l:line = line('.')
 
-  let l:files = systemlist(l:executable.' '.l:word.' --vimgrep .')
-  " Remove current line from list
-  call filter(l:files, {idx, val -> val !~ '^'.l:current_file_path.':'.l:line.'.*$'})
+    let l:files = systemlist(l:executable.' '.l:word.' --vimgrep .')
+    " Remove current line from list
+    call filter(l:files, {idx, val -> val !~ '^'.l:current_file_path.':'.l:line.'.*$'})
 
-  if len(l:files) > 30
-    let l:files = jsfileimport#utils#_remove_duplicate_files(l:files)
-  endif
-  let l:options = []
-  for l:file in l:files
-    let [l:filename, l:row, l:col, l:pattern] = matchlist(l:file, '\([^:]*\):\(\d*\):\(\d*\):\(.*\)')[1:4]
-    call add(l:options, { 'filename': l:filename, 'lnum': l:row, 'col': l:col, 'text': l:pattern })
-  endfor
+    if len(l:files) > 30
+      let l:files = jsfileimport#utils#_remove_duplicate_files(l:files)
+    endif
+    let l:options = []
+    for l:file in l:files
+      let [l:filename, l:row, l:col, l:pattern] = matchlist(l:file, '\([^:]*\):\(\d*\):\(\d*\):\(.*\)')[1:4]
+      call add(l:options, { 'filename': l:filename, 'lnum': l:row, 'col': l:col, 'text': l:pattern })
+    endfor
 
-  call setqflist(l:options)
-  silent exe 'copen'
-  return 1
+    call setqflist(l:options)
+    silent exe 'copen'
+    silent! call repeat#set("\<Plug>(JsFindUsage)")
+    return 1
   catch /.*/
     if v:exception !=? ''
       return jsfileimport#utils#_error(v:exception)
     endif
     return 0
-  endtry
   endtry
 endfunction
 
