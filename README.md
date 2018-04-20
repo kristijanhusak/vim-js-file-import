@@ -23,6 +23,7 @@ handles, and [vim-import-js](https://github.com/Galooshi/vim-import-js) is missi
 * [Goto definition](#goto-definition)
 * [Sorting](#sorting)
 * [Settings](#settings)
+* [Deoplete strip file extension](#deoplete-strip-file-extension)
 * [Contributing](#contributing)
 
 ### Requirements
@@ -191,6 +192,28 @@ nmap <C-u> <Plug>(PromptJsFileImport)
 ```
 
 Check help docs for more information.
+
+### Deoplete strip file extension
+If you are using [deoplete.nvim](https://github.com/Shougo/deoplete.nvim) and it's file autocomplete to import files,
+you probably noticed that the file extension is also part of the name when you autocomplete it,
+so you need to remove it manually each time.
+This plugin adds a small deoplete converter that strips that file extension out
+of the completion word and shows it separately.
+So instead of getting this in autocomplete:
+```
+user_service.js [F]
+MyButton.jsx [F]
+```
+You get this:
+```
+user_service [F] [js]
+MyButton [F] [jsx]
+```
+
+This is enabled by default (only for javascript syntax). To disable this option, add this to your vimrc:
+```vimL
+let g:deoplete_strip_file_extension = 0
+```
 
 ### Contributing
 There are no any special guidelines for contributing.

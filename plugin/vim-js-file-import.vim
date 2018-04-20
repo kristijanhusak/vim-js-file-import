@@ -10,6 +10,7 @@ let g:js_file_import_prompt_if_no_tag = get(g:, 'js_file_import_prompt_if_no_tag
 let g:js_file_import_package_first = get(g:, 'js_file_import_package_first', 1)
 let g:js_file_import_no_mappings = get(g:, 'js_file_import_no_mappings', 0)
 let g:js_file_import_filters = get(g:, 'js_file_import_filters', [])
+let g:deoplete_strip_file_extension = get(g:, 'deoplete_strip_file_extension', 1)
 
 command! JsFileImport call jsfileimport#word(0)
 command! JsFileImportList call jsfileimport#word(0, 1)

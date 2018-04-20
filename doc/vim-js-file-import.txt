@@ -203,6 +203,26 @@ g:js_file_import_force_require
 		Set this to `1` to force using `require()`.
 
 		Default value: 0
+					      *g:deoplete_strip_file_extension*
+g:deoplete_strip_file_extension
+		If you are using `deoplete.nvim` and it's file autocomplete
+		source to import files, you probably noticed that the file
+		extension is also part of the name when you autocomplete it,
+		so you need to remove it manually each time. This option adds
+		a small deoplete converter that strips that file extension out
+		of the completion word and shows it separately.
+		So instead of getting this in autocomplete:
+		`user_service.js [F]`
+		`MyButton.jsx [F]`
+		You get this:
+		`user_service [F] [js]`
+		`MyButton [F] [jsx]`
+
+		In 2nd case, you for first item you will get `user_service`
+		autocompleted instead of `user_service.js` that happens by
+		default.
+
+		Default value: 1
 
 					      *g:js_file_import_sort_after_insert*
 g:js_file_import_sort_after_insert

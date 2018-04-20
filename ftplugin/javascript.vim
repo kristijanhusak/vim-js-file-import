@@ -2,6 +2,10 @@ if g:js_file_import_no_mappings
   finish
 endif
 
+if exists('g:deoplete#enable_at_startup') && g:deoplete#enable_at_startup ==? 1 && g:deoplete_strip_file_extension ==? 1
+  call deoplete#custom#source('file', 'converters', ['converter_strip_file_extension'])
+endif
+
 if !hasmapto(':JsFileImport<CR>') && !hasmapto('<Plug>(JsFileImport)') && maparg('<Leader>if', 'n') ==? ''
   silent! nmap <buffer> <unique> <silent> <Leader>if <Plug>(JsFileImport)
 endif
