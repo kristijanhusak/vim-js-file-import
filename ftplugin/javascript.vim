@@ -57,3 +57,7 @@ endif
 if !hasmapto(':RemoveUnusedJsFileImports<CR>') && !hasmapto('<Plug>(RemoveUnusedJsFileImports)') && maparg('<Leader>ic', 'n') ==? ''
   silent! nmap <buffer> <unique> <silent> <Leader>ic <Plug>(RemoveUnusedJsFileImports)
 endif
+
+if !hasmapto('<Plug>(JsExtractTo)', 'v') && maparg('<Leader>ie', 'v') ==? ''
+  silent! xmap <buffer> <unique> <silent> <Leader>ie <Plug>(JsExtractTo)
+endif

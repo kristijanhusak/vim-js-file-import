@@ -39,3 +39,4 @@ xnoremap <silent> <Plug>(JsFindUsage) :<C-u>call jsfileimport#findusage(1)<CR>
 nnoremap <silent> <Plug>(SortJsFileImport) :<C-u>call jsfileimport#sort()<CR>
 nnoremap <silent> <Plug>(RemoveUnusedJsFileImports) :<C-u>call jsfileimport#clean()<CR>
 nnoremap <silent> <Plug>(PromptJsFileImport) :<C-u>call jsfileimport#prompt()<CR>
+xnoremap <silent> <Plug>(JsExtractTo) :<C-u>call jsfileimport#extract_to()<CR>

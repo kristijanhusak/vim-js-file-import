@@ -126,6 +126,19 @@ function! jsfileimport#findusage(is_visual_mode) abort
   endtry
 endfunction
 
+function! jsfileimport#extract_to() abort
+  let l:varName = input('Enter variable name: ', '')
+  if l:varName ==? ''
+    return 0
+  endif
+
+  let l:content = jsfileimport#utils#_get_word(1)
+  let l:content = substitute(l:content, '\\n', "\<CR>", 'g')
+  silent exe 'norm! gv"_d'
+  silent exe 'norm! ccconst '.l:varName." = () => {\<CR>".l:content."\<CR>};"
+  silent exe 'norm! hVi{='
+endfunction
+
 function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
   silent exe 'normal! mz'
 
