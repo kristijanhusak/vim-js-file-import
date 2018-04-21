@@ -127,16 +127,27 @@ function! jsfileimport#findusage(is_visual_mode) abort
 endfunction
 
 function! jsfileimport#extract_to() abort
-  let l:varName = input('Enter variable name: ', '')
-  if l:varName ==? ''
-    return 0
-  endif
+  try
+    let l:choice = confirm('Extract to:', "&Variable\n&Method\n&Parameter")
+    let l:methods = [
+    \ 'jsfileimport#extract#variable',
+    \ 'jsfileimport#extract#method',
+    \ 'jsfileimport#extract#parameter',
+    \ ]
 
-  let l:content = jsfileimport#utils#_get_word(1)
-  let l:content = substitute(l:content, '\\n', "\<CR>", 'g')
-  silent exe 'norm! gv"_d'
-  silent exe 'norm! ccconst '.l:varName." = () => {\<CR>".l:content."\<CR>};"
-  silent exe 'norm! hVi{='
+    let l:method = get(l:methods, l:choice - 1, -1)
+    if l:method ==? -1
+      throw 'Invalid choice.'
+    endif
+
+    call call(l:method, [])
+    return 1
+  catch
+    if v:exception !=? ''
+      return jsfileimport#utils#_error(v:exception)
+    endif
+    return 0
+  endtry
 endfunction
 
 function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
