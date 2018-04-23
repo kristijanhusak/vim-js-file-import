@@ -145,6 +145,14 @@ function! s:get_arguments_and_return_values(selection) abort
 
   let l:index = 0
   for l:match in l:matches
+    if l:index > 0 && index(l:arguments, l:matches[l:index - 1]) > -1
+      let l:prev = l:matches[l:index - 1]
+      " Setting argument variable to value
+      if match(l:content, l:prev.'\s*=\s*'.l:match) > -1 && index(l:returns, l:prev) < 0
+        call add(l:returns, l:prev)
+      endif
+    endif
+
     if index(s:reserved_words, l:match) > -1 || index(l:scoped_vars, l:match) > -1
       let l:index += 1
       continue
@@ -152,12 +160,14 @@ function! s:get_arguments_and_return_values(selection) abort
 
     " Variables
     if l:index > 0 && l:matches[l:index - 1] =~? '\(const\|let\|var\)'
+      let l:prev = l:matches[l:index - 1]
       " Ignore block scoped variables for returning
-      let l:not_scoped_var = match(l:content, '{.\{-\}\<'.l:matches[l:index - 1].'\s'.l:match.'\>[^}]*}') < 0
-      if index(l:returns, l:match) < 0 && l:not_scoped_var
+      let l:is_block_scoped = match(l:content, '{.\{-\}\<'.l:prev.'\s'.l:match.'\>[^}]*}') > -1
+      let l:is_brackets_scoped = match(l:content, '([^)]*\<'.l:prev.'\s'.l:match.'\>[^)]*)') > -1
+      if index(l:returns, l:match) < 0 && !l:is_block_scoped && !l:is_brackets_scoped
         call add(l:returns, l:match)
       endif
-      if !l:not_scoped_var
+      if l:is_block_scoped || l:is_brackets_scoped
         call add(l:scoped_vars, l:match)
       endif
       let l:index += 1
