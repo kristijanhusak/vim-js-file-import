@@ -1,3 +1,39 @@
+function! jsfileimport#utils#_determine_import_type() abort
+  let l:require_regex = {
+        \ 'type': 'require',
+        \ 'check_import_exists': '^\(const\|let\|var\)\s*\_[^''"]\{-\}\<__FNAME__\>\s*\_[^''"]\{-\}=\s*require(',
+        \ 'existing_path': '^\(const\|let\|var\)\s*{\s*\zs\_[^''"]\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
+        \ 'existing_full_path_only': '^\(const\|let\|var\)\s*\zs\<[^''"]\{-\}\>\ze\s*\_[^''"]\{-\}=\s*require([''"]__FPATH__[''"]);\?$',
+        \ 'existing_path_for_full': '^\(const\|let\|var\)\s*\zs{\s*\_[^''"]\{-\}\s*}\ze\s*=\s*require([''"]__FPATH__[''"]);\?$',
+        \ 'import': "const __FNAME__ = require('__FPATH__');",
+        \ 'lastimport': '^\(const\|let\|var\)\s\_[^''"]\{-\}require(.*;\?$',
+        \ 'default_export': 'module.exports\s*=.\{-\}',
+        \ 'partial_export': 'module.exports.\(\<__FNAME__\>\|\s*=\_[^{]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
+        \ 'select_for_sort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
+        \ 'import_name': '^\(const\|let\|var\)\s*\(\<[^''"]\{-\}\>\)\s*',
+        \ }
+
+  let l:import_regex = {
+        \ 'type': 'import',
+        \ 'check_import_exists': '^import\s*\_[^''"]\{-\}\<__FNAME__\>\_[^''"]\{-\}\s*from',
+        \ 'existing_path': '^import\s*[^{''"]\{-\}{\s*\zs\_[^''"]\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
+        \ 'existing_full_path_only': '^import\s*\zs\<[^''"]\{-\}\>\ze\s*from\s*[''"]__FPATH__[''"];\?$',
+        \ 'existing_path_for_full': '^import\s*\zs{\s*\_[^''"]\{-\}\s*}\ze\s*from\s*[''"]__FPATH__[''"];\?$',
+        \ 'import': "import __FNAME__ from '__FPATH__';",
+        \ 'lastimport': '^import\s\_[^''"]\{-\}from.*;\?$',
+        \ 'default_export': 'export\s*default.\{-\}',
+        \ 'partial_export': 'export\s*\(const\|var\|function\)\s*\<__FNAME__\>',
+        \ 'select_for_sort': '^import\s*\zs.*\ze\s*from.*;\?$',
+        \ 'import_name': '^\(import\)\s*\(\<[^''"]\{-\}\>\)\s*',
+        \ }
+
+  if g:js_file_import_force_require || search(l:require_regex['lastimport'], 'n') > 0
+    return l:require_regex
+  endif
+
+  return l:import_regex
+endfunction
+
 function! jsfileimport#utils#_check_python_support() abort
   if !has('python') && !has('python3')
     throw 'Vim js file import requires python or python3 support.'

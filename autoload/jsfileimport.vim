@@ -11,7 +11,7 @@ endfunction
 
 function! jsfileimport#clean() abort
   silent exe 'normal! mz'
-  let l:rgx = s:determine_import_type()
+  let l:rgx = jsfileimport#utils#_determine_import_type()
   let l:start = search(l:rgx['lastimport'], 'c')
   let l:end = search(l:rgx['lastimport'], 'be')
 
@@ -31,7 +31,7 @@ function! jsfileimport#sort(...) abort
     silent exe 'normal! mz'
   endif
 
-  let l:rgx = s:determine_import_type()
+  let l:rgx = jsfileimport#utils#_determine_import_type()
 
   if search(l:rgx['select_for_sort'], 'be') > 0
     silent exe g:js_file_import_sort_command
@@ -45,7 +45,7 @@ function! jsfileimport#goto(is_visual_mode, ...) abort
   try
     call jsfileimport#utils#_check_python_support()
     let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
-    let l:rgx = s:determine_import_type()
+    let l:rgx = jsfileimport#utils#_determine_import_type()
     let l:tags = jsfileimport#tags#_get_taglist(l:name, l:rgx)
     let l:current_file_path = expand('%:p')
     let l:show_list = a:0 > 0
@@ -95,7 +95,7 @@ function! jsfileimport#findusage(is_visual_mode) abort
     if !executable('rg') && !executable('ag')
       throw 'rg (ripgrep) or ag (silversearcher) needed.'
     endif
-    let l:rgx = s:determine_import_type()
+    let l:rgx = jsfileimport#utils#_determine_import_type()
     let l:word = jsfileimport#utils#_get_word(a:is_visual_mode)
     let l:current_file_path = expand('%')
     let l:executable = executable('rg') ? 'rg --sort-files' : 'ag'
@@ -156,7 +156,7 @@ function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
   try
     call jsfileimport#utils#_check_python_support()
     let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
-    let l:rgx = s:determine_import_type()
+    let l:rgx = jsfileimport#utils#_determine_import_type()
     call s:check_if_exists(l:name, l:rgx)
     let l:tag_data = call(a:tag_fn_name, [l:name, l:rgx, a:show_list])
 
@@ -312,42 +312,6 @@ function! s:process_partial_import_alongside_full(name) abort "{{{
   silent exe ':normal!a, { '.a:name.' }'
 
   return s:finish_import()
-endfunction "}}}
-
-function! s:determine_import_type() abort "{{{
-  let l:require_regex = {
-        \ 'type': 'require',
-        \ 'check_import_exists': '^\(const\|let\|var\)\s*\_[^''"]\{-\}\<__FNAME__\>\s*\_[^''"]\{-\}=\s*require(',
-        \ 'existing_path': '^\(const\|let\|var\)\s*{\s*\zs\_[^''"]\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
-        \ 'existing_full_path_only': '^\(const\|let\|var\)\s*\zs\<[^''"]\{-\}\>\ze\s*\_[^''"]\{-\}=\s*require([''"]__FPATH__[''"]);\?$',
-        \ 'existing_path_for_full': '^\(const\|let\|var\)\s*\zs{\s*\_[^''"]\{-\}\s*}\ze\s*=\s*require([''"]__FPATH__[''"]);\?$',
-        \ 'import': "const __FNAME__ = require('__FPATH__');",
-        \ 'lastimport': '^\(const\|let\|var\)\s\_[^''"]\{-\}require(.*;\?$',
-        \ 'default_export': 'module.exports\s*=.\{-\}',
-        \ 'partial_export': 'module.exports.\(\<__FNAME__\>\|\s*=\_[^{]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
-        \ 'select_for_sort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
-        \ 'import_name': '^\(const\|let\|var\)\s*\(\<[^''"]\{-\}\>\)\s*',
-        \ }
-
-  let l:import_regex = {
-        \ 'type': 'import',
-        \ 'check_import_exists': '^import\s*\_[^''"]\{-\}\<__FNAME__\>\_[^''"]\{-\}\s*from',
-        \ 'existing_path': '^import\s*[^{''"]\{-\}{\s*\zs\_[^''"]\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
-        \ 'existing_full_path_only': '^import\s*\zs\<[^''"]\{-\}\>\ze\s*from\s*[''"]__FPATH__[''"];\?$',
-        \ 'existing_path_for_full': '^import\s*\zs{\s*\_[^''"]\{-\}\s*}\ze\s*from\s*[''"]__FPATH__[''"];\?$',
-        \ 'import': "import __FNAME__ from '__FPATH__';",
-        \ 'lastimport': '^import\s\_[^''"]\{-\}from.*;\?$',
-        \ 'default_export': 'export\s*default.\{-\}',
-        \ 'partial_export': 'export\s*\(const\|var\|function\)\s*\<__FNAME__\>',
-        \ 'select_for_sort': '^import\s*\zs.*\ze\s*from.*;\?$',
-        \ 'import_name': '^\(import\)\s*\(\<[^''"]\{-\}\>\)\s*',
-        \ }
-
-  if g:js_file_import_force_require || search(l:require_regex['lastimport'], 'n') > 0
-    return l:require_regex
-  endif
-
-  return l:import_regex
 endfunction "}}}
 
 function! s:finish_import() abort "{{{
