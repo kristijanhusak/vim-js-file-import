@@ -1,5 +1,8 @@
 let s:method_regex = '^[[:blank:]]*\(async\)\?\<[^(]*\>([^)]*)\s*{\s*$'
 let s:class_regex = '^[[:blank:]]*\<class\>\s*\<.*\>'
+let s:reserved_words = ['if', 'return', 'await', 'async', 'const', 'let', 'var',
+      \ 'break', 'true', 'false', 'for', 'try', 'catch', 'finally', 'switch',
+      \ 'throw', 'new']
 
 function! jsfileimport#extract#variable() abort
   let l:content = join(jsfileimport#utils#_get_selection(), '\n')
@@ -57,14 +60,15 @@ function! jsfileimport#extract#method() abort
 endfunction
 
 function! s:extract_local_function() abort
-  let l:var_name = s:get_input('Enter function name')
+  let l:fn_name = s:get_input('Enter function name')
   let l:restorepos = line('.') . 'normal!' . virtcol('.') . '|'
-  let l:selection = jsfileimport#utils#_get_selection()
-  let l:content = join(l:selection, '\n')
-  let l:content = substitute(l:content, '\\n', "\<CR>", 'g')
-  silent exe 'norm! gvc'.l:var_name."();\<CR>"
-  silent exe 'norm! kOconst '.l:var_name." = () => {\<CR>".l:content."\<CR>};\<CR>"
-  silent exe 'norm! kVi{='
+  let l:fn = s:get_fn_data()
+
+  silent exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'();'
+
+  let l:content = substitute(l:fn['content'], '\\n', "\<CR>\<C-u>", 'g')
+  silent exe 'norm! Oconst '.l:fn_name.' = '.l:fn['async']."() => {\<CR>".l:content."\<CR>};\<CR>"
+  silent exe 'norm! Va{='
   silent exe l:restorepos
 endfunction
 
@@ -76,22 +80,8 @@ function! s:extract_class_method(is_in_method) abort
   let l:args = copy(l:fn['arguments'])
   call filter(l:args, {idx, val -> val !~ 'this'})
   let l:args = join(l:args, ', ')
-  let l:selection = l:fn['selection']
-  let l:vars = ''
 
-  if len(l:fn['returns']) > 0 && l:fn['return'] !~? 'return'
-    if len(l:fn['returns']) ==? 1
-      let l:vars = 'const '.l:fn['returns'][0].' = '
-      call add(l:selection, 'return '.l:fn['returns'][0].';')
-    else
-      let l:vars = 'const { '.join(l:fn['returns'], ', ').' } = '
-      call add(l:selection, 'return { '.join(l:fn['returns'], ', ').' };')
-    endif
-  endif
-
-  let l:content = join(l:selection, "\<CR>")
-
-  silent exe 'norm! gvc'.l:vars.l:fn['return'].'this.'.l:method_name.'('.l:args.');'
+  silent exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].'this.'.l:method_name.'('.l:args.');'
   if a:is_in_method
     call search(s:method_regex, 'b')
     silent exe "norm! $%o\<CR>"
@@ -100,20 +90,20 @@ function! s:extract_class_method(is_in_method) abort
     silent exe "norm! $o\<CR>"
   endif
 
+  let l:content = substitute(l:fn['content'], '\\n', "\<CR>\<C-u>", 'g')
   silent exe 'norm!cc'.l:fn['async'].l:method_name.'('.l:args.") {\<CR>".l:content."\<CR>}"
   silent exe 'norm! Va{='
   silent exe l:restorepos
 endfunction
 
 function! s:extract_global_function(has_class, is_in_method) abort
-  let l:var_name = s:get_input('Enter function name')
+  let l:fn_name = s:get_input('Enter function name')
   let l:restorepos = line('.') . 'normal!' . virtcol('.') . '|'
   let l:fn = s:get_fn_data()
 
-  let l:content = substitute(l:fn['content'], '\\n', "\<CR>", 'g')
   let l:args = join(l:fn['arguments'], ', ')
 
-  silent exe 'norm! gvc'.l:fn['return'].l:var_name.'('.l:args.");\<CR>"
+  silent exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'('.l:args.');'
   if a:has_class
     call search(s:class_regex, 'b')
     silent exe 'norm! Oconst'
@@ -124,9 +114,10 @@ function! s:extract_global_function(has_class, is_in_method) abort
     silent exe 'norm! cconst'
   endif
 
-  let l:fnArgs = substitute(l:args, 'this', 'self', 'g')
-  let l:fnContent = substitute(l:content, 'this', 'self', 'g')
-  silent exe 'norm! a '.l:var_name.' = '.l:fn['async'].'('.l:fnArgs.") => {\<CR>".l:fnContent."\<CR>};\<CR>"
+  let l:fnArgs = substitute(l:args, '\<this\>', 'self', 'g')
+  let l:fnContent = substitute(l:fn['content'], '\<this\>', 'self', 'g')
+  let l:fnContent = substitute(l:fn['content'], '\\n', "\<CR>\<C-u>", 'g')
+  silent exe 'norm! a '.l:fn_name.' = '.l:fn['async'].'('.l:fnArgs.") => {\<CR>".l:fnContent."\<CR>};\<CR>"
   silent exe 'norm! kVi{='
   silent exe l:restorepos
 endfunction
@@ -141,31 +132,45 @@ function! s:get_input(question) abort
   return l:var_name
 endfunction
 
-function! s:get_arguments_and_returns(content) abort
+function! s:get_arguments_and_return_values(selection) abort
   let l:rgx = jsfileimport#utils#_determine_import_type()
-  let l:reserved_words = ['if', 'return', 'await', 'async', 'const', 'let', 'var']
-  let l:content = substitute(a:content, '\\n', '', 'g')
+  call filter(a:selection, { idx, val -> val !~? '^[[:blank:]]*\(\/\/\|*\)' })
+  let l:content = join(a:selection, '')
   let l:matches = []
   call substitute(l:content, '\<[A-Za-z0-9_\.]\+\>', '\=add(l:matches, submatch(0))', 'g')
 
   let l:arguments = []
   let l:returns = []
+  let l:scoped_vars = []
 
   let l:index = 0
   for l:match in l:matches
-    if index(l:reserved_words, l:match) > -1
+    if index(s:reserved_words, l:match) > -1 || index(l:scoped_vars, l:match) > -1
       let l:index += 1
       continue
     endif
 
+    " Variables
     if l:index > 0 && l:matches[l:index - 1] =~? '\(const\|let\|var\)'
-      call add(l:returns, l:match)
+      " Ignore block scoped variables for returning
+      let l:not_scoped_var = match(l:content, '{.\{-\}\<'.l:matches[l:index - 1].'\s'.l:match.'\>[^}]*}') < 0
+      if index(l:returns, l:match) < 0 && l:not_scoped_var
+        call add(l:returns, l:match)
+      endif
+      if !l:not_scoped_var
+        call add(l:scoped_vars, l:match)
+      endif
       let l:index += 1
       continue
     endif
 
     if l:match =~? '\.'
       let l:match = substitute(l:match, '\..*', '', 'g')
+    endif
+
+    if index(l:returns, l:match) > -1
+      let l:index += 1
+      continue
     endif
 
     let l:existPattern = substitute(l:rgx['check_import_exists'], '__FNAME__', l:match, '')
@@ -183,7 +188,7 @@ function! s:get_arguments_and_returns(content) abort
     endif
 
     " Ignore values in anonymous functions
-    if match(l:content, '(.\{-\}=>.*\<'.l:match.'\>.*)') > -1
+    if match(l:content, '(.\{-\}=>[^)]*\<'.l:match.'\>[^)]*)') > -1
       let l:index += 1
       continue
     endif
@@ -203,28 +208,39 @@ endfunction
 
 function! s:get_fn_data()
   let l:selection = jsfileimport#utils#_get_selection()
-  let l:content = join(l:selection, '\n')
-  let l:return_values = []
+  let l:args_and_return_values = s:get_arguments_and_return_values(copy(l:selection))
+  let l:return_fn = []
+  let l:vars = ''
+
   if len(l:selection) > 0 && l:selection[-1] =~? 'return'
-    call add(l:return_values, 'return')
+    call add(l:return_fn, 'return')
+  elseif len(l:args_and_return_values['returns']) > 0
+    if len(l:args_and_return_values['returns']) ==? 1
+      let l:return_vars = l:args_and_return_values['returns'][0]
+    else
+      let l:return_vars = printf('{ %s }', join(l:args_and_return_values['returns'], ', '))
+    endif
+    let l:vars = printf('const %s = ', l:return_vars)
+    call add(l:selection, printf('return %s;', l:return_vars))
   endif
+
+  let l:content = join(l:selection, '\n')
 
   if l:content =~? 'await'
-    call add(l:return_values, 'await')
+    call add(l:return_fn, 'await')
   endif
 
-  let l:return_values = len(l:return_values) > 0
-    \ ? join(l:return_values, ' ').' '
+  let l:return_fn = len(l:return_fn) > 0
+    \ ? join(l:return_fn, ' ').' '
     \ : ''
-
-  let l:args_and_returns = s:get_arguments_and_returns(l:content)
 
   return {
   \ 'selection': l:selection,
   \ 'content' : l:content,
-  \ 'arguments': l:args_and_returns['arguments'],
-  \ 'returns': l:args_and_returns['returns'],
-  \ 'return': l:return_values,
+  \ 'arguments': l:args_and_return_values['arguments'],
+  \ 'returns': l:args_and_return_values['returns'],
+  \ 'return_fn': l:return_fn,
+  \ 'vars': l:vars,
   \ 'async': l:content =~? 'await' ? 'async ' : '',
   \}
 endfunction
