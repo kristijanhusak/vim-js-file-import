@@ -129,8 +129,7 @@ endfunction
 function! jsfileimport#refactor(is_visual) abort
   try
     let l:method = jsfileimport#utils#get_confirm_selection('Refactor', ['Extract', 'Rename'])
-    let l:word = jsfileimport#utils#_get_word(a:is_visual)
-    call call('jsfileimport#refactor#'.tolower(l:method), [l:word])
+    call call('jsfileimport#refactor#'.tolower(l:method), [])
     return 1
   catch
     if v:exception !=? ''

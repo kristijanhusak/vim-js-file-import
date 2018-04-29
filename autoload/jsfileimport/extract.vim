@@ -1,7 +1,3 @@
-let s:reserved_words = ['if', 'return', 'await', 'async', 'const', 'let', 'var',
-      \ 'break', 'true', 'false', 'for', 'try', 'catch', 'finally', 'switch',
-      \ 'throw', 'new', 'Object', 'Array']
-
 function! jsfileimport#extract#variable(word) abort
   if a:word =~? '^\(\s\|\t\)*\(const\|let\|var\)\s'
     throw 'Cannot extract variable.'
@@ -11,7 +7,7 @@ function! jsfileimport#extract#variable(word) abort
     throw 'Cannot extract code with return.'
   endif
 
-  let l:var_name = s:get_input('Enter variable name: ')
+  let l:var_name = jsfileimport#utils#_get_input('Enter variable name: ')
 
   silent exe 'redraw'
   let l:type = confirm('Type: ', "&Const\n&Let\n&Var")
@@ -24,52 +20,46 @@ function! jsfileimport#extract#variable(word) abort
 endfunction
 
 function! jsfileimport#extract#method(word) abort
-  let l:choice_list = ['&Global']
-  let l:file_info = jsfileimport#utils#get_file_info()
+  let l:choice_list = ['Global']
+  let l:file_info = jsfileimport#utils#_get_file_info()
 
   if l:file_info['in_class']
-    call add(l:choice_list, '&Class')
+    call add(l:choice_list, 'Class')
   endif
-  if l:file_info['in_method'] > 0
-    call add(l:choice_list, '&Local function')
+  if l:file_info['in_method']
+    call add(l:choice_list, 'Local function')
   endif
+
+  let l:methods = {
+  \ 'Global': 's:extract_global_function',
+  \ 'Local function': 's:extract_local_function',
+  \ 'Class': 's:extract_class_method'
+  \ }
 
   if len(l:choice_list) ==? 1
     return s:extract_global_function(l:file_info)
   endif
 
-  let l:type = confirm('Extract to:', join(l:choice_list, "\n"))
+  let l:type = jsfileimport#utils#get_confirm_selection('Extract to', l:choice_list)
+  let l:method = get(l:methods, l:type)
 
-  if l:type < 1
-    return 0
-  endif
-
-  let l:type_name = l:choice_list[l:type - 1]
-  if l:type_name =~? 'global'
-    return s:extract_global_function(l:file_info)
-  elseif l:type_name =~? 'class'
-    return s:extract_class_method(l:file_info)
-  endif
-
-  return s:extract_local_function(l:file_info)
+  return call(l:method, [l:file_info])
 endfunction
 
 function! s:extract_local_function(file_info) abort
-  let l:fn_name = s:get_input('Enter function name')
-  let l:restorepos = line('.') . 'normal!' . virtcol('.') . '|'
+  let l:fn_name = jsfileimport#utils#_get_input('Enter function name')
   let l:fn = s:get_fn_data()
 
   silent exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'();'
 
   let l:content = substitute(l:fn['content'], '\\n', "\<CR>\<C-u>", 'g')
   silent exe 'norm! Oconst '.l:fn_name.' = '.l:fn['async']."() => {\<CR>".l:content."\<CR>};\<CR>"
-  silent exe 'norm! Va{='
-  silent exe l:restorepos
+  silent exe 'norm! V%=V%='
+  call cursor(a:file_info['current_line'], a:file_info['current_column'])
 endfunction
 
 function! s:extract_class_method(file_info) abort
-  let l:method_name = s:get_input('Enter method name')
-  let l:restorepos = line('.') . 'normal!' . virtcol('.') . '|'
+  let l:method_name = jsfileimport#utils#_get_input('Enter method name')
   let l:fn = s:get_fn_data()
 
   let l:args = copy(l:fn['arguments'])
@@ -88,15 +78,13 @@ function! s:extract_class_method(file_info) abort
 
   let l:content = substitute(l:fn['content'], '\\n', "\<CR>\<C-u>", 'g')
   silent exe 'norm!cc'.l:fn['async'].l:method_name.'('.l:args.") {\<CR>".l:content."\<CR>}"
-  silent exe 'norm! Va{='
-  silent exe l:restorepos
+  silent exe 'norm! V%=V%='
+  call cursor(a:file_info['current_line'], a:file_info['current_column'])
 endfunction
 
 function! s:extract_global_function(file_info) abort
-  let l:fn_name = s:get_input('Enter function name')
-  let l:restorepos = line('.') . 'normal!' . virtcol('.') . '|'
+  let l:fn_name = jsfileimport#utils#_get_input('Enter function name')
   let l:fn = s:get_fn_data()
-
   let l:args = join(l:fn['arguments'], ', ')
 
   silent exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'('.l:args.');'
@@ -112,28 +100,20 @@ function! s:extract_global_function(file_info) abort
 
   let l:fnArgs = substitute(l:args, '\<this\>', 'self', 'g')
   let l:fnContent = substitute(l:fn['content'], '\<this\>', 'self', 'g')
-  let l:fnContent = substitute(l:fn['content'], '\\n', "\<CR>\<C-u>", 'g')
+  let l:fnContent = substitute(l:fnContent, '\\n', "\<CR>\<C-u>", 'g')
   silent exe 'norm! a '.l:fn_name.' = '.l:fn['async'].'('.l:fnArgs.") => {\<CR>".l:fnContent."\<CR>};\<CR>"
-  silent exe 'norm! kVi{='
-  silent exe l:restorepos
-endfunction
-
-function! s:get_input(question) abort
-  silent exe 'redraw'
-  let l:var_name = input(a:question.': ', '')
-  if l:var_name ==? ''
-    throw ''
-  endif
-
-  return l:var_name
+  silent exe 'norm! kV%=V%='
+  call cursor(a:file_info['current_line'], a:file_info['current_column'])
 endfunction
 
 function! s:get_arguments_and_return_values(selection) abort
   let l:rgx = jsfileimport#utils#_determine_import_type()
+  " remove comments
   call filter(a:selection, { idx, val -> val !~? '^[[:blank:]]*\(\/\/\|*\)' })
   let l:content = join(a:selection, '')
   let l:matches = []
-  call substitute(l:content, '\<[A-Za-z0-9_\.]\+\>', '\=add(l:matches, submatch(0))', 'g')
+  let l:parse_regex = '\(\.\|''[^'']*\|"[^"]*\)\@<!\<[A-Za-z][A-Za-z0-9_]\+\>'
+  call substitute(l:content, l:parse_regex, '\=add(l:matches, submatch(0))', 'g')
 
   let l:arguments = []
   let l:returns = []
@@ -141,17 +121,17 @@ function! s:get_arguments_and_return_values(selection) abort
 
   let l:index = 0
   for l:match in l:matches
+    if jsfileimport#utils#_is_reserved_word(l:match) || index(l:scoped_vars, l:match) > -1
+      let l:index += 1
+      continue
+    endif
+
     if l:index > 0 && index(l:arguments, l:matches[l:index - 1]) > -1
       let l:prev = l:matches[l:index - 1]
       " Setting argument variable to value
       if match(l:content, l:prev.'\s*=\s*'.l:match) > -1 && index(l:returns, l:prev) < 0
         call add(l:returns, l:prev)
       endif
-    endif
-
-    if index(s:reserved_words, l:match) > -1 || index(l:scoped_vars, l:match) > -1
-      let l:index += 1
-      continue
     endif
 
     " Variables
@@ -170,10 +150,6 @@ function! s:get_arguments_and_return_values(selection) abort
       continue
     endif
 
-    if l:match =~? '\.'
-      let l:match = substitute(l:match, '\..*', '', 'g')
-    endif
-
     if index(l:returns, l:match) > -1
       let l:index += 1
       continue
@@ -187,20 +163,8 @@ function! s:get_arguments_and_return_values(selection) abort
       continue
     endif
 
-    " Ignore strings
-    if match(l:content, '\(''\|"\)[^''"]*\<'.l:match.'\>[^''"]*\(''\|"\)') > -1
-      let l:index += 1
-      continue
-    endif
-
     " Ignore values in anonymous functions
     if match(l:content, '(.\{-\}=>[^)]*\<'.l:match.'\>[^)]*)') > -1
-      let l:index += 1
-      continue
-    endif
-
-    " Ignore numbers only
-    if l:match =~? '^\d*$'
       let l:index += 1
       continue
     endif

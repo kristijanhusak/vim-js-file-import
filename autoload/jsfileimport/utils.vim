@@ -94,15 +94,17 @@ function! jsfileimport#utils#_get_selection() abort
 endfunction
 
 function! jsfileimport#utils#_count_word_in_file(word) abort
+  let l:use_global = &gdefault ? '' : 'g'
+
   redir => l:count
-    silent exe '%s/\<' . a:word . '\>//gn'
+    silent exe '%s/\<' . a:word . '\>//'.l:use_global.'n'
   redir END
 
   let l:result = strpart(l:count, 0, stridx(l:count, ' '))
   return float2nr(str2float(l:result))
 endfunction
 
-function jsfileimport#utils#_remove_duplicate_files(files) abort
+function! jsfileimport#utils#_remove_duplicate_files(files) abort
   let l:added = []
   let l:new_files = []
 
@@ -118,9 +120,9 @@ function jsfileimport#utils#_remove_duplicate_files(files) abort
   return l:new_files
 endfunction
 
-function jsfileimport#utils#get_confirm_selection(title, options) abort
+function! jsfileimport#utils#get_confirm_selection(title, options) abort
   silent exe ':redraw'
-  let l:confirm_option = confirm(a:title.' :', '&'.join(a:options, "\n"))
+  let l:confirm_option = confirm(a:title.' :', '&'.join(a:options, "\n&"))
   let l:option = get(a:options, l:confirm_option - 1, -1)
 
   if l:option ==? -1
@@ -130,12 +132,12 @@ function jsfileimport#utils#get_confirm_selection(title, options) abort
   return l:option
 endfunction
 
-function jsfileimport#utils#get_file_info() abort
-  let l:last_pos = searchpair('{', '', '}', 'bW')
+function! jsfileimport#utils#_get_file_info() abort
+  let l:lines = []
   let l:current_line_content = getline('.')
   let l:current_line = line('.')
   let l:current_column = col('.')
-  let l:lines = []
+  let l:last_pos = searchpair('{', '', '}', 'bW')
 
   while l:last_pos > 0
     let l:close_line = searchpair('{', '', '}', 'n')
@@ -150,7 +152,8 @@ function jsfileimport#utils#get_file_info() abort
   \ 'method': {},
   \ 'in_class': 0,
   \ 'in_method': 0,
-  \ 'lines': l:lines,
+  \ 'all_lines': l:lines,
+  \ 'block_lines': l:lines[:-2],
   \ 'current_line_content': l:current_line_content,
   \ 'current_line': l:current_line,
   \ 'current_column': l:current_column,
@@ -166,6 +169,7 @@ function jsfileimport#utils#get_file_info() abort
     if len(l:lines) > 1
       let l:return_data['method'] = l:lines[-2]
       let l:return_data['in_method'] = 1
+      let l:return_data['block_lines'] = l:lines[:-3]
     endif
   else
     let l:return_data['method'] = l:lines[-1]
@@ -174,5 +178,26 @@ function jsfileimport#utils#get_file_info() abort
 
   return l:return_data
 endfunction
+
+function! jsfileimport#utils#_is_reserved_word(word) abort
+  let l:reserved_words = [
+  \ 'if', 'return', 'await', 'async', 'const', 'let', 'var',
+  \ 'break', 'continue', 'true', 'false', 'for', 'try', 'catch', 'finally', 'switch',
+  \ 'throw', 'new', 'Object', 'Array'
+  \ ]
+
+  return index(l:reserved_words, a:word) > -1
+endfunction
+
+function! jsfileimport#utils#_get_input(question) abort
+  silent exe 'redraw'
+  let l:var_name = input(a:question.': ', '')
+  if l:var_name ==? ''
+    throw ''
+  endif
+
+  return l:var_name
+endfunction
+
 
 " vim:foldenable:foldmethod=marker:sw=2
