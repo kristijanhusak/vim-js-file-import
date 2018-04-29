@@ -1,17 +1,13 @@
-let s:method_regex = '^[[:blank:]]*\(async\)\?\<[^(]*\>([^)]*)\s*{\s*$'
-let s:class_regex = '^[[:blank:]]*\<class\>\s*\<.*\>'
 let s:reserved_words = ['if', 'return', 'await', 'async', 'const', 'let', 'var',
       \ 'break', 'true', 'false', 'for', 'try', 'catch', 'finally', 'switch',
-      \ 'throw', 'new']
+      \ 'throw', 'new', 'Object', 'Array']
 
-function! jsfileimport#extract#variable() abort
-  let l:content = join(jsfileimport#utils#_get_selection(), '\n')
-
-  if l:content =~? '^\(\s\|\t\)*\(const\|let\|var\)\s'
+function! jsfileimport#extract#variable(word) abort
+  if a:word =~? '^\(\s\|\t\)*\(const\|let\|var\)\s'
     throw 'Cannot extract variable.'
   endif
 
-  if l:content =~? 'return\s'
+  if a:word =~? 'return\s'
     throw 'Cannot extract code with return.'
   endif
 
@@ -27,20 +23,19 @@ function! jsfileimport#extract#variable() abort
   silent exe 'norm! I'.l:types[l:type - 1].' '.l:var_name.' = '
 endfunction
 
-function! jsfileimport#extract#method() abort
+function! jsfileimport#extract#method(word) abort
   let l:choice_list = ['&Global']
-  let l:has_class = search(s:class_regex, 'nb')
-  let l:is_in_method = search(s:method_regex, 'nb')
+  let l:file_info = jsfileimport#utils#get_file_info()
 
-  if l:has_class > 0
+  if l:file_info['in_class']
     call add(l:choice_list, '&Class')
   endif
-  if l:is_in_method > 0
+  if l:file_info['in_method'] > 0
     call add(l:choice_list, '&Local function')
   endif
 
   if len(l:choice_list) ==? 1
-    return s:extract_global_function(0, 0)
+    return s:extract_global_function(l:file_info)
   endif
 
   let l:type = confirm('Extract to:', join(l:choice_list, "\n"))
@@ -51,15 +46,15 @@ function! jsfileimport#extract#method() abort
 
   let l:type_name = l:choice_list[l:type - 1]
   if l:type_name =~? 'global'
-    return s:extract_global_function(l:has_class, l:is_in_method)
+    return s:extract_global_function(l:file_info)
   elseif l:type_name =~? 'class'
-    return s:extract_class_method(l:is_in_method)
+    return s:extract_class_method(l:file_info)
   endif
 
-  return s:extract_local_function()
+  return s:extract_local_function(l:file_info)
 endfunction
 
-function! s:extract_local_function() abort
+function! s:extract_local_function(file_info) abort
   let l:fn_name = s:get_input('Enter function name')
   let l:restorepos = line('.') . 'normal!' . virtcol('.') . '|'
   let l:fn = s:get_fn_data()
@@ -72,7 +67,7 @@ function! s:extract_local_function() abort
   silent exe l:restorepos
 endfunction
 
-function! s:extract_class_method(is_in_method) abort
+function! s:extract_class_method(file_info) abort
   let l:method_name = s:get_input('Enter method name')
   let l:restorepos = line('.') . 'normal!' . virtcol('.') . '|'
   let l:fn = s:get_fn_data()
@@ -82,11 +77,12 @@ function! s:extract_class_method(is_in_method) abort
   let l:args = join(l:args, ', ')
 
   silent exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].'this.'.l:method_name.'('.l:args.');'
-  if a:is_in_method
-    call search(s:method_regex, 'b')
+
+  if a:file_info['in_method']
+    call cursor(a:file_info['method']['line'], 0)
     silent exe "norm! $%o\<CR>"
   else
-    call search(s:class_regex, 'b')
+    call cursor(a:file_info['class']['line'], 0)
     silent exe "norm! $o\<CR>"
   endif
 
@@ -96,7 +92,7 @@ function! s:extract_class_method(is_in_method) abort
   silent exe l:restorepos
 endfunction
 
-function! s:extract_global_function(has_class, is_in_method) abort
+function! s:extract_global_function(file_info) abort
   let l:fn_name = s:get_input('Enter function name')
   let l:restorepos = line('.') . 'normal!' . virtcol('.') . '|'
   let l:fn = s:get_fn_data()
@@ -104,11 +100,11 @@ function! s:extract_global_function(has_class, is_in_method) abort
   let l:args = join(l:fn['arguments'], ', ')
 
   silent exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'('.l:args.');'
-  if a:has_class
-    call search(s:class_regex, 'b')
+  if a:file_info['in_class']
+    call cursor(a:file_info['class']['line'], 0)
     silent exe 'norm! Oconst'
-  elseif a:is_in_method
-    call search(s:method_regex, 'b')
+  elseif a:file_info['in_method']
+    call cursor(a:file_info['method']['line'], 0)
     silent exe "norm! $%o\<CR>const"
   else
     silent exe 'norm! cconst'

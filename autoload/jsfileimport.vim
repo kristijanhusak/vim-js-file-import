@@ -126,21 +126,11 @@ function! jsfileimport#findusage(is_visual_mode) abort
   endtry
 endfunction
 
-function! jsfileimport#extract_to() abort
+function! jsfileimport#refactor(is_visual) abort
   try
-    let l:choice = confirm('Extract to:', "&Variable\n&Method\n&Parameter")
-    let l:methods = [
-    \ 'jsfileimport#extract#variable',
-    \ 'jsfileimport#extract#method',
-    \ 'jsfileimport#extract#parameter',
-    \ ]
-
-    let l:method = get(l:methods, l:choice - 1, -1)
-    if l:method ==? -1
-      throw 'Invalid choice.'
-    endif
-
-    call call(l:method, [])
+    let l:method = jsfileimport#utils#get_confirm_selection('Refactor', ['Extract', 'Rename'])
+    let l:word = jsfileimport#utils#_get_word(a:is_visual)
+    call call('jsfileimport#refactor#'.tolower(l:method), [l:word])
     return 1
   catch
     if v:exception !=? ''

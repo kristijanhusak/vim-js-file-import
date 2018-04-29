@@ -118,4 +118,61 @@ function jsfileimport#utils#_remove_duplicate_files(files) abort
   return l:new_files
 endfunction
 
+function jsfileimport#utils#get_confirm_selection(title, options) abort
+  silent exe ':redraw'
+  let l:confirm_option = confirm(a:title.' :', '&'.join(a:options, "\n"))
+  let l:option = get(a:options, l:confirm_option - 1, -1)
+
+  if l:option ==? -1
+    throw 'Invalid choice.'
+  endif
+
+  return l:option
+endfunction
+
+function jsfileimport#utils#get_file_info() abort
+  let l:last_pos = searchpair('{', '', '}', 'bW')
+  let l:current_line_content = getline('.')
+  let l:current_line = line('.')
+  let l:current_column = col('.')
+  let l:lines = []
+
+  while l:last_pos > 0
+    let l:close_line = searchpair('{', '', '}', 'n')
+    call add(l:lines, { 'line': l:last_pos, 'close_line': l:close_line, 'content': getline(l:last_pos) })
+    let l:last_pos = searchpair('{', '', '}', 'bW')
+  endwhile
+
+  call cursor(l:current_line, l:current_column)
+
+  let l:return_data = {
+  \ 'class': {},
+  \ 'method': {},
+  \ 'in_class': 0,
+  \ 'in_method': 0,
+  \ 'lines': l:lines,
+  \ 'current_line_content': l:current_line_content,
+  \ 'current_line': l:current_line,
+  \ 'current_column': l:current_column,
+  \  }
+
+  if len(l:lines) ==? 0
+    return l:return_data
+  endif
+
+  if l:lines[-1].content =~? '^[[:blank:]]*class\s*.*$'
+    let l:return_data['class'] = l:lines[-1]
+    let l:return_data['in_class'] = 1
+    if len(l:lines) > 1
+      let l:return_data['method'] = l:lines[-2]
+      let l:return_data['in_method'] = 1
+    endif
+  else
+    let l:return_data['method'] = l:lines[-1]
+    let l:return_data['in_method'] = 1
+  endif
+
+  return l:return_data
+endfunction
+
 " vim:foldenable:foldmethod=marker:sw=2

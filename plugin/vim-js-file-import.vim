@@ -36,7 +36,9 @@ xnoremap <silent> <Plug>(JsGotoDefinitionList) :<C-u>call jsfileimport#goto(1, 1
 nnoremap <silent> <Plug>(JsFindUsage) :<C-u>call jsfileimport#findusage(0)<CR>
 xnoremap <silent> <Plug>(JsFindUsage) :<C-u>call jsfileimport#findusage(1)<CR>
 
+nnoremap <silent> <Plug>(JsRefactor) :<C-u>call jsfileimport#refactor(0)<CR>
+xnoremap <silent> <Plug>(JsRefactor) :<C-u>call jsfileimport#refactor(1)<CR>
+
 nnoremap <silent> <Plug>(SortJsFileImport) :<C-u>call jsfileimport#sort()<CR>
 nnoremap <silent> <Plug>(RemoveUnusedJsFileImports) :<C-u>call jsfileimport#clean()<CR>
 nnoremap <silent> <Plug>(PromptJsFileImport) :<C-u>call jsfileimport#prompt()<CR>
-xnoremap <silent> <Plug>(JsExtractTo) :<C-u>call jsfileimport#extract_to()<CR>
