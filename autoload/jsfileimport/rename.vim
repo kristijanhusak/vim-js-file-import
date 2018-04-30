@@ -28,7 +28,7 @@ function! jsfileimport#rename#word(word) abort
   " Make sure not to change values inside strings
   let l:match = '\(''[^'']*\|"[^"]*\)\@<!\<'.a:word.'\>\(''[^'']*\|"[^"]*\)\@!'
   let l:add_global = &gdefault ? '' : '/g'
-  silent exe ':'.l:lines.'s/'.l:match.'/'.l:new_name.l:add_global
+  silent! exe ':'.l:lines.'s/'.l:match.'/'.l:new_name.l:add_global
   call cursor(l:file_info['current_line'], l:file_info['current_column'])
 endfunction
 
@@ -36,7 +36,7 @@ function! s:rename_class_property(file_info, word, new_name) abort
   let l:lines = a:file_info['class']['line'].','.a:file_info['class']['close_line']
 
   let l:add_global = &gdefault ? '' : '/g'
-  silent exe ':'.l:lines.'s/'.s:property_regex(a:word).'/'.a:new_name.l:add_global
+  silent! exe ':'.l:lines.'s/'.s:property_regex(a:word).'/'.a:new_name.l:add_global
   call cursor(a:file_info['current_line'], a:file_info['current_column'])
 endfunction
 
@@ -45,8 +45,8 @@ function! s:rename_method(file_info, word, new_name) abort
   let l:rgx = s:method_regex(a:word)
   let l:add_global = &gdefault ? '' : '/g'
 
-  silent exe ':'.l:lines.'s/'.l:rgx['call_to_method'].'/'.a:new_name.l:add_global
-  silent exe ':'.l:lines.'s/'.l:rgx['method'].'/'.a:new_name.l:add_global
+  silent! exe ':'.l:lines.'s/'.l:rgx['call_to_method'].'/'.a:new_name.l:add_global
+  silent! exe ':'.l:lines.'s/'.l:rgx['method'].'/'.a:new_name.l:add_global
   call cursor(a:file_info['current_line'], a:file_info['current_column'])
 endfunction
 
@@ -74,7 +74,7 @@ endfunction
 function! s:method_regex(word) abort
   return {
   \ 'call_to_method': 'this\(\n[[:blank:]]*\)\?\.\zs\<'.a:word.'\>\ze(',
-  \ 'method': '^[[:blank:]]*\zs\<'.a:word.'\>\ze('
+  \ 'method': '^[[:blank:]]*\(async\s*\)\?\zs\<'.a:word.'\>\ze('
   \ }
 endfunction
 

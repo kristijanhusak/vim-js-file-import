@@ -46,18 +46,18 @@ function! jsfileimport#utils#_get_file_path(filepath) abort
   let l:py_command = has('python3') ? 'py3' : 'py'
   let l:path = a:filepath
 
-  silent exe l:py_command.' import vim, os.path'
-  silent exe l:py_command.' current_path = vim.eval("expand(''%:p:h'')")'
-  silent exe l:py_command.' tag_path = vim.eval("fnamemodify(a:filepath, '':p'')")'
-  silent exe l:py_command.' path = os.path.splitext(os.path.relpath(tag_path, current_path))[0]'
-  silent exe l:py_command.' leading_slash = "./" if path[0] != "." else ""'
-  silent exe l:py_command.' vim.command(''let l:path = "%s%s"'' % (leading_slash, path))'
+  silent! exe l:py_command.' import vim, os.path'
+  silent! exe l:py_command.' current_path = vim.eval("expand(''%:p:h'')")'
+  silent! exe l:py_command.' tag_path = vim.eval("fnamemodify(a:filepath, '':p'')")'
+  silent! exe l:py_command.' path = os.path.splitext(os.path.relpath(tag_path, current_path))[0]'
+  silent! exe l:py_command.' leading_slash = "./" if path[0] != "." else ""'
+  silent! exe l:py_command.' vim.command(''let l:path = "%s%s"'' % (leading_slash, path))'
 
   return l:path
 endfunction
 
 function! jsfileimport#utils#_error(msg) abort
-  silent exe 'redraw'
+  silent! exe 'redraw'
   echohl Error
   echo a:msg
   echohl NONE
@@ -97,7 +97,7 @@ function! jsfileimport#utils#_count_word_in_file(word) abort
   let l:use_global = &gdefault ? '' : 'g'
 
   redir => l:count
-    silent exe '%s/\<' . a:word . '\>//'.l:use_global.'n'
+    silent! exe '%s/\<' . a:word . '\>//'.l:use_global.'n'
   redir END
 
   let l:result = strpart(l:count, 0, stridx(l:count, ' '))
@@ -121,7 +121,7 @@ function! jsfileimport#utils#_remove_duplicate_files(files) abort
 endfunction
 
 function! jsfileimport#utils#get_confirm_selection(title, options) abort
-  silent exe ':redraw'
+  silent! exe ':redraw'
   let l:confirm_option = confirm(a:title.' :', '&'.join(a:options, "\n&"))
   let l:option = get(a:options, l:confirm_option - 1, -1)
 
@@ -171,7 +171,7 @@ function! jsfileimport#utils#_get_file_info() abort
       let l:return_data['in_method'] = 1
       let l:return_data['block_lines'] = l:lines[:-3]
     endif
-  else
+  elseif l:lines[-1].content =~? '^[[:blank:]]*.*{[[:blank:]]*$'
     let l:return_data['method'] = l:lines[-1]
     let l:return_data['in_method'] = 1
   endif
@@ -190,7 +190,7 @@ function! jsfileimport#utils#_is_reserved_word(word) abort
 endfunction
 
 function! jsfileimport#utils#_get_input(question) abort
-  silent exe 'redraw'
+  silent! exe 'redraw'
   let l:var_name = input(a:question.': ', '')
   if l:var_name ==? ''
     throw ''

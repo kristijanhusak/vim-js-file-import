@@ -35,7 +35,7 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
   endif
 
   if l:selection == l:prompt_index
-    silent exe 'redraw'
+    silent! exe 'redraw'
     return jsfileimport#tags#_get_tag_data_from_prompt(a:name, a:rgx)
   endif
 
@@ -108,12 +108,12 @@ function! jsfileimport#tags#_jump_to_tag(tag, current_file_path, show_list) abor
   let l:tag_path = fnamemodify(a:tag['filename'], ':p')
 
   if l:tag_path !=? a:current_file_path && bufname('%') !=? a:tag['filename']
-    silent exe 'e '.a:tag['filename']
+    silent! exe 'e '.a:tag['filename']
   else
     "Sets the previous context mark to allow jumping to this location with CTRL-O
-    silent exe 'norm!m`'
+    silent! exe 'norm!m`'
   endif
-  silent exe escape(a:tag['cmd'], '[]')
+  silent! exe escape(a:tag['cmd'], '[]')
   let l:repeatMapping = a:show_list ? 'JsGotoDefinitionList' : 'JsGotoDefinition'
   silent! call repeat#set("\<Plug>(".l:repeatMapping.')')
   return 1

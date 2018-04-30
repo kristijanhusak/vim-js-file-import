@@ -9,14 +9,14 @@ function! jsfileimport#extract#variable(word) abort
 
   let l:var_name = jsfileimport#utils#_get_input('Enter variable name: ')
 
-  silent exe 'redraw'
+  silent! exe 'redraw'
   let l:type = confirm('Type: ', "&Const\n&Let\n&Var")
   if l:type < 1
     return 0
   endif
 
   let l:types = ['const', 'let', 'var']
-  silent exe 'norm! I'.l:types[l:type - 1].' '.l:var_name.' = '
+  silent! exe 'norm! I'.l:types[l:type - 1].' '.l:var_name.' = '
 endfunction
 
 function! jsfileimport#extract#method(word) abort
@@ -50,11 +50,11 @@ function! s:extract_local_function(file_info) abort
   let l:fn_name = jsfileimport#utils#_get_input('Enter function name')
   let l:fn = s:get_fn_data()
 
-  silent exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'();'
+  silent! exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'();'
 
   let l:content = substitute(l:fn['content'], '\\n', "\<CR>\<C-u>", 'g')
-  silent exe 'norm! Oconst '.l:fn_name.' = '.l:fn['async']."() => {\<CR>".l:content."\<CR>};\<CR>"
-  silent exe 'norm! V%=V%='
+  silent! exe 'norm! Oconst '.l:fn_name.' = '.l:fn['async']."() => {\<CR>".l:content."\<CR>};\<CR>"
+  silent! exe 'norm! V%=V%='
   call cursor(a:file_info['current_line'], a:file_info['current_column'])
 endfunction
 
@@ -66,19 +66,19 @@ function! s:extract_class_method(file_info) abort
   call filter(l:args, {idx, val -> val !~ 'this'})
   let l:args = join(l:args, ', ')
 
-  silent exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].'this.'.l:method_name.'('.l:args.');'
+  silent! exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].'this.'.l:method_name.'('.l:args.');'
 
   if a:file_info['in_method']
     call cursor(a:file_info['method']['line'], 0)
-    silent exe "norm! $%o\<CR>"
+    silent! exe "norm! $%o\<CR>"
   else
     call cursor(a:file_info['class']['line'], 0)
-    silent exe "norm! $o\<CR>"
+    silent! exe "norm! $o\<CR>"
   endif
 
   let l:content = substitute(l:fn['content'], '\\n', "\<CR>\<C-u>", 'g')
-  silent exe 'norm!cc'.l:fn['async'].l:method_name.'('.l:args.") {\<CR>".l:content."\<CR>}"
-  silent exe 'norm! V%=V%='
+  silent! exe 'norm!cc'.l:fn['async'].l:method_name.'('.l:args.") {\<CR>".l:content."\<CR>}"
+  silent! exe 'norm! V%=V%='
   call cursor(a:file_info['current_line'], a:file_info['current_column'])
 endfunction
 
@@ -87,22 +87,22 @@ function! s:extract_global_function(file_info) abort
   let l:fn = s:get_fn_data()
   let l:args = join(l:fn['arguments'], ', ')
 
-  silent exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'('.l:args.');'
+  silent! exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'('.l:args.');'
   if a:file_info['in_class']
     call cursor(a:file_info['class']['line'], 0)
-    silent exe 'norm! Oconst'
+    silent! exe 'norm! Oconst'
   elseif a:file_info['in_method']
     call cursor(a:file_info['method']['line'], 0)
-    silent exe "norm! $%o\<CR>const"
+    silent! exe "norm! $%o\<CR>const"
   else
-    silent exe 'norm! cconst'
+    silent! exe 'norm! cconst'
   endif
 
   let l:fnArgs = substitute(l:args, '\<this\>', 'self', 'g')
   let l:fnContent = substitute(l:fn['content'], '\<this\>', 'self', 'g')
   let l:fnContent = substitute(l:fnContent, '\\n', "\<CR>\<C-u>", 'g')
-  silent exe 'norm! a '.l:fn_name.' = '.l:fn['async'].'('.l:fnArgs.") => {\<CR>".l:fnContent."\<CR>};\<CR>"
-  silent exe 'norm! kV%=V%='
+  silent! exe 'norm! a '.l:fn_name.' = '.l:fn['async'].'('.l:fnArgs.") => {\<CR>".l:fnContent."\<CR>};\<CR>"
+  silent! exe 'norm! kV%=V%='
   call cursor(a:file_info['current_line'], a:file_info['current_column'])
 endfunction
 

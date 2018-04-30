@@ -10,7 +10,7 @@ function! jsfileimport#prompt() abort
 endfunction
 
 function! jsfileimport#clean() abort
-  silent exe 'normal! mz'
+  silent! exe 'normal! mz'
   let l:rgx = jsfileimport#utils#_determine_import_type()
   let l:start = search(l:rgx['lastimport'], 'c')
   let l:end = search(l:rgx['lastimport'], 'be')
@@ -18,26 +18,26 @@ function! jsfileimport#clean() abort
   for l:line in getline(l:start, l:end)
     let l:list = matchlist(l:line, l:rgx['import_name'])
     if len(l:list) >= 3 && jsfileimport#utils#_count_word_in_file(l:list[2]) <= 1
-      silent exe l:start.'d'
+      silent! exe l:start.'d'
       continue
     endif
     let l:start += 1
   endfor
-  silent exe 'normal! `z'
+  silent! exe 'normal! `z'
 endfunction
 
 function! jsfileimport#sort(...) abort
   if a:0 == 0
-    silent exe 'normal! mz'
+    silent! exe 'normal! mz'
   endif
 
   let l:rgx = jsfileimport#utils#_determine_import_type()
 
   if search(l:rgx['select_for_sort'], 'be') > 0
-    silent exe g:js_file_import_sort_command
+    silent! exe g:js_file_import_sort_command
   endif
 
-  silent exe 'normal! `z'
+  silent! exe 'normal! `z'
   return 1
 endfunction
 
@@ -115,7 +115,7 @@ function! jsfileimport#findusage(is_visual_mode) abort
     endfor
 
     call setqflist(l:options)
-    silent exe 'copen'
+    silent! exe 'copen'
     silent! call repeat#set("\<Plug>(JsFindUsage)")
     return 1
   catch /.*/
@@ -140,7 +140,7 @@ function! jsfileimport#refactor(is_visual) abort
 endfunction
 
 function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
-  silent exe 'normal! mz'
+  silent! exe 'normal! mz'
 
   try
     call jsfileimport#utils#_check_python_support()
@@ -155,7 +155,7 @@ function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
 
     return s:import_tag(l:tag_data['tag'], l:name, l:rgx)
   catch /.*/
-    silent exe 'normal! `z'
+    silent! exe 'normal! `z'
     if v:exception !=? ''
       return jsfileimport#utils#_error(v:exception)
     endif
@@ -269,7 +269,7 @@ function! s:process_full_import(name, rgx, path) abort "{{{
 
   if a:rgx['type'] ==? 'import' && search(l:existing_import_rgx, 'n') > 0
     call search(l:existing_import_rgx)
-    silent exe ':normal!i'.a:name.', '
+    silent! exe ':normal!i'.a:name.', '
     return s:finish_import()
   endif
 
@@ -281,7 +281,7 @@ function! s:process_single_line_partial_import(name) abort "{{{
   let l:first_char = l:char_under_cursor ==? ',' ? ' ' : ', '
   let l:last_char = l:char_under_cursor ==? ',' ? ',' : ''
 
-  silent exe ':normal!a'.l:first_char.a:name.last_char
+  silent! exe ':normal!a'.l:first_char.a:name.last_char
 
   return s:finish_import()
 endfunction "}}}
@@ -291,14 +291,14 @@ function! s:process_multi_line_partial_import(name) abort "{{{
   let l:first_char = l:char_under_cursor !=? ',' ? ',': ''
   let l:last_char = l:char_under_cursor ==? ',' ? ',' : ''
 
-  silent exe ':normal!a'.l:first_char
-  silent exe ':normal!o'.a:name.l:last_char
+  silent! exe ':normal!a'.l:first_char
+  silent! exe ':normal!o'.a:name.l:last_char
 
   return s:finish_import()
 endfunction "}}}
 
 function! s:process_partial_import_alongside_full(name) abort "{{{
-  silent exe ':normal!a, { '.a:name.' }'
+  silent! exe ':normal!a, { '.a:name.' }'
 
   return s:finish_import()
 endfunction "}}}
@@ -308,7 +308,7 @@ function! s:finish_import() abort "{{{
     call jsfileimport#sort(1)
   endif
 
-  silent exe 'normal! `z'
+  silent! exe 'normal! `z'
   return 1
 endfunction "}}}
 
