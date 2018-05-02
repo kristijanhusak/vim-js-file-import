@@ -52,9 +52,12 @@ function! s:extract_local_function(file_info) abort
 
   silent! exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'();'
 
-  let l:content = substitute(l:fn['content'], '\\n', "\<CR>\<C-u>", 'g')
+  let l:format_options = &formatoptions
+  set formatoptions-=ro
+  let l:content = substitute(l:fn['content'], '\\n', "\<CR>", 'g')
   silent! exe 'norm! Oconst '.l:fn_name.' = '.l:fn['async']."() => {\<CR>".l:content."\<CR>};\<CR>"
-  silent! exe 'norm! V%=V%='
+  silent! exe 'norm! kV%=V%='
+  let &formatoptions = l:format_options
   call cursor(a:file_info['current_line'], a:file_info['current_column'])
 endfunction
 
@@ -76,9 +79,12 @@ function! s:extract_class_method(file_info) abort
     silent! exe "norm! $o\<CR>"
   endif
 
-  let l:content = substitute(l:fn['content'], '\\n', "\<CR>\<C-u>", 'g')
+  let l:format_options = &formatoptions
+  set formatoptions-=ro
+  let l:content = substitute(l:fn['content'], '\\n', "\<CR>", 'g')
   silent! exe 'norm!cc'.l:fn['async'].l:method_name.'('.l:args.") {\<CR>".l:content."\<CR>}"
   silent! exe 'norm! V%=V%='
+  let &formatoptions = l:format_options
   call cursor(a:file_info['current_line'], a:file_info['current_column'])
 endfunction
 
@@ -92,17 +98,20 @@ function! s:extract_global_function(file_info) abort
     call cursor(a:file_info['class']['line'], 0)
     silent! exe 'norm! Oconst'
   elseif a:file_info['in_method']
-    call cursor(a:file_info['method']['line'], 0)
-    silent! exe "norm! $%o\<CR>const"
+    call search('^[[:blank:]]*$', 'b')
+    silent! exe "norm! ccconst"
   else
     silent! exe 'norm! ccconst'
   endif
 
   let l:fnArgs = substitute(l:args, '\<this\>', 'self', 'g')
   let l:fnContent = substitute(l:fn['content'], '\<this\>', 'self', 'g')
-  let l:fnContent = substitute(l:fnContent, '\\n', "\<CR>\<C-u>", 'g')
+  let l:fnContent = substitute(l:fnContent, '\\n', "\<CR>", 'g')
+  let l:format_options = &formatoptions
+  set formatoptions-=ro
   silent! exe 'norm! a '.l:fn_name.' = '.l:fn['async'].'('.l:fnArgs.") => {\<CR>".l:fnContent."\<CR>};\<CR>"
   silent! exe 'norm! kV%=V%='
+  let &formatoptions = l:format_options
   call cursor(a:file_info['current_line'], a:file_info['current_column'])
 endfunction
 
