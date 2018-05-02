@@ -1,4 +1,4 @@
-function! jsfileimport#extract#variable(word) abort
+function! jsfileimport#extract#_variable(word) abort
   if a:word =~? '^\(\s\|\t\)*\(const\|let\|var\)\s'
     throw 'Cannot extract variable.'
   endif
@@ -19,7 +19,7 @@ function! jsfileimport#extract#variable(word) abort
   silent! exe 'norm! I'.l:types[l:type - 1].' '.l:var_name.' = '
 endfunction
 
-function! jsfileimport#extract#method(word) abort
+function! jsfileimport#extract#_method(word) abort
   let l:choice_list = ['Global']
   let l:file_info = jsfileimport#utils#_get_file_info()
 
@@ -40,7 +40,7 @@ function! jsfileimport#extract#method(word) abort
     return s:extract_global_function(l:file_info)
   endif
 
-  let l:type = jsfileimport#utils#get_confirm_selection('Extract to', l:choice_list)
+  let l:type = jsfileimport#utils#_get_confirm_selection('Extract to', l:choice_list)
   let l:method = get(l:methods, l:type)
 
   return call(l:method, [l:file_info])
@@ -48,7 +48,7 @@ endfunction
 
 function! s:extract_local_function(file_info) abort
   let l:fn_name = jsfileimport#utils#_get_input('Enter function name')
-  let l:fn = s:get_fn_data()
+  let l:fn = s:get_fn_data(a:file_info)
 
   silent! exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'();'
 
@@ -60,7 +60,7 @@ endfunction
 
 function! s:extract_class_method(file_info) abort
   let l:method_name = jsfileimport#utils#_get_input('Enter method name')
-  let l:fn = s:get_fn_data()
+  let l:fn = s:get_fn_data(a:file_info)
 
   let l:args = copy(l:fn['arguments'])
   call filter(l:args, {idx, val -> val !~ 'this'})
@@ -84,7 +84,7 @@ endfunction
 
 function! s:extract_global_function(file_info) abort
   let l:fn_name = jsfileimport#utils#_get_input('Enter function name')
-  let l:fn = s:get_fn_data()
+  let l:fn = s:get_fn_data(a:file_info)
   let l:args = join(l:fn['arguments'], ', ')
 
   silent! exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'('.l:args.');'
@@ -95,7 +95,7 @@ function! s:extract_global_function(file_info) abort
     call cursor(a:file_info['method']['line'], 0)
     silent! exe "norm! $%o\<CR>const"
   else
-    silent! exe 'norm! cconst'
+    silent! exe 'norm! ccconst'
   endif
 
   let l:fnArgs = substitute(l:args, '\<this\>', 'self', 'g')
@@ -106,89 +106,25 @@ function! s:extract_global_function(file_info) abort
   call cursor(a:file_info['current_line'], a:file_info['current_column'])
 endfunction
 
-function! s:get_arguments_and_return_values(selection) abort
-  let l:rgx = jsfileimport#utils#_determine_import_type()
-  " remove comments
-  call filter(a:selection, { idx, val -> val !~? '^[[:blank:]]*\(\/\/\|*\)' })
-  let l:content = join(a:selection, '')
-  let l:matches = []
-  let l:parse_regex = '\(\.\|''[^'']*\|"[^"]*\)\@<!\<[A-Za-z][A-Za-z0-9_]\+\>'
-  call substitute(l:content, l:parse_regex, '\=add(l:matches, submatch(0))', 'g')
-
-  let l:arguments = []
-  let l:returns = []
-  let l:scoped_vars = []
-
-  let l:index = 0
-  for l:match in l:matches
-    if jsfileimport#utils#_is_reserved_word(l:match) || index(l:scoped_vars, l:match) > -1
-      let l:index += 1
-      continue
-    endif
-
-    if l:index > 0 && index(l:arguments, l:matches[l:index - 1]) > -1
-      let l:prev = l:matches[l:index - 1]
-      " Setting argument variable to value
-      if match(l:content, l:prev.'\s*=\s*'.l:match) > -1 && index(l:returns, l:prev) < 0
-        call add(l:returns, l:prev)
-      endif
-    endif
-
-    " Variables
-    if l:index > 0 && l:matches[l:index - 1] =~? '\(const\|let\|var\)'
-      let l:prev = l:matches[l:index - 1]
-      " Ignore block scoped variables for returning
-      let l:is_block_scoped = match(l:content, '{.\{-\}\<'.l:prev.'\s'.l:match.'\>[^}]*}') > -1
-      let l:is_brackets_scoped = match(l:content, '([^)]*\<'.l:prev.'\s'.l:match.'\>[^)]*)') > -1
-      if index(l:returns, l:match) < 0 && !l:is_block_scoped && !l:is_brackets_scoped
-        call add(l:returns, l:match)
-      endif
-      if l:is_block_scoped || l:is_brackets_scoped
-        call add(l:scoped_vars, l:match)
-      endif
-      let l:index += 1
-      continue
-    endif
-
-    if index(l:returns, l:match) > -1
-      let l:index += 1
-      continue
-    endif
-
-    let l:existPattern = substitute(l:rgx['check_import_exists'], '__FNAME__', l:match, '')
-
-    " Ignore imports and duplicates
-    if search(l:existPattern, 'n') > 0 || index(l:arguments, l:match) > -1
-      let l:index += 1
-      continue
-    endif
-
-    " Ignore values in anonymous functions
-    if match(l:content, '(.\{-\}=>[^)]*\<'.l:match.'\>[^)]*)') > -1
-      let l:index += 1
-      continue
-    endif
-
-    call add(l:arguments, l:match)
-    let l:index += 1
-  endfor
-
-  return { 'arguments': l:arguments, 'returns': l:returns }
-endfunction
-
-function! s:get_fn_data()
+function! s:get_fn_data(file_info)
   let l:selection = jsfileimport#utils#_get_selection()
-  let l:args_and_return_values = s:get_arguments_and_return_values(copy(l:selection))
+  if len(l:selection) <=? 0
+    throw 'No selection.'
+  endif
+
+  let l:selectionNoComments = copy(l:selection)
+  call filter(l:selectionNoComments, { idx, val -> val !~? '^[[:blank:]]*\(\/\/\|*\)' })
+  let l:args = jsfileimport#parser#_parse_args(copy(l:selectionNoComments), a:file_info)
+  let l:returns = jsfileimport#parser#_parse_returns(copy(l:selectionNoComments), a:file_info)
   let l:return_fn = []
   let l:vars = ''
 
-  if len(l:selection) > 0 && l:selection[-1] =~? 'return'
+  if l:selection[-1] =~? 'return'
     call add(l:return_fn, 'return')
-  elseif len(l:args_and_return_values['returns']) > 0
-    if len(l:args_and_return_values['returns']) ==? 1
-      let l:return_vars = l:args_and_return_values['returns'][0]
-    else
-      let l:return_vars = printf('{ %s }', join(l:args_and_return_values['returns'], ', '))
+  elseif len(l:returns) > 0
+    let l:return_vars = join(l:returns, ', ')
+    if len(l:returns) > 1
+      let l:return_vars = printf('{ %s }', l:return_vars)
     endif
     let l:vars = printf('const %s = ', l:return_vars)
     call add(l:selection, printf('return %s;', l:return_vars))
@@ -196,19 +132,16 @@ function! s:get_fn_data()
 
   let l:content = join(l:selection, '\n')
 
-  if l:content =~? 'await'
+  if l:content =~? '\<await\>'
     call add(l:return_fn, 'await')
   endif
 
-  let l:return_fn = len(l:return_fn) > 0
-    \ ? join(l:return_fn, ' ').' '
-    \ : ''
+  let l:return_fn = join(l:return_fn, ' ')
+  let l:return_fn .= (strlen(l:return_fn) > 0 ? ' ' : '')
 
   return {
-  \ 'selection': l:selection,
   \ 'content' : l:content,
-  \ 'arguments': l:args_and_return_values['arguments'],
-  \ 'returns': l:args_and_return_values['returns'],
+  \ 'arguments': l:args,
   \ 'return_fn': l:return_fn,
   \ 'vars': l:vars,
   \ 'async': l:content =~? 'await' ? 'async ' : '',

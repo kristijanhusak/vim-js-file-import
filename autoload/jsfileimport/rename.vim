@@ -1,4 +1,4 @@
-function! jsfileimport#rename#word(word) abort
+function! jsfileimport#rename#_word(word) abort
   let l:file_info = jsfileimport#utils#_get_file_info()
 
   if jsfileimport#utils#_is_reserved_word(a:word)

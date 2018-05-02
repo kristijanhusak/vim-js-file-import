@@ -80,17 +80,28 @@ function! jsfileimport#utils#_get_word(is_visual_mode) abort
 endfunction
 
 function! jsfileimport#utils#_get_selection() abort
-  let [l:line_start, l:column_start] = getpos("'<")[1:2]
-  let [l:line_end, l:column_end] = getpos("'>")[1:2]
-  let l:lines = getline(l:line_start, l:line_end)
+  let l:pos = jsfileimport#utils#_get_selection_ranges()
+  let l:lines = getline(l:pos['line_start'], l:pos['line_end'])
 
   if len(l:lines) ==? 0
     return []
   endif
 
-  let l:lines[-1] = l:lines[-1][:l:column_end - (&selection ==? 'inclusive' ? 1 : 2)]
-  let l:lines[0] = l:lines[0][l:column_start - 1:]
+  let l:lines[-1] = l:lines[-1][:l:pos['column_end'] - (&selection ==? 'inclusive' ? 1 : 2)]
+  let l:lines[0] = l:lines[0][l:pos['column_start'] - 1:]
   return l:lines
+endfunction
+
+function! jsfileimport#utils#_get_selection_ranges() abort
+  let [l:line_start, l:column_start] = getpos("'<")[1:2]
+  let [l:line_end, l:column_end] = getpos("'>")[1:2]
+
+  return {
+  \ 'line_start': l:line_start,
+  \ 'column_start': l:column_start,
+  \ 'line_end': l:line_end,
+  \ 'column_end': l:column_end,
+  \ }
 endfunction
 
 function! jsfileimport#utils#_count_word_in_file(word) abort
@@ -120,7 +131,7 @@ function! jsfileimport#utils#_remove_duplicate_files(files) abort
   return l:new_files
 endfunction
 
-function! jsfileimport#utils#get_confirm_selection(title, options) abort
+function! jsfileimport#utils#_get_confirm_selection(title, options) abort
   silent! exe ':redraw'
   let l:confirm_option = confirm(a:title.' :', '&'.join(a:options, "\n&"))
   let l:option = get(a:options, l:confirm_option - 1, -1)
@@ -134,9 +145,9 @@ endfunction
 
 function! jsfileimport#utils#_get_file_info() abort
   let l:lines = []
-  let l:current_line_content = getline('.')
   let l:current_line = line('.')
   let l:current_column = col('.')
+  let l:pos = jsfileimport#utils#_get_selection_ranges()
   let l:last_pos = searchpair('{', '', '}', 'bW')
 
   while l:last_pos > 0
@@ -147,17 +158,16 @@ function! jsfileimport#utils#_get_file_info() abort
 
   call cursor(l:current_line, l:current_column)
 
-  let l:return_data = {
+  let l:return_data = extend({
   \ 'class': {},
   \ 'method': {},
   \ 'in_class': 0,
   \ 'in_method': 0,
   \ 'all_lines': l:lines,
   \ 'block_lines': l:lines[:-2],
-  \ 'current_line_content': l:current_line_content,
   \ 'current_line': l:current_line,
   \ 'current_column': l:current_column,
-  \  }
+  \  }, l:pos)
 
   if len(l:lines) ==? 0
     return l:return_data
@@ -171,7 +181,7 @@ function! jsfileimport#utils#_get_file_info() abort
       let l:return_data['in_method'] = 1
       let l:return_data['block_lines'] = l:lines[:-3]
     endif
-  elseif l:lines[-1].content =~? '^[[:blank:]]*.*{[[:blank:]]*$'
+  elseif l:lines[-1].content =~? '^[[:blank:]]*.*{[[:blank:]]*$' && l:lines[-1].line !=? l:lines[-1].close_line
     let l:return_data['method'] = l:lines[-1]
     let l:return_data['in_method'] = 1
   endif
