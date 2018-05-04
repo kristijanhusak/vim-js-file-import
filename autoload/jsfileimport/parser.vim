@@ -16,13 +16,14 @@ function! jsfileimport#parser#_parse_args(selection, file_info) abort
   for l:match in l:matches
     let l:already_added = index(l:arguments, l:match) > -1
     let l:skipped = index(l:skipped_matches, l:match) > - 1
+    let l:prev = l:index > 0 ? l:matches[l:index - 1] : ''
 
     if jsfileimport#utils#_is_reserved_word(l:match) || l:already_added || l:skipped
       let l:index += 1
       continue
     endif
 
-    if l:index > 0 && s:is_scoped(l:content, l:matches[l:index - 1], l:match)
+    if s:is_scoped(l:content, l:prev, l:match)
       call add(l:skipped_matches, l:match)
       let l:index += 1
       continue
@@ -36,7 +37,7 @@ function! jsfileimport#parser#_parse_args(selection, file_info) abort
 
     let l:is_object_prop = match(l:content, l:match.'\s*:\s*') > -1
 
-    let l:is_var_declaration = l:index > 0 && l:matches[l:index - 1] =~? '\(const\|let\|var\)'
+    let l:is_var_declaration = l:prev =~? '\(const\|let\|var\)'
 
     if l:var_declared_out_of_scope || l:is_object_prop || l:exist_import || l:is_var_declaration
       call add(l:skipped_matches, l:match)
@@ -70,13 +71,12 @@ function! jsfileimport#parser#_parse_returns(selection, file_info) abort
   for l:match in l:matches
     let l:already_added = index(l:returns, l:match) > -1
     let l:skipped = index(l:skipped_matches, l:match) > -1
+    let l:prev = l:index > 0 ? l:matches[l:index - 1] : ''
 
     if jsfileimport#utils#_is_reserved_word(l:match) || l:skipped || l:already_added || l:index ==? 0
       let l:index += 1
       continue
     endif
-
-    let l:prev = l:matches[l:index - 1]
 
     if s:is_scoped(l:content, l:prev, l:match)
       call add(l:skipped_matches, l:match)
@@ -116,7 +116,7 @@ function! s:parse_items(selection) abort
     endif
 
     " Remove strings
-    let l:line = substitute(l:line, '[''"][^''"]*[''"]', '', 'g')
+    let l:line = substitute(l:line, '[''"`][^''"`]*[''"`]', '', 'g')
     " Remove inline comments (/**/)
     let l:line = substitute(l:line, '\/\*[^\*]*\*\/', '', 'g')
     " Remove inline comments (//)
@@ -131,15 +131,22 @@ endfunction
 
 function! s:is_scoped(content, prev, current) abort
   let l:is_var_declaration = a:prev =~? '\(const\|let\|var\)'
+  let l:is_var_block_scoped = 0
+  let l:is_var_brackets_scoped = 0
 
-  if !l:is_var_declaration
-    return 0
+  if l:is_var_declaration
+    let l:is_var_block_scoped = match(a:content, '{[^}]\{-\}\<'.a:prev.'\s*'.a:current.'\>[^}]*}') > -1
+    let l:is_var_brackets_scoped = match(a:content, '([^)]*\<'.a:prev.'\s'.a:current.'\>[^)]*)') > -1
   endif
 
-  let l:is_in_anonymous_fn = match(a:content, '(.\{-\}=>[^)]*\<'.a:current.'\>[^)]*)') > -1
-  let l:is_block_scoped = match(a:content, '{.\{-\}\<'.a:prev.'\s'.a:current.'\>[^}]*}') > -1
-  let l:is_brackets_scoped = match(a:content, '([^)]*\<'.a:prev.'\s'.a:current.'\>[^)]*)') > -1
+  let l:is_es6_anonymous_fn_arg = match(a:content, '([^()]*\<'.a:current.'\>[^()]*)\s*=>\s*') > -1
+  let l:is_es5_anonymous_fn_arg = match(a:content, 'function([^()]*\<'.a:current.'\>[^()]*)\s*{') > -1
+  let l:is_anonymous_fn_arg = l:is_es6_anonymous_fn_arg || l:is_es5_anonymous_fn_arg
 
-  return l:is_block_scoped || l:is_brackets_scoped || l:is_in_anonymous_fn
+  let l:is_in_es6_anonymous_fn = match(a:content, '((\_[^()]*)\s*=>\s*{\?[^)]*\<'.a:current.'\>[^)]*}\?)') > -1
+  let l:is_in_es5_anonymous_fn = match(a:content, '(function\s*([^()]*)\s*{[^)]*\<'.a:current.'\>[^)]*}\?)') > -1
+  let l:is_in_anonymous_fn = l:is_in_es6_anonymous_fn || l:is_in_es5_anonymous_fn
+
+  return l:is_var_block_scoped || l:is_var_brackets_scoped || l:is_in_anonymous_fn || l:is_anonymous_fn_arg
 endfunction
 

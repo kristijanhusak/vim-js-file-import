@@ -98,7 +98,8 @@ function! s:extract_global_function(file_info) abort
     call cursor(a:file_info['class']['line'], 0)
     silent! exe 'norm! Oconst'
   elseif a:file_info['in_method']
-    call search('^[[:blank:]]*$', 'b')
+    call cursor(1, 0)
+    call search('^[[:blank:]]*$')
     silent! exe "norm! ccconst"
   else
     silent! exe 'norm! ccconst'
