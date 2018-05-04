@@ -19,7 +19,7 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
 
   let l:tag_selection_list = jsfileimport#tags#_generate_tags_selection_list(l:tags)
   let l:prompt_index = len(l:tag_selection_list) + 1
-  let l:prompt_import = [l:prompt_index.' - Enter path to file or package name manually']
+  let l:prompt_import = [l:prompt_index.') Enter path to file or package name manually']
   let l:options = ['Select file to import:'] + l:tag_selection_list + l:prompt_import
 
   call inputsave()
@@ -88,8 +88,8 @@ function! jsfileimport#tags#_generate_tags_selection_list(tags) abort
 
   for l:tag in a:tags
     let l:index += 1
-    let l:cmd = l:tag['cmd'] !=? '' ? ' - ('.l:tag['cmd'].')' : ''
-    call add(l:options, l:index.' - '.l:tag['filename'].' - '.l:tag['kind'].l:cmd)
+    let l:cmd = l:tag['cmd'] !=? '' ? ' - '.l:tag['cmd'] : ''
+    call add(l:options, l:index.') '.l:tag['filename'].l:cmd)
   endfor
 
   return l:options
