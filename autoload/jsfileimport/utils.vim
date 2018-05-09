@@ -146,6 +146,7 @@ endfunction
 function! jsfileimport#utils#_get_file_info() abort
   let l:lines = []
   let l:current_line = line('.')
+  let l:current_line_content = getline('.')
   let l:current_column = col('.')
   let l:pos = jsfileimport#utils#_get_selection_ranges()
   let l:last_pos = searchpair('{', '', '}', 'bW')
@@ -180,6 +181,16 @@ function! jsfileimport#utils#_get_file_info() abort
       let l:return_data['method'] = l:lines[-2]
       let l:return_data['in_method'] = 1
       let l:return_data['block_lines'] = l:lines[:-3]
+    elseif s:is_line_method(l:current_line_content)
+      call cursor(l:current_line, col('$'))
+      let l:current_close_line = searchpair('{', '', '}', 'n')
+      call cursor(l:current_line, l:current_column)
+      let l:return_data['method'] = {
+      \ 'line': l:current_line,
+      \ 'close_line': l:current_close_line,
+      \ 'content': l:current_line_content
+      \ }
+      let l:return_data['in_method'] = 1
     endif
   elseif l:lines[-1].content =~? '^[[:blank:]]*.*{[[:blank:]]*$' && l:lines[-1].line !=? l:lines[-1].close_line
     let l:return_data['method'] = l:lines[-1]
@@ -209,5 +220,8 @@ function! jsfileimport#utils#_get_input(question) abort
   return l:var_name
 endfunction
 
+function s:is_line_method(content) abort
+  return a:content =~? '^[[:blank:]]*.*(.*).*{[[:blank:]]*$'
+endfunction
 
 " vim:foldenable:foldmethod=marker:sw=2
