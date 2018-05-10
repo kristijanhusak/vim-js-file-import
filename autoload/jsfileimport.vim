@@ -12,16 +12,17 @@ endfunction
 function! jsfileimport#clean() abort
   silent! exe 'normal! mz'
   let l:rgx = jsfileimport#utils#_determine_import_type()
-  let l:start = search(l:rgx['lastimport'], 'c')
-  let l:end = search(l:rgx['lastimport'], 'be')
+
+  call cursor(1, 0)
+  let l:start = search(l:rgx['lastimport'], 'cw')
+  let l:end = search(l:rgx['lastimport'], 'bw')
 
   for l:line in getline(l:start, l:end)
     let l:list = matchlist(l:line, l:rgx['import_name'])
     if len(l:list) >= 3 && jsfileimport#utils#_count_word_in_file(l:list[2]) <= 1
-      silent! exe l:start.'d'
+      silent! exe 'g/'.escape(l:list[0], '\/.').'/d'
       continue
     endif
-    let l:start += 1
   endfor
   silent! exe 'normal! `z'
 endfunction

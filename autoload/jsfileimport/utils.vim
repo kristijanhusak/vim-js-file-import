@@ -10,7 +10,7 @@ function! jsfileimport#utils#_determine_import_type() abort
         \ 'default_export': 'module.exports\s*=.\{-\}',
         \ 'partial_export': 'module.exports.\(\<__FNAME__\>\|\s*=\_[^{]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
         \ 'select_for_sort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
-        \ 'import_name': '^\(const\|let\|var\)\s*\(\<[^''"]\{-\}\>\)\s*',
+        \ 'import_name': '^\(const\|let\|var\)\s*\(\<[^''"]\{-\}\>\)\s*=\s*require([^)]*);\?',
         \ }
 
   let l:import_regex = {
@@ -24,7 +24,7 @@ function! jsfileimport#utils#_determine_import_type() abort
         \ 'default_export': 'export\s*default.\{-\}',
         \ 'partial_export': 'export\s*\(const\|var\|function\)\s*\<__FNAME__\>',
         \ 'select_for_sort': '^import\s*\zs.*\ze\s*from.*;\?$',
-        \ 'import_name': '^\(import\)\s*\(\<[^''"]\{-\}\>\)\s*',
+        \ 'import_name': '^\(import\)\s*\(\<[^''"]\{-\}\>\)\s*from\s*',
         \ }
 
   if g:js_file_import_force_require || search(l:require_regex['lastimport'], 'n') > 0
@@ -108,7 +108,7 @@ function! jsfileimport#utils#_count_word_in_file(word) abort
   let l:use_global = &gdefault ? '' : 'g'
 
   redir => l:count
-    silent! exe '%s/\<' . a:word . '\>//'.l:use_global.'n'
+    silent! exe '%s/\(require([''"]\|from\s*[''"]\)\@<!\<' . a:word . '\>//'.l:use_global.'n'
   redir END
 
   let l:result = strpart(l:count, 0, stridx(l:count, ' '))
