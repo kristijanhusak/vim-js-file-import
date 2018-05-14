@@ -1,0 +1,194 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/576c750/
+.in.out	tests/Makefile	/^.in.out:$/;"	t
+<Plug>(JsFileImport)	plugin/vim-js-file-import.vim	/^nnoremap <silent> <Plug>(JsFileImport) :<C-u>call jsfileimport#word(0)<CR>$/;"	m
+<Plug>(JsFileImport)	plugin/vim-js-file-import.vim	/^xnoremap <silent> <Plug>(JsFileImport) :<C-u>call jsfileimport#word(1)<CR>$/;"	m
+<Plug>(JsFileImportList)	plugin/vim-js-file-import.vim	/^nnoremap <silent> <Plug>(JsFileImportList) :<C-u>call jsfileimport#word(0, 1)<CR>$/;"	m
+<Plug>(JsFileImportList)	plugin/vim-js-file-import.vim	/^xnoremap <silent> <Plug>(JsFileImportList) :<C-u>call jsfileimport#word(1, 1)<CR>$/;"	m
+<Plug>(JsFindUsage)	plugin/vim-js-file-import.vim	/^nnoremap <silent> <Plug>(JsFindUsage) :<C-u>call jsfileimport#findusage(0)<CR>$/;"	m
+<Plug>(JsFindUsage)	plugin/vim-js-file-import.vim	/^xnoremap <silent> <Plug>(JsFindUsage) :<C-u>call jsfileimport#findusage(1)<CR>$/;"	m
+<Plug>(JsGotoDefinition)	plugin/vim-js-file-import.vim	/^nnoremap <silent> <Plug>(JsGotoDefinition) :<C-u>call jsfileimport#goto(0)<CR>$/;"	m
+<Plug>(JsGotoDefinition)	plugin/vim-js-file-import.vim	/^xnoremap <silent> <Plug>(JsGotoDefinition) :<C-u>call jsfileimport#goto(1)<CR>$/;"	m
+<Plug>(JsGotoDefinitionList)	plugin/vim-js-file-import.vim	/^nnoremap <silent> <Plug>(JsGotoDefinitionList) :<C-u>call jsfileimport#goto(0, 1)<CR>$/;"	m
+<Plug>(JsGotoDefinitionList)	plugin/vim-js-file-import.vim	/^xnoremap <silent> <Plug>(JsGotoDefinitionList) :<C-u>call jsfileimport#goto(1, 1)<CR>$/;"	m
+<Plug>(JsRefactor)	plugin/vim-js-file-import.vim	/^nnoremap <silent> <Plug>(JsRefactor) :<C-u>call jsfileimport#refactor(0)<CR>$/;"	m
+<Plug>(JsRefactor)	plugin/vim-js-file-import.vim	/^xnoremap <silent> <Plug>(JsRefactor) :<C-u>call jsfileimport#refactor(1)<CR>$/;"	m
+<Plug>(PromptJsFileImport)	plugin/vim-js-file-import.vim	/^nnoremap <silent> <Plug>(PromptJsFileImport) :<C-u>call jsfileimport#prompt()<CR>$/;"	m
+<Plug>(RemoveUnusedJsFileImports)	plugin/vim-js-file-import.vim	/^nnoremap <silent> <Plug>(RemoveUnusedJsFileImports) :<C-u>call jsfileimport#clean()<CR>$/;"	m
+<Plug>(SortJsFileImport)	plugin/vim-js-file-import.vim	/^nnoremap <silent> <Plug>(SortJsFileImport) :<C-u>call jsfileimport#sort()<CR>$/;"	m
+Bar	tests/test-find-tag-by-filename.fixtures/main_helpers.js	/^  Bar: () => {},$/;"	p	class:module.exports
+Bar	tests/test-force-require.fixtures/a.js	/^class Bar {}$/;"	c
+Bar	tests/test-full-import-alongside-partial.fixtures/a.js	/^const Bar = () => {};$/;"	C
+Bar	tests/test-global-import-at-end.fixtures/a.js	/^export const Bar = () => {};$/;"	C
+Bar	tests/test-global-import.fixtures/a.js	/^export const Bar = () => {};$/;"	C
+Bar	tests/test-import.fixtures/a.js	/^class Bar {}$/;"	c
+Bar	tests/test-partial-import-alongside-full.fixtures/a.js	/^const Bar = () => {};$/;"	C
+Bar	tests/test-partial-import-multiline-path-exists.fixtures/a.js	/^export const Bar = () => {};$/;"	C
+Bar	tests/test-partial-import-path-exists.fixtures/a.js	/^export const Bar = () => {};$/;"	C
+Bar	tests/test-partial-import.fixtures/a.js	/^export const Bar = () => {};$/;"	C
+Bar	tests/test-partial-require-multiline-path-exists.fixtures/a.js	/^  Bar: () => {},$/;"	p	class:module.exports
+Bar	tests/test-partial-require-path-exists.fixtures/a.js	/^  Bar: () => {}$/;"	p	class:module.exports
+Bar	tests/test-partial-require-readfile.fixtures/a.js	/^const Bar = () => {};$/;"	C
+Bar	tests/test-partial-require.fixtures/a.js	/^  Bar: () => {},$/;"	p	class:module.exports
+Bar	tests/test-require.fixtures/a.js	/^class Bar {}$/;"	c
+Bar	tests/test-sort-after-import.fixtures/bar.js	/^export default const Bar = () => {};$/;"	C
+Bar	tests/test-sort-after-require.fixtures/bar.js	/^const Bar = () => {};$/;"	C
+Bar	tests/test-sort-import.fixtures/a.js	/^export const Bar = () => {};$/;"	C
+Bar	tests/test-sort-require.fixtures/a.js	/^export const Bar = () => {};$/;"	C
+Baz	tests/test-partial-import-multiline-path-exists.fixtures/a.js	/^export const Baz = () => {};$/;"	C
+Baz	tests/test-partial-require-multiline-path-exists.fixtures/a.js	/^  Baz: () => {},$/;"	p	class:module.exports
+Contributing	README.md	/^### Contributing$/;"	S
+Deoplete strip file extension	README.md	/^### Deoplete strip file extension$/;"	S
+Examples	README.md	/^### Examples$/;"	S
+Filter	rplugin/python3/deoplete/filter/converter_strip_file_extension.py	/^class Filter(Base):$/;"	c
+Foo	tests/test-find-tag-by-filename.fixtures/main_helpers.js	/^  Foo: () => {},$/;"	p	class:module.exports
+Foo	tests/test-full-import-alongside-partial.fixtures/a.js	/^export const Foo = () => {};$/;"	C
+Foo	tests/test-global-import-at-end.fixtures/a.js	/^export const Foo = () => {};$/;"	C
+Foo	tests/test-global-import.fixtures/a.js	/^export const Foo = () => {};$/;"	C
+Foo	tests/test-global-require-at-end.fixtures/a.js	/^const Foo = () => {};$/;"	C
+Foo	tests/test-global-require.fixtures/a.js	/^const Foo = () => {};$/;"	C
+Foo	tests/test-partial-import-alongside-full.fixtures/a.js	/^export const Foo = () => {};$/;"	C
+Foo	tests/test-partial-import-multiline-path-exists.fixtures/a.js	/^export const Foo = () => {};$/;"	C
+Foo	tests/test-partial-import-path-exists.fixtures/a.js	/^export const Foo = () => {};$/;"	C
+Foo	tests/test-partial-import.fixtures/a.js	/^export const Foo = () => {};$/;"	C
+Foo	tests/test-partial-require-multiline-path-exists.fixtures/a.js	/^  Foo: () => {},$/;"	p	class:module.exports
+Foo	tests/test-partial-require-path-exists.fixtures/a.js	/^  Foo: () => {},$/;"	p	class:module.exports
+Foo	tests/test-partial-require-readfile.fixtures/a.js	/^const Foo = () => {};$/;"	C
+Foo	tests/test-partial-require.fixtures/a.js	/^  Foo: () => {},$/;"	p	class:module.exports
+Foo	tests/test-sort-after-import.fixtures/foo.js	/^export default const Foo = () => {};$/;"	C
+Foo	tests/test-sort-after-require.fixtures/foo.js	/^const Foo = () => {};$/;"	C
+Foo	tests/test-sort-import.fixtures/a.js	/^export const Foo = () => {};$/;"	C
+Foo	tests/test-sort-require.fixtures/a.js	/^export const Foo = () => {};$/;"	C
+Goto definition	README.md	/^### Goto definition$/;"	S
+How to create a test:	tests/README.markdown	/^## How to create a test:$/;"	s
+How to run tests:	tests/README.markdown	/^## How to run tests:$/;"	s
+Installation	README.md	/^### Installation$/;"	S
+JsFileImport	plugin/vim-js-file-import.vim	/^command! JsFileImport call jsfileimport#word(0)$/;"	c
+JsFileImportList	plugin/vim-js-file-import.vim	/^command! JsFileImportList call jsfileimport#word(0, 1)$/;"	c
+JsFindUsage	plugin/vim-js-file-import.vim	/^command! JsFindUsage call jsfileimport#findusage(0)$/;"	c
+JsGotoDefinition	plugin/vim-js-file-import.vim	/^command! JsGotoDefinition call jsfileimport#goto(0)$/;"	c
+JsGotoDefinitionList	plugin/vim-js-file-import.vim	/^command! JsGotoDefinitionList call jsfileimport#goto(0, 1)$/;"	c
+Mappings	README.md	/^### Mappings$/;"	S
+Overriding mappings	README.md	/^#### Overriding mappings$/;"	t
+PromptJsFileImport	plugin/vim-js-file-import.vim	/^command! PromptJsFileImport call jsfileimport#prompt()$/;"	c
+RemoveUnusedJsFileImports	plugin/vim-js-file-import.vim	/^command! RemoveUnusedJsFileImports call jsfileimport#clean()$/;"	c
+Requirements	README.md	/^### Requirements$/;"	S
+SCRIPTS	tests/Makefile	/^SCRIPTS = $(patsubst %.ok,%.out,$(wildcard *.ok))$/;"	m
+Settings	README.md	/^### Settings$/;"	S
+SortJsFileImport	plugin/vim-js-file-import.vim	/^command! SortJsFileImport call jsfileimport#sort()$/;"	c
+Sorting	README.md	/^### Sorting$/;"	S
+Table of contents	README.md	/^## Table of contents$/;"	s
+Tests	tests/README.markdown	/^# Tests$/;"	c
+Thanks to:	README.md	/^### Thanks to:$/;"	S
+VIMPROG	tests/Makefile	/^VIMPROG=vim$/;"	m
+Vim js file import	README.md	/^# Vim js file import$/;"	c
+Why?	README.md	/^## Why?$/;"	s
+__init__	rplugin/python3/deoplete/filter/converter_strip_file_extension.py	/^    def __init__(self, vim):$/;"	m	class:Filter
+clean	tests/Makefile	/^clean:$/;"	t
+dependencies	tests/package.json	/^  "dependencies": {$/;"	o
+description	tests/package.json	/^  "description": "Test package json",$/;"	s
+exports	tests/test-find-tag-by-filename.fixtures/main_helpers.js	/^module.exports = {$/;"	c	class:module
+exports	tests/test-partial-require-multiline-path-exists.fixtures/a.js	/^module.exports = {$/;"	c	class:module
+exports	tests/test-partial-require-path-exists.fixtures/a.js	/^module.exports = {$/;"	c	class:module
+exports	tests/test-partial-require.fixtures/a.js	/^module.exports = {$/;"	c	class:module
+filter	rplugin/python3/deoplete/filter/converter_strip_file_extension.py	/^    def filter(self, context):$/;"	m	class:Filter
+g:deoplete_strip_file_extension	plugin/vim-js-file-import.vim	/^let g:deoplete_strip_file_extension = get(g:, 'deoplete_strip_file_extension', 1)$/;"	v
+g:js_file_import_filters	plugin/vim-js-file-import.vim	/^let g:js_file_import_filters = get(g:, 'js_file_import_filters', [])$/;"	v
+g:js_file_import_force_require	plugin/vim-js-file-import.vim	/^let g:js_file_import_force_require = get(g:, 'js_file_import_force_require', 0)$/;"	v
+g:js_file_import_no_mappings	plugin/vim-js-file-import.vim	/^let g:js_file_import_no_mappings = get(g:, 'js_file_import_no_mappings', 0)$/;"	v
+g:js_file_import_package_first	plugin/vim-js-file-import.vim	/^let g:js_file_import_package_first = get(g:, 'js_file_import_package_first', 1)$/;"	v
+g:js_file_import_prompt_if_no_tag	plugin/vim-js-file-import.vim	/^let g:js_file_import_prompt_if_no_tag = get(g:, 'js_file_import_prompt_if_no_tag', 1)$/;"	v
+g:js_file_import_sort_after_insert	plugin/vim-js-file-import.vim	/^let g:js_file_import_sort_after_insert = get(g:, 'js_file_import_sort_after_insert', 0)$/;"	v
+g:js_file_import_sort_command	plugin/vim-js-file-import.vim	/^let g:js_file_import_sort_command = get(g:, 'js_file_import_sort_command', "'{,'}-1sort i")$/;"	v
+g:loaded_js_file_import	plugin/vim-js-file-import.vim	/^let g:loaded_js_file_import = 1$/;"	v
+jsfileimport#ast_extract#_method	autoload/jsfileimport/ast_extract.vim	/^function! jsfileimport#ast_extract#_method(word) abort$/;"	f
+jsfileimport#clean	autoload/jsfileimport.vim	/^function! jsfileimport#clean() abort$/;"	f
+jsfileimport#extract#_method	autoload/jsfileimport/extract.vim	/^function! jsfileimport#extract#_method(word) abort$/;"	f
+jsfileimport#extract#_variable	autoload/jsfileimport/extract.vim	/^function! jsfileimport#extract#_variable(word) abort$/;"	f
+jsfileimport#findusage	autoload/jsfileimport.vim	/^function! jsfileimport#findusage(is_visual_mode) abort$/;"	f
+jsfileimport#goto	autoload/jsfileimport.vim	/^function! jsfileimport#goto(is_visual_mode, ...) abort$/;"	f
+jsfileimport#parser#_parse_args	autoload/jsfileimport/parser.vim	/^function! jsfileimport#parser#_parse_args(selection, file_info) abort$/;"	f
+jsfileimport#parser#_parse_returns	autoload/jsfileimport/parser.vim	/^function! jsfileimport#parser#_parse_returns(selection, file_info) abort$/;"	f
+jsfileimport#prompt	autoload/jsfileimport.vim	/^function! jsfileimport#prompt() abort$/;"	f
+jsfileimport#refactor	autoload/jsfileimport.vim	/^function! jsfileimport#refactor(is_visual) abort$/;"	f
+jsfileimport#refactor#_extract	autoload/jsfileimport/refactor.vim	/^function! jsfileimport#refactor#_extract() abort$/;"	f
+jsfileimport#refactor#_rename	autoload/jsfileimport/refactor.vim	/^function! jsfileimport#refactor#_rename() abort$/;"	f
+jsfileimport#rename#_word	autoload/jsfileimport/rename.vim	/^function! jsfileimport#rename#_word(word) abort$/;"	f
+jsfileimport#sort	autoload/jsfileimport.vim	/^function! jsfileimport#sort(...) abort$/;"	f
+jsfileimport#tags#_generate_tags_selection_list	autoload/jsfileimport/tags.vim	/^function! jsfileimport#tags#_generate_tags_selection_list(tags) abort$/;"	f
+jsfileimport#tags#_get_tag	autoload/jsfileimport/tags.vim	/^function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort$/;"	f
+jsfileimport#tags#_get_tag_data_from_prompt	autoload/jsfileimport/tags.vim	/^function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort$/;"	f
+jsfileimport#tags#_get_tag_in_current_file	autoload/jsfileimport/tags.vim	/^function! jsfileimport#tags#_get_tag_in_current_file(tags, current_file_path) abort$/;"	f
+jsfileimport#tags#_get_taglist	autoload/jsfileimport/tags.vim	/^function! jsfileimport#tags#_get_taglist(name, rgx) abort$/;"	f
+jsfileimport#tags#_jump_to_tag	autoload/jsfileimport/tags.vim	/^function! jsfileimport#tags#_jump_to_tag(tag, current_file_path, show_list) abort$/;"	f
+jsfileimport#utils#_check_python_support	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_check_python_support() abort$/;"	f
+jsfileimport#utils#_count_word_in_file	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_count_word_in_file(word) abort$/;"	f
+jsfileimport#utils#_determine_import_type	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_determine_import_type() abort$/;"	f
+jsfileimport#utils#_error	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_error(msg) abort$/;"	f
+jsfileimport#utils#_get_confirm_selection	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_get_confirm_selection(title, options) abort$/;"	f
+jsfileimport#utils#_get_file_info	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_get_file_info() abort$/;"	f
+jsfileimport#utils#_get_file_path	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_get_file_path(filepath) abort$/;"	f
+jsfileimport#utils#_get_input	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_get_input(question) abort$/;"	f
+jsfileimport#utils#_get_selection	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_get_selection() abort$/;"	f
+jsfileimport#utils#_get_selection_ranges	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_get_selection_ranges() abort$/;"	f
+jsfileimport#utils#_get_word	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_get_word(is_visual_mode) abort$/;"	f
+jsfileimport#utils#_is_reserved_word	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_is_reserved_word(word) abort$/;"	f
+jsfileimport#utils#_remove_duplicate_files	autoload/jsfileimport/utils.vim	/^function! jsfileimport#utils#_remove_duplicate_files(files) abort$/;"	f
+jsfileimport#word	autoload/jsfileimport.vim	/^function! jsfileimport#word(is_visual_mode, ...) abort$/;"	f
+lodash	tests/package.json	/^    "lodash": "^4.14.2"$/;"	s	object:dependencies
+name	tests/package.json	/^  "name": "Test",$/;"	s
+newtest	tests/Makefile	/^newtest:$/;"	t
+nolog	tests/Makefile	/^nolog:$/;"	t
+nongui	tests/Makefile	/^nongui:	clean nolog $(SCRIPTS) report$/;"	t
+report	tests/Makefile	/^report:$/;"	t
+s:append_filename_to_tags	autoload/jsfileimport/tags.vim	/^function! s:append_filename_to_tags(tags, name, rgx) abort "{{{$/;"	f
+s:append_tags_by_filename	autoload/jsfileimport/tags.vim	/^function! s:append_tags_by_filename(tags, name, rgx) abort "{{{$/;"	f
+s:check_if_class_property	autoload/jsfileimport/rename.vim	/^function! s:check_if_class_property(file_info, word) abort$/;"	f
+s:check_if_exists	autoload/jsfileimport.vim	/^function! s:check_if_exists(name, rgx) abort "{{{$/;"	f
+s:check_if_global_tag	autoload/jsfileimport/tags.vim	/^function! s:check_if_global_tag(tag, name) abort "{{{$/;"	f
+s:check_if_method	autoload/jsfileimport/rename.vim	/^function! s:check_if_method(file_info, word) abort$/;"	f
+s:do_import	autoload/jsfileimport.vim	/^function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{$/;"	f
+s:extract_class_method	autoload/jsfileimport/ast_extract.vim	/^function! s:extract_class_method(file_info) abort$/;"	f
+s:extract_class_method	autoload/jsfileimport/extract.vim	/^function! s:extract_class_method(file_info) abort$/;"	f
+s:extract_global_function	autoload/jsfileimport/ast_extract.vim	/^function! s:extract_global_function(file_info) abort$/;"	f
+s:extract_global_function	autoload/jsfileimport/extract.vim	/^function! s:extract_global_function(file_info) abort$/;"	f
+s:extract_local_function	autoload/jsfileimport/ast_extract.vim	/^function! s:extract_local_function(file_info) abort$/;"	f
+s:extract_local_function	autoload/jsfileimport/extract.vim	/^function! s:extract_local_function(file_info) abort$/;"	f
+s:finish_import	autoload/jsfileimport.vim	/^function! s:finish_import() abort "{{{$/;"	f
+s:get_fn_data	autoload/jsfileimport/ast_extract.vim	/^function! s:get_fn_data(file_info)$/;"	f
+s:get_fn_data	autoload/jsfileimport/extract.vim	/^function! s:get_fn_data(file_info)$/;"	f
+s:import_tag	autoload/jsfileimport.vim	/^function! s:import_tag(tag, name, rgx) abort "{{{$/;"	f
+s:is_global_package	autoload/jsfileimport/tags.vim	/^function! s:is_global_package(name) abort "{{{$/;"	f
+s:is_line_method	autoload/jsfileimport/utils.vim	/^function s:is_line_method(content) abort$/;"	f
+s:is_partial_import	autoload/jsfileimport.vim	/^function! s:is_partial_import(tag, name, rgx) "{{{$/;"	f
+s:is_scoped	autoload/jsfileimport/parser.vim	/^function! s:is_scoped(content, prev, current) abort$/;"	f
+s:method_regex	autoload/jsfileimport/rename.vim	/^function! s:method_regex(word) abort$/;"	f
+s:parse_items	autoload/jsfileimport/parser.vim	/^function! s:parse_items(selection) abort$/;"	f
+s:process_full_import	autoload/jsfileimport.vim	/^function! s:process_full_import(name, rgx, path) abort "{{{$/;"	f
+s:process_import	autoload/jsfileimport.vim	/^function! s:process_import(name, path, rgx, ...) abort "{{{$/;"	f
+s:process_multi_line_partial_import	autoload/jsfileimport.vim	/^function! s:process_multi_line_partial_import(name) abort "{{{$/;"	f
+s:process_partial_import_alongside_full	autoload/jsfileimport.vim	/^function! s:process_partial_import_alongside_full(name) abort "{{{$/;"	f
+s:process_single_line_partial_import	autoload/jsfileimport.vim	/^function! s:process_single_line_partial_import(name) abort "{{{$/;"	f
+s:property_regex	autoload/jsfileimport/rename.vim	/^function! s:property_regex(word) abort$/;"	f
+s:remove_obsolete	autoload/jsfileimport/tags.vim	/^function! s:remove_obsolete(idx, tag) abort "{{{$/;"	f
+s:remove_tags_with_current_path	autoload/jsfileimport/tags.vim	/^function! s:remove_tags_with_current_path(idx, tag) abort "{{{$/;"	f
+s:rename_class_property	autoload/jsfileimport/rename.vim	/^function! s:rename_class_property(file_info, word, new_name) abort$/;"	f
+s:rename_method	autoload/jsfileimport/rename.vim	/^function! s:rename_method(file_info, word, new_name) abort$/;"	f
+s:tags_has_filename	autoload/jsfileimport/tags.vim	/^function! s:tags_has_filename(tags, filename) abort "{{{$/;"	f
+test1.out	tests/Makefile	/^test1.out: test1.in$/;"	t
+version	tests/package.json	/^  "version": "1.0.0",$/;"	s
+jsfileimport#ast_parser#_file_info	autoload/jsfileimport/ast_parser.vim	/^function! jsfileimport#ast_parser#_file_info() abort$/;"	f
+s:exists_globally	autoload/jsfileimport/ast_parser.vim	/^function! s:exists_globally(match, file_info) abort$/;"	f
+jsfileimport#ast_parser#_parse_args	autoload/jsfileimport/ast_parser.vim	/^function! jsfileimport#ast_parser#_parse_args(file_info) abort$/;"	f
+jsfileimport#ast_parser#_parse_returns	autoload/jsfileimport/ast_parser.vim	/^function! jsfileimport#ast_parser#_parse_returns(file_info) abort$/;"	f
+s:required_until_end_of_scope	autoload/jsfileimport/ast_parser.vim	/^  function! s:required_until_end_of_scope(item, file_info) abort$/;"	f
+s:already_declared_in_scope	autoload/jsfileimport/ast_parser.vim	/^  function! s:already_declared_in_scope(item, file_info) abort$/;"	f
+s:read_recursively	autoload/jsfileimport/ast_parser.vim	/^function! s:read_recursively(data, result, parent) abort$/;"	f
+s:add_variable	autoload/jsfileimport/ast_parser.vim	/^function! s:add_variable(name, owner, loc, result, parent) abort$/;"	f
+s:is_duplicate	autoload/jsfileimport/ast_parser.vim	/^  function! s:is_duplicate(unique, type, name, kind, parent) abort$/;"	f
+s:handle_item	autoload/jsfileimport/ast_parser.vim	/^function! s:handle_item(item, owner, result, parent) abort$/;"	f
