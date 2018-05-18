@@ -13,7 +13,7 @@ function! jsfileimport#clean() abort
   silent! exe 'normal! mz'
   let l:rgx = jsfileimport#utils#_determine_import_type()
 
-  call cursor(1, 0)
+  call cursor(1, 1)
   let l:start = search(l:rgx['lastimport'], 'cw')
   let l:end = search(l:rgx['lastimport'], 'bw')
 

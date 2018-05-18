@@ -66,7 +66,7 @@ function! jsfileimport#parser#_parse_returns(selection, file_info) abort
   endif
 
   " Search requirement for a return value from the end of the selection
-  call cursor(a:file_info['line_end'] + 1, 0)
+  call cursor(a:file_info['line_end'] + 1, 1)
 
   for l:match in l:matches
     let l:already_added = index(l:returns, l:match) > -1

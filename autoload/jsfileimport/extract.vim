@@ -72,10 +72,10 @@ function! s:extract_class_method(file_info) abort
   silent! exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].'this.'.l:method_name.'('.l:args.');'
 
   if a:file_info['in_method']
-    call cursor(a:file_info['method']['line'], 0)
+    call cursor(a:file_info['method']['line'], 1)
     silent! exe "norm! $%o\<CR>"
   else
-    call cursor(a:file_info['class']['line'], 0)
+    call cursor(a:file_info['class']['line'], 1)
     silent! exe "norm! $o\<CR>"
   endif
 
@@ -95,10 +95,10 @@ function! s:extract_global_function(file_info) abort
 
   silent! exe 'norm! gvc'.l:fn['vars'].l:fn['return_fn'].l:fn_name.'('.l:args.');'
   if a:file_info['in_class']
-    call cursor(a:file_info['class']['line'], 0)
+    call cursor(a:file_info['class']['line'], 1)
     silent! exe 'norm! Oconst'
   elseif a:file_info['in_method']
-    call cursor(a:file_info['method']['line'], 0)
+    call cursor(a:file_info['method']['line'], 1)
     silent! exe "norm! Oconst"
   else
     silent! exe 'norm! ccconst'
