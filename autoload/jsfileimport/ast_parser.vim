@@ -5,6 +5,7 @@ function jsfileimport#ast_parser#init() abort
   return s:parser
 endfunction
 
+" TODO: Allow parsing cword as selection
 function! s:parser.new() abort
   let l:global = {
   \ 'id': 'global',
@@ -49,6 +50,9 @@ function! s:parser.new() abort
 endfunction
 
 function! s:parser.get_ast() abort
+  if !executable('flow')
+    throw 'Flow required. Install it with npm i -g flow-bin'
+  endif
   let l:ast = system('flow ast --pretty '.expand('%:p'))
   return json_decode(l:ast)
 endfunction
