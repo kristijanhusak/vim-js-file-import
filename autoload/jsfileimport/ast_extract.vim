@@ -1,6 +1,6 @@
 function! jsfileimport#ast_extract#_method(word) abort
   let l:choice_list = ['Global']
-  let l:file_info = jsfileimport#ast_parser#_file_info()
+  let l:file_info = jsfileimport#ast_parser#init()
 
   if l:file_info['in_class']
     call add(l:choice_list, 'Class')
@@ -100,8 +100,8 @@ function! s:get_fn_data(file_info)
     throw 'No selection.'
   endif
 
-  let l:args = jsfileimport#ast_parser#_parse_args(a:file_info)
-  let l:returns = jsfileimport#ast_parser#_parse_returns(a:file_info)
+  let l:args = a:file_info.parse_args()
+  let l:returns = a:file_info.parse_returns()
   let l:should_return = 0
   let l:return_fn = []
   let l:vars = ''
