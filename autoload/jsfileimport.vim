@@ -127,19 +127,6 @@ function! jsfileimport#findusage(is_visual_mode) abort
   endtry
 endfunction
 
-function! jsfileimport#refactor(is_visual) abort
-  try
-    let l:method = jsfileimport#utils#_get_confirm_selection('Refactor', ['Extract', 'Rename'])
-    call call('jsfileimport#refactor#_'.tolower(l:method), [])
-    return 1
-  catch
-    if v:exception !=? ''
-      return jsfileimport#utils#_error(v:exception)
-    endif
-    return 0
-  endtry
-endfunction
-
 function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
   silent! exe 'normal! mz'
 

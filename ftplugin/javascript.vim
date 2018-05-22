@@ -57,11 +57,3 @@ endif
 if !hasmapto(':RemoveUnusedJsFileImports<CR>') && !hasmapto('<Plug>(RemoveUnusedJsFileImports)') && maparg('<Leader>ic', 'n') ==? ''
   silent! nmap <buffer> <unique> <silent> <Leader>ic <Plug>(RemoveUnusedJsFileImports)
 endif
-
-if !hasmapto('<Plug>(JsRefactor)') && maparg('<Leader>ir', 'n') ==? ''
-  silent! nmap <buffer> <unique> <silent> <Leader>ir <Plug>(JsRefactor)
-endif
-
-if !hasmapto('<Plug>(JsRefactor)', 'v') && maparg('<Leader>ir', 'v') ==? ''
-  silent! xmap <buffer> <unique> <silent> <Leader>ir <Plug>(JsRefactor)
-endif
