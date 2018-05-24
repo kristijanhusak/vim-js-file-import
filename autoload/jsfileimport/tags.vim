@@ -83,16 +83,12 @@ function! jsfileimport#tags#_get_taglist(name, rgx) abort
 endfunction
 
 function! jsfileimport#tags#_generate_tags_selection_list(tags) abort
-  let l:index = 0
-  let l:options = []
+  function! s:tag_item(idx, tag) abort
+    let l:cmd = a:tag['cmd'] !=? '' ? ' - '.a:tag['cmd'] : ''
+    return printf('%d) %s', a:idx + 1, a:tag['filename'].l:cmd)
+  endfunction
 
-  for l:tag in a:tags
-    let l:index += 1
-    let l:cmd = l:tag['cmd'] !=? '' ? ' - '.l:tag['cmd'] : ''
-    call add(l:options, l:index.') '.l:tag['filename'].l:cmd)
-  endfor
-
-  return l:options
+  return map(copy(a:tags), function('s:tag_item'))
 endfunction
 
 function! jsfileimport#tags#_get_tag_in_current_file(tags, current_file_path) abort
