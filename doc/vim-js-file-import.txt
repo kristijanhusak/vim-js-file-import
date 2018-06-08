@@ -241,6 +241,13 @@ g:js_file_import_package_first
 
 		Default value: 1
 
+					      *g:js_file_import_omit_semicolon*
+g:js_file_import_omit_semicolon
+		Semicolons are added at the end of requires and imports.
+		To disable this add this flag to settings:
+
+		Default value: 0
+
 					      *g:js_file_import_filters*
 g:js_file_import_filters
 		By default taglist is filtered so the obsolete values get

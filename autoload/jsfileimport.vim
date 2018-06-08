@@ -182,6 +182,11 @@ function! s:process_import(name, path, rgx, ...) abort "{{{
   let l:import_rgx = a:rgx['import']
   let l:import_rgx = substitute(l:import_rgx, '__FNAME__', a:name, '')
   let l:import_rgx = substitute(l:import_rgx, '__FPATH__', a:path, '')
+
+  if ! g:js_file_import_omit_semicolon
+    let l:import_rgx = l:import_rgx . ';'
+  endif
+
   let l:append_to_start = 0
 
   if a:0 > 0 && g:js_file_import_package_first
