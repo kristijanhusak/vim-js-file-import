@@ -177,6 +177,11 @@ To import package the same way as files (last), add this flag to settings:
 let g:js_file_import_package_first = 0
 ```
 
+Semicolons are added at the end of requires and imports. To disable this add this flag to settings:
+
+```vimL
+let g:js_file_import_omit_semicolon = 0
+```
 
 #### Overriding mappings
 If you want to use different mappings, you can disable them all with this setting:
