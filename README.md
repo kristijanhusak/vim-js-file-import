@@ -116,7 +116,7 @@ nnoremap <Leader>ip <Plug>(PromptJsFileImport)
 
 nnoremap <Leader>is <Plug>(SortJsFileImport)
 
-nnoremap <Leader>ic <Plug>(RemoveUnusedJsFileImports)
+nnoremap <Leader>ic <Plug>(JsFixImport)
 ```
 
 ### Goto definition

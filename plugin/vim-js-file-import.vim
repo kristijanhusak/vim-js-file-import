@@ -19,7 +19,6 @@ command! PromptJsFileImport call jsfileimport#prompt()
 command! JsGotoDefinition call jsfileimport#goto(0)
 command! JsGotoDefinitionList call jsfileimport#goto(0, 1)
 command! SortJsFileImport call jsfileimport#sort()
-command! RemoveUnusedJsFileImports call jsfileimport#clean()
 command! JsFindUsage call jsfileimport#findusage(0)
 command! JsFixImport call jsfileimport#fix_imports#exec()
 
@@ -39,5 +38,5 @@ nnoremap <silent> <Plug>(JsFindUsage) :<C-u>call jsfileimport#findusage(0)<CR>
 xnoremap <silent> <Plug>(JsFindUsage) :<C-u>call jsfileimport#findusage(1)<CR>
 
 nnoremap <silent> <Plug>(SortJsFileImport) :<C-u>call jsfileimport#sort()<CR>
-nnoremap <silent> <Plug>(RemoveUnusedJsFileImports) :<C-u>call jsfileimport#clean()<CR>
+nnoremap <silent> <Plug>(JsFixImport) :<C-u>call jsfileimport#fix_imports#exec()<CR>
 nnoremap <silent> <Plug>(PromptJsFileImport) :<C-u>call jsfileimport#prompt()<CR>

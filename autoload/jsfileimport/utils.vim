@@ -108,17 +108,6 @@ function! jsfileimport#utils#_get_selection_ranges() abort
   \ }
 endfunction
 
-function! jsfileimport#utils#_count_word_in_file(word) abort
-  let l:use_global = &gdefault ? '' : 'g'
-
-  redir => l:count
-    silent! exe '%s/\(require([''"]\|from\s*[''"]\)\@<!\<' . a:word . '\>//'.l:use_global.'n'
-  redir END
-
-  let l:result = strpart(l:count, 0, stridx(l:count, ' '))
-  return float2nr(str2float(l:result))
-endfunction
-
 function! jsfileimport#utils#_remove_duplicate_files(files) abort
   let l:added = []
   let l:new_files = []

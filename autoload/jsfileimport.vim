@@ -9,24 +9,6 @@ function! jsfileimport#prompt() abort
   silent! call repeat#set("\<Plug>(PromptJsFileImport)")
 endfunction
 
-function! jsfileimport#clean() abort
-  silent! exe 'normal! mz'
-  let l:rgx = jsfileimport#utils#_determine_import_type()
-
-  call cursor(1, 1)
-  let l:start = search(l:rgx['lastimport'], 'cw')
-  let l:end = search(l:rgx['lastimport'], 'bw')
-
-  for l:line in getline(l:start, l:end)
-    let l:list = matchlist(l:line, l:rgx['import_name'])
-    if len(l:list) >= 3 && jsfileimport#utils#_count_word_in_file(l:list[2]) <= 1
-      silent! exe 'g/'.escape(l:list[0], '\/.').'/d'
-      continue
-    endif
-  endfor
-  silent! exe 'normal! `z'
-endfunction
-
 function! jsfileimport#sort(...) abort
   if a:0 == 0
     silent! exe 'normal! mz'
@@ -127,13 +109,7 @@ function! jsfileimport#findusage(is_visual_mode) abort
   endtry
 endfunction
 
-function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
-  let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
-
-  return jsfileimport#_import_word(l:name, a:tag_fn_name, a:is_visual_mode, a:show_list)
-endfunction "}}}
-
-function! jsfileimport#_import_word(name, tag_fn_name, is_visual_mode, show_list) abort "{{{
+function! jsfileimport#_import_word(name, tag_fn_name, is_visual_mode, show_list) abort
   silent! exe 'normal! mz'
   try
     call jsfileimport#utils#_check_python_support()
@@ -153,6 +129,12 @@ function! jsfileimport#_import_word(name, tag_fn_name, is_visual_mode, show_list
     endif
     return 0
   endtry
+endfunction
+
+function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
+  let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
+
+  return jsfileimport#_import_word(l:name, a:tag_fn_name, a:is_visual_mode, a:show_list)
 endfunction "}}}
 
 function! s:is_partial_import(tag, name, rgx) "{{{

@@ -27,15 +27,13 @@ endfunction
 
 function! s:remove_unused(error)
   let l:rgx = jsfileimport#utils#_determine_import_type()
-
-  "TODO Fix multiline matches to properly check if import
-  if a:error.source !~? l:rgx.lastimport
+  let l:match = s:find_name_from_message(a:error.message)
+  if empty(l:match)
     return 0
   endif
 
-  let l:match = s:find_name_from_message(a:error.message)
-
-  if empty(l:match)
+  "TODO Fix multiline matches to properly check if import
+  if a:error.source !~? l:rgx.lastimport
     return 0
   endif
 
