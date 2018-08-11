@@ -11,6 +11,8 @@ function! jsfileimport#utils#_determine_import_type() abort
         \ 'partial_export': 'module.exports.\(\<__FNAME__\>\|\s*=\_[^{]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
         \ 'select_for_sort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
         \ 'import_name': '^\(const\|let\|var\)\s*\(\<[^''"]\{-\}\>\)\s*=\s*require([^)]*);\?',
+        \ 'is_partial_import': '^\(const\|let\|var\)\s*{[^}]*__FNAME__[^}]*}\s*=\s*require([^)]*)',
+        \ 'is_single_partial_import': '^\(const\|let\|var\)\s*{\s*__FNAME__\s*}\s*=\s*require([^)]*)'
         \ }
 
   let l:import_regex = {
@@ -25,6 +27,8 @@ function! jsfileimport#utils#_determine_import_type() abort
         \ 'partial_export': 'export\s*\(const\|var\|function\)\s*\<__FNAME__\>',
         \ 'select_for_sort': '^import\s*\zs.*\ze\s*from.*;\?$',
         \ 'import_name': '^\(import\)\s*\(\<[^''"]\{-\}\>\)\s*from\s*',
+        \ 'is_partial_import': '^import\s*{[^}]*__FNAME__[^}]*}\s*from\s*',
+        \ 'is_single_partial_import': '^import\s*{\s*__FNAME__\s*}\s*from\s*'
         \ }
 
   if g:js_file_import_force_require || search(l:require_regex['lastimport'], 'n') > 0
@@ -129,6 +133,17 @@ function! jsfileimport#utils#_remove_duplicate_files(files) abort
   endfor
 
   return l:new_files
+endfunction
+
+function! jsfileimport#utils#_check_import_exists(name, ...) abort
+  let l:rgx = a:0 > 0 ? a:1 : jsfileimport#utils#_determine_import_type()
+  let l:pattern = substitute(l:rgx['check_import_exists'], '__FNAME__', a:name, '')
+
+  if search(l:pattern, 'n') > 0
+    throw 'Import "'.a:name.'" already exists.'
+  endif
+
+  return 0
 endfunction
 
 " vim:foldenable:foldmethod=marker:sw=2

@@ -128,20 +128,24 @@ function! jsfileimport#findusage(is_visual_mode) abort
 endfunction
 
 function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
-  silent! exe 'normal! mz'
+  let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
 
+  return jsfileimport#_import_word(l:name, a:tag_fn_name, a:is_visual_mode, a:show_list)
+endfunction "}}}
+
+function! jsfileimport#_import_word(name, tag_fn_name, is_visual_mode, show_list) abort "{{{
+  silent! exe 'normal! mz'
   try
     call jsfileimport#utils#_check_python_support()
-    let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
     let l:rgx = jsfileimport#utils#_determine_import_type()
-    call s:check_if_exists(l:name, l:rgx)
-    let l:tag_data = call(a:tag_fn_name, [l:name, l:rgx, a:show_list])
+    call jsfileimport#utils#_check_import_exists(a:name, l:rgx)
+    let l:tag_data = call(a:tag_fn_name, [a:name, l:rgx, a:show_list])
 
     if l:tag_data['global'] !=? ''
-      return s:process_import(l:name, l:tag_data['global'], l:rgx, 1)
+      return s:process_import(a:name, l:tag_data['global'], l:rgx, 1)
     endif
 
-    return s:import_tag(l:tag_data['tag'], l:name, l:rgx)
+    return s:import_tag(l:tag_data['tag'], a:name, l:rgx)
   catch /.*/
     silent! exe 'normal! `z'
     if v:exception !=? ''
@@ -202,16 +206,6 @@ function! s:process_import(name, path, rgx, ...) abort "{{{
     call append(1, '')
   endif
   return s:finish_import()
-endfunction "}}}
-
-function! s:check_if_exists(name, rgx) abort "{{{
-  let l:pattern = substitute(a:rgx['check_import_exists'], '__FNAME__', a:name, '')
-
-  if search(l:pattern, 'n') > 0
-    throw 'Import already exists.'
-  endif
-
-  return 0
 endfunction "}}}
 
 function! s:import_tag(tag, name, rgx) abort "{{{

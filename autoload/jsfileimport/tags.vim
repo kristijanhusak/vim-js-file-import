@@ -7,7 +7,7 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
       return { 'global': a:name }
     endif
     if g:js_file_import_prompt_if_no_tag
-      echo 'No tag found. Falling back to prompt.'
+      echo 'No tag found for word "'.a:name.'". Falling back to prompt.'
       return jsfileimport#tags#_get_tag_data_from_prompt(a:name, a:rgx)
     endif
     throw 'No tag found.'
@@ -19,7 +19,7 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
 
   let l:tag_selection_list = jsfileimport#tags#_generate_tags_selection_list(l:tags)
   let l:prompt_index = len(l:tag_selection_list) + 1
-  let l:prompt_import = [l:prompt_index.') Enter path to file or package name manually']
+  let l:prompt_import = [l:prompt_index.') Enter path to file or package name manually for word "'.a:name.'"']
   let l:options = ['Select file to import:'] + l:tag_selection_list + l:prompt_import
 
   call inputsave()
