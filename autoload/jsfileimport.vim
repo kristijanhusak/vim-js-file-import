@@ -10,9 +10,7 @@ function! jsfileimport#prompt() abort
 endfunction
 
 function! jsfileimport#sort(...) abort
-  if a:0 == 0
-    silent! exe 'normal! mz'
-  endif
+  call jsfileimport#utils#_save_cursor_position()
 
   let l:rgx = jsfileimport#utils#_determine_import_type()
 
@@ -20,7 +18,7 @@ function! jsfileimport#sort(...) abort
     silent! exe g:js_file_import_sort_command
   endif
 
-  silent! exe 'normal! `z'
+  call jsfileimport#utils#_restore_cursor_position()
   return 1
 endfunction
 
@@ -110,11 +108,11 @@ function! jsfileimport#findusage(is_visual_mode) abort
 endfunction
 
 function! jsfileimport#_import_word(name, tag_fn_name, is_visual_mode, show_list) abort
-  silent! exe 'normal! mz'
+  call jsfileimport#utils#_save_cursor_position()
   try
     call jsfileimport#utils#_check_python_support()
     let l:rgx = jsfileimport#utils#_determine_import_type()
-    call jsfileimport#utils#_check_import_exists(a:name, l:rgx)
+    call jsfileimport#utils#_check_import_exists(a:name, 1)
     let l:tag_data = call(a:tag_fn_name, [a:name, l:rgx, a:show_list])
 
     if l:tag_data['global'] !=? ''
@@ -123,7 +121,7 @@ function! jsfileimport#_import_word(name, tag_fn_name, is_visual_mode, show_list
 
     return s:import_tag(l:tag_data['tag'], a:name, l:rgx)
   catch /.*/
-    silent! exe 'normal! `z'
+    call jsfileimport#utils#_restore_cursor_position()
     if v:exception !=? ''
       return jsfileimport#utils#_error(v:exception)
     endif
@@ -274,10 +272,10 @@ endfunction "}}}
 
 function! s:finish_import() abort "{{{
   if g:js_file_import_sort_after_insert > 0
-    call jsfileimport#sort(1)
+    call jsfileimport#sort()
   endif
 
-  silent! exe 'normal! `z'
+  call jsfileimport#utils#_restore_cursor_position()
   return 1
 endfunction "}}}
 
