@@ -1,15 +1,27 @@
+let s:root = expand('<sfile>:p:h') . '/../../'
+let s:eslint_config_path = printf('%s%s', s:root, '.eslintrc.js')
+let s:eslint_path = printf('%s%s', s:root, 'node_modules/.bin/eslint')
+
 function! jsfileimport#fix_imports#exec() abort
   let l:local_eslint_path = './node_modules/.bin/eslint'
-  let l:has_local_eslint = executable(l:local_eslint_path)
-  if !executable('eslint') && !l:has_local_eslint
-    return jsfileimport#utils#_error('Eslint required.')
+  if !executable(s:eslint_path) && !executable(l:local_eslint_path)
+    return jsfileimport#utils#_error('Eslint missing. Please run npm install from plugin directory.')
   endif
 
   try
     call jsfileimport#utils#_save_cursor_position()
-    let l:executable = l:has_local_eslint ? l:local_eslint_path : 'eslint'
+    if executable(l:local_eslint_path)
+      let l:errors = systemlist([l:local_eslint_path, '--format=json', expand('%')])
+    else
+      echo join([l:local_eslint_path, '--config='.s:eslint_config_path, '--format=json', expand('%')], ' ')
+      let l:errors = systemlist([s:eslint_path, '--config='.s:eslint_config_path, '--format=json', expand('%')])
+    endif
 
-    let l:errors = systemlist([l:local_eslint_path, '--format=json', expand('%')])[0]
+    if empty(l:errors)
+      throw 'No results from eslint.'
+    endif
+
+    let l:errors = l:errors[0]
     let l:errors = json_decode(l:errors)[0]
 
     if has_key(l:errors, 'source')
@@ -26,6 +38,9 @@ function! jsfileimport#fix_imports#exec() abort
         call add(l:missing_list, l:error)
       endif
     endfor
+
+    echo l:unused_list
+    return 0
 
     for l:unused in l:unused_list
       call s:remove_unused(l:unused)

@@ -1,0 +1,30 @@
+{
+  "name": "vim-js-file-import",
+  "version": "1.0.0",
+  "description": "This plugin allows importing js files using ctags. Tested only with [Universal ctags](https://github.com/universal-ctags/ctags).",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kristijanhusak/vim-js-file-import.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kristijanhusak/vim-js-file-import/issues"
+  },
+  "homepage": "https://github.com/kristijanhusak/vim-js-file-import#readme",
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^17.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-react": "^7.10.0"
+  }
+}
