@@ -4,13 +4,12 @@ let s:eslint_path = printf('%s%s', s:root, 'node_modules/.bin/eslint')
 
 function! jsfileimport#fix_imports#exec() abort
   try
-    let l:local_eslint_path = './node_modules/.bin/eslint'
-
-    call s:save_if_modified()
-
     if !executable(s:eslint_path) && !executable(l:local_eslint_path)
       throw 'Eslint missing. Please run npm install from plugin directory.'
     endif
+
+    let l:local_eslint_path = './node_modules/.bin/eslint'
+    call s:save_if_modified()
 
     call jsfileimport#utils#_save_cursor_position('fix_imports')
     if executable(l:local_eslint_path)
@@ -18,7 +17,6 @@ function! jsfileimport#fix_imports#exec() abort
     else
       let l:errors = systemlist([s:eslint_path, '--config='.s:eslint_config_path, '--format=json', expand('%')])
     endif
-
 
     if empty(l:errors)
       throw 'No results from eslint.'
@@ -55,18 +53,19 @@ function! jsfileimport#fix_imports#exec() abort
     endfor
 
     for l:line in l:lines_to_delete
-      silent exe ':'.l:line.'d'
+      silent exe l:line.'d'
     endfor
 
     for l:missing in l:missing_list
       call s:append_missing(l:missing)
     endfor
 
+    call jsfileimport#utils#_restore_cursor_position('fix_imports')
+
     if g:js_file_import_sort_after_fix
       return jsfileimport#sort()
     endif
 
-    call jsfileimport#utils#_restore_cursor_position('fix_imports')
     return 1
   catch
     call jsfileimport#utils#_restore_cursor_position('fix_imports')
