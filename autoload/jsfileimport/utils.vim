@@ -1,4 +1,4 @@
-let s:saved_cursor_position = 0
+let s:mark_set_from = ''
 
 function! jsfileimport#utils#_determine_import_type() abort
   let l:require_regex = {
@@ -139,21 +139,22 @@ function! jsfileimport#utils#_check_import_exists(name, ...) abort
   return 0
 endfunction
 
-function! jsfileimport#utils#_save_cursor_position() abort
-  if s:saved_cursor_position
+function! jsfileimport#utils#_save_cursor_position(from) abort
+  if !empty(s:mark_set_from)
     return 0
   endif
 
-  silent exe 'normal mz'
-  let s:saved_cursor_position = 1
+  let s:mark_set_from = a:from
+  silent exe 'normal! mz'
 endfunction
 
-function! jsfileimport#utils#_restore_cursor_position() abort
-  if s:saved_cursor_position
-    silent exe 'normal `z'
+function! jsfileimport#utils#_restore_cursor_position(from) abort
+  let l:has_mark = line("'z") > 0
+  if l:has_mark && s:mark_set_from ==? a:from
+    silent exe 'normal!`z'
+    silent exe 'delmarks z'
+    let s:mark_set_from = ''
   endif
-
-  let s:saved_cursor_position = 0
 endfunction
 
 " vim:foldenable:foldmethod=marker:sw=2
