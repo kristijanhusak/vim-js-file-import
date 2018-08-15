@@ -26,8 +26,13 @@ function! jsfileimport#fix_imports#exec() abort
     let l:errors = l:errors[0]
     let l:errors = json_decode(l:errors)[0]
 
-    if len(l:errors.messages) ==? 1 && l:errors.messages[0].message =~? 'file ignored'
-      throw 'This file is ignored by eslint.'
+    if len(l:errors.messages) ==? 1
+      if l:errors.messages[0].fatal
+        throw 'You have a fatal error in your code: "'.l:message.'". Please fix it before trying to fix imports.'
+      endif
+      if l:errors.messages[0].message =~? 'file ignored'
+        throw 'This file is ignored by eslint.'
+      endif
     endif
 
     if has_key(l:errors, 'source')
@@ -52,6 +57,8 @@ function! jsfileimport#fix_imports#exec() abort
         call add(l:lines_to_delete, l:line_to_delete)
       endif
     endfor
+
+    call sort(l:lines_to_delete, { first, second -> second - first })
 
     for l:line in l:lines_to_delete
       silent exe l:line.'d'
