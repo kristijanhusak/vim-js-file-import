@@ -54,6 +54,6 @@ if !hasmapto(':SortJsFileImport<CR>') && !hasmapto('<Plug>(SortJsFileImport)') &
   silent! nmap <buffer> <unique> <silent> <Leader>is <Plug>(SortJsFileImport)
 endif
 
-if !hasmapto(':RemoveUnusedJsFileImports<CR>') && !hasmapto('<Plug>(RemoveUnusedJsFileImports)') && maparg('<Leader>ic', 'n') ==? ''
-  silent! nmap <buffer> <unique> <silent> <Leader>ic <Plug>(RemoveUnusedJsFileImports)
+if !hasmapto(':JsFixImport<CR>') && !hasmapto('<Plug>(JsFixImport)') && maparg('<Leader>ic', 'n') ==? ''
+  silent! nmap <buffer> <unique> <silent> <Leader>ic <Plug>(JsFixImport)
 endif

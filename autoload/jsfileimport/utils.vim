@@ -1,3 +1,5 @@
+let s:mark_set_from = ''
+
 function! jsfileimport#utils#_determine_import_type() abort
   let l:require_regex = {
         \ 'type': 'require',
@@ -11,6 +13,7 @@ function! jsfileimport#utils#_determine_import_type() abort
         \ 'partial_export': 'module.exports.\(\<__FNAME__\>\|\s*=\_[^{]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
         \ 'select_for_sort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
         \ 'import_name': '^\(const\|let\|var\)\s*\(\<[^''"]\{-\}\>\)\s*=\s*require([^)]*);\?',
+        \ 'is_single_import': '^\(const\|let\|var\)\(\s\|\n\)\{-\}{\?\(\s\|\n\)\{-\}\<__FNAME__\>\(\s\|\n\)\{-\}}\?\(\s\|\n\)\{-\}=\(\s\|\n\)\{-\}require(\_[^)]\{-\});\?',
         \ }
 
   let l:import_regex = {
@@ -22,9 +25,10 @@ function! jsfileimport#utils#_determine_import_type() abort
         \ 'import': "import __FNAME__ from '__FPATH__'",
         \ 'lastimport': '^import\s\_[^''"]\{-\}from.*;\?$',
         \ 'default_export': 'export\s*default.\{-\}',
-        \ 'partial_export': 'export\s*\(const\|var\|function\)\s*\<__FNAME__\>',
+        \ 'partial_export': 'export\s*\(const\|var\|function\|class\)\s*\<__FNAME__\>',
         \ 'select_for_sort': '^import\s*\zs.*\ze\s*from.*;\?$',
         \ 'import_name': '^\(import\)\s*\(\<[^''"]\{-\}\>\)\s*from\s*',
+        \ 'is_single_import': '^\import\(\s\|\n\)\{-\}{\?\(\s\|\n\)\{-\}\<__FNAME__\>\(\s\|\n\)\{-\}}\?\(\s\|\n\)\{-\}from\(\s\|\n\)\{-\}[''"][^''"]*[''"];\?',
         \ }
 
   if g:js_file_import_force_require || search(l:require_regex['lastimport'], 'n') > 0
@@ -104,17 +108,6 @@ function! jsfileimport#utils#_get_selection_ranges() abort
   \ }
 endfunction
 
-function! jsfileimport#utils#_count_word_in_file(word) abort
-  let l:use_global = &gdefault ? '' : 'g'
-
-  redir => l:count
-    silent! exe '%s/\(require([''"]\|from\s*[''"]\)\@<!\<' . a:word . '\>//'.l:use_global.'n'
-  redir END
-
-  let l:result = strpart(l:count, 0, stridx(l:count, ' '))
-  return float2nr(str2float(l:result))
-endfunction
-
 function! jsfileimport#utils#_remove_duplicate_files(files) abort
   let l:added = []
   let l:new_files = []
@@ -129,6 +122,39 @@ function! jsfileimport#utils#_remove_duplicate_files(files) abort
   endfor
 
   return l:new_files
+endfunction
+
+function! jsfileimport#utils#_check_import_exists(name, ...) abort
+  let l:rgx = jsfileimport#utils#_determine_import_type()
+  let l:pattern = substitute(l:rgx['check_import_exists'], '__FNAME__', a:name, '')
+  let l:throw_err = a:0 > 0
+
+  if search(l:pattern, 'n') > 0
+    if l:throw_err
+      throw 'Import "'.a:name.'" already exists.'
+    endif
+    return 1
+  endif
+
+  return 0
+endfunction
+
+function! jsfileimport#utils#_save_cursor_position(from) abort
+  if !empty(s:mark_set_from)
+    return 0
+  endif
+
+  let s:mark_set_from = a:from
+  silent exe 'normal! mz'
+endfunction
+
+function! jsfileimport#utils#_restore_cursor_position(from) abort
+  let l:has_mark = line("'z") > 0
+  if l:has_mark && s:mark_set_from ==? a:from
+    silent exe 'normal!`z'
+    silent exe 'delmarks z'
+    let s:mark_set_from = ''
+  endif
 endfunction
 
 " vim:foldenable:foldmethod=marker:sw=2

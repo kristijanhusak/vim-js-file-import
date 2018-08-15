@@ -6,3 +6,4 @@ tests/mbyte.vim
 tests/mzscheme.vim
 tests/small.vim
 tests/tiny.vim
+node_modules

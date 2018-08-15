@@ -9,28 +9,8 @@ function! jsfileimport#prompt() abort
   silent! call repeat#set("\<Plug>(PromptJsFileImport)")
 endfunction
 
-function! jsfileimport#clean() abort
-  silent! exe 'normal! mz'
-  let l:rgx = jsfileimport#utils#_determine_import_type()
-
-  call cursor(1, 1)
-  let l:start = search(l:rgx['lastimport'], 'cw')
-  let l:end = search(l:rgx['lastimport'], 'bw')
-
-  for l:line in getline(l:start, l:end)
-    let l:list = matchlist(l:line, l:rgx['import_name'])
-    if len(l:list) >= 3 && jsfileimport#utils#_count_word_in_file(l:list[2]) <= 1
-      silent! exe 'g/'.escape(l:list[0], '\/.').'/d'
-      continue
-    endif
-  endfor
-  silent! exe 'normal! `z'
-endfunction
-
 function! jsfileimport#sort(...) abort
-  if a:0 == 0
-    silent! exe 'normal! mz'
-  endif
+  call jsfileimport#utils#_save_cursor_position('sort')
 
   let l:rgx = jsfileimport#utils#_determine_import_type()
 
@@ -38,7 +18,7 @@ function! jsfileimport#sort(...) abort
     silent! exe g:js_file_import_sort_command
   endif
 
-  silent! exe 'normal! `z'
+  call jsfileimport#utils#_restore_cursor_position('sort')
   return 1
 endfunction
 
@@ -127,28 +107,32 @@ function! jsfileimport#findusage(is_visual_mode) abort
   endtry
 endfunction
 
-function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
-  silent! exe 'normal! mz'
-
+function! jsfileimport#_import_word(name, tag_fn_name, is_visual_mode, show_list) abort
+  call jsfileimport#utils#_save_cursor_position('import')
   try
     call jsfileimport#utils#_check_python_support()
-    let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
     let l:rgx = jsfileimport#utils#_determine_import_type()
-    call s:check_if_exists(l:name, l:rgx)
-    let l:tag_data = call(a:tag_fn_name, [l:name, l:rgx, a:show_list])
+    call jsfileimport#utils#_check_import_exists(a:name, 1)
+    let l:tag_data = call(a:tag_fn_name, [a:name, l:rgx, a:show_list])
 
     if l:tag_data['global'] !=? ''
-      return s:process_import(l:name, l:tag_data['global'], l:rgx, 1)
+      return s:process_import(a:name, l:tag_data['global'], l:rgx, 1)
     endif
 
-    return s:import_tag(l:tag_data['tag'], l:name, l:rgx)
+    return s:import_tag(l:tag_data['tag'], a:name, l:rgx)
   catch /.*/
-    silent! exe 'normal! `z'
+    call jsfileimport#utils#_restore_cursor_position('import')
     if v:exception !=? ''
       return jsfileimport#utils#_error(v:exception)
     endif
     return 0
   endtry
+endfunction
+
+function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
+  let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
+
+  return jsfileimport#_import_word(l:name, a:tag_fn_name, a:is_visual_mode, a:show_list)
 endfunction "}}}
 
 function! s:is_partial_import(tag, name, rgx) "{{{
@@ -202,16 +186,6 @@ function! s:process_import(name, path, rgx, ...) abort "{{{
     call append(1, '')
   endif
   return s:finish_import()
-endfunction "}}}
-
-function! s:check_if_exists(name, rgx) abort "{{{
-  let l:pattern = substitute(a:rgx['check_import_exists'], '__FNAME__', a:name, '')
-
-  if search(l:pattern, 'n') > 0
-    throw 'Import already exists.'
-  endif
-
-  return 0
 endfunction "}}}
 
 function! s:import_tag(tag, name, rgx) abort "{{{
@@ -298,10 +272,10 @@ endfunction "}}}
 
 function! s:finish_import() abort "{{{
   if g:js_file_import_sort_after_insert > 0
-    call jsfileimport#sort(1)
+    call jsfileimport#sort()
   endif
 
-  silent! exe 'normal! `z'
+  call jsfileimport#utils#_restore_cursor_position('import')
   return 1
 endfunction "}}}
 
