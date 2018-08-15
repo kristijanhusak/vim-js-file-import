@@ -14,9 +14,9 @@ function! jsfileimport#fix_imports#exec() abort
 
     call jsfileimport#utils#_save_cursor_position('fix_imports')
     if executable(l:local_eslint_path)
-      let l:errors = systemlist([l:local_eslint_path, '--format=json', expand('%')])
+      let l:errors = systemlist(printf('%s %s %s', l:local_eslint_path, '--format=json', expand('%')))
     else
-      let l:errors = systemlist([s:eslint_path, '--config='.s:eslint_config_path, '--format=json', expand('%')])
+      let l:errors = systemlist(printf('%s %s %s %s', s:eslint_path, '--config='.s:eslint_config_path, '--format=json', expand('%')))
     endif
 
     if empty(l:errors)
@@ -29,7 +29,7 @@ function! jsfileimport#fix_imports#exec() abort
     if len(l:errors.messages) ==? 1
       let l:is_fatal = has_key(l:errors.messages[0], 'fatal') && l:errors.messages[0].fatal
       if l:is_fatal
-        throw 'You have a fatal error in your code: "'.l:message.'". Please fix it before trying to fix imports.'
+        throw 'You have a fatal error in your code: "'.l:errors.messages[0].message.'". Please fix it before trying to fix imports.'
       endif
       if l:errors.messages[0].message =~? 'file ignored'
         throw 'This file is ignored by eslint.'
@@ -173,7 +173,7 @@ function! s:save_if_modified()
   endif
 
   silent exe ':redraw'
-  let l:selection = confirm("File needs to be saved before fixing imports. Save now?", "&Yes\n&No\n&Cancel")
+  let l:selection = confirm('File needs to be saved before fixing imports. Save now?', "&Yes\n&No\n&Cancel")
   if l:selection !=? 1
     throw 'Canceled.'
   endif
