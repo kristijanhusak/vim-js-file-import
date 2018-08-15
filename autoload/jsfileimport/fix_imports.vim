@@ -4,11 +4,12 @@ let s:eslint_path = printf('%s%s', s:root, 'node_modules/.bin/eslint')
 
 function! jsfileimport#fix_imports#exec() abort
   try
+    let l:local_eslint_path = printf('%s/%s', getcwd(), '/node_modules/.bin/eslint')
+
     if !executable(s:eslint_path) && !executable(l:local_eslint_path)
       throw 'Eslint missing. Please run npm install from plugin directory.'
     endif
 
-    let l:local_eslint_path = './node_modules/.bin/eslint'
     call s:save_if_modified()
 
     call jsfileimport#utils#_save_cursor_position('fix_imports')
