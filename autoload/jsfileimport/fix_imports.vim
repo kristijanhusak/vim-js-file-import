@@ -27,7 +27,8 @@ function! jsfileimport#fix_imports#exec() abort
     let l:errors = json_decode(l:errors)[0]
 
     if len(l:errors.messages) ==? 1
-      if l:errors.messages[0].fatal
+      let l:is_fatal = has_key(l:errors.messages[0], 'fatal') && l:errors.messages[0].fatal
+      if l:is_fatal
         throw 'You have a fatal error in your code: "'.l:message.'". Please fix it before trying to fix imports.'
       endif
       if l:errors.messages[0].message =~? 'file ignored'
