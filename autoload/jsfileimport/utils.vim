@@ -157,4 +157,27 @@ function! jsfileimport#utils#_restore_cursor_position(from) abort
   endif
 endfunction
 
+function! jsfileimport#utils#systemlist(cmd) abort
+  let l:save_shell = s:set_shell()
+  let l:cmd_output = systemlist(a:cmd)
+  call s:restore_shell(l:save_shell)
+  return l:cmd_output
+endfunction
+
+function! s:set_shell() abort "{{{
+  let l:save_shell = [&shell, &shellcmdflag, &shellredir]
+
+  if has('win32')
+    set shell=cmd.exe shellcmdflag=/c shellredir=>%s\ 2>&1
+  else
+    set shell=sh shellredir=>%s\ 2>&1
+  endif
+
+  return l:save_shell
+endfunction "}}}
+
+function! s:restore_shell(saved_shell) abort "{{{
+  let [&shell, &shellcmdflag, &shellredir] = a:saved_shell
+endfunction "}}}
+
 " vim:foldenable:foldmethod=marker:sw=2

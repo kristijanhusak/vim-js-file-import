@@ -82,7 +82,7 @@ function! jsfileimport#findusage(is_visual_mode) abort
     let l:executable = executable('rg') ? 'rg --sort-files' : 'ag'
     let l:line = line('.')
 
-    let l:files = systemlist(l:executable.' '.l:word.' --vimgrep .')
+    let l:files = jsfileimport#utils#systemlist(l:executable.' '.l:word.' --vimgrep .')
     " Remove current line from list
     call filter(l:files, {idx, val -> val !~ '^'.l:current_file_path.':'.l:line.'.*$'})
 

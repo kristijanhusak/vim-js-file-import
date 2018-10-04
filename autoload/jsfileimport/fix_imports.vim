@@ -14,9 +14,9 @@ function! jsfileimport#fix_imports#exec() abort
 
     call jsfileimport#utils#_save_cursor_position('fix_imports')
     if executable(l:local_eslint_path)
-      let l:errors = systemlist(printf('%s %s %s', l:local_eslint_path, '--format=json', expand('%')))
+      let l:errors = jsfileimport#utils#systemlist(printf('%s %s %s', l:local_eslint_path, '--format=json', expand('%')))
     else
-      let l:errors = systemlist(printf('%s %s %s %s', s:eslint_path, '--config='.s:eslint_config_path, '--format=json', expand('%')))
+      let l:errors = jsfileimport#utils#systemlist(printf('%s %s %s %s', s:eslint_path, '--config='.s:eslint_config_path, '--format=json', expand('%')))
     endif
 
     if empty(l:errors)

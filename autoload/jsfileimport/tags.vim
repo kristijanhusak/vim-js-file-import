@@ -166,11 +166,11 @@ function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
   let l:files = []
 
   if executable('rg')
-    let l:files = systemlist('rg -g "'.a:name.'.js*" --files .', a:name)
+    let l:files = jsfileimport#utils#systemlist('rg -g "'.a:name.'.js*" --files .')
   elseif executable('ag')
-    let l:files = systemlist('ag -g "(/|^)'.a:name.'.js.*"')
+    let l:files = jsfileimport#utils#systemlist('ag -g "(/|^)'.a:name.'.js.*"')
   elseif executable('ack')
-    let l:files = systemlist('ack -g "(/|^)'.a:name.'.js.*"')
+    let l:files = jsfileimport#utils#systemlist('ack -g "(/|^)'.a:name.'.js.*"')
   else
     let l:files = [findfile(a:name.'.js', '**/*')]
     if a:rgx['type'] ==? 'import'
