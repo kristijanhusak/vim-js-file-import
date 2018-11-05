@@ -3,8 +3,9 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
   call filter(l:tags, function('s:remove_tags_with_current_path'))
 
   if len(l:tags) <= 0
-    if s:is_global_package(a:name) > 0
-      return { 'global': a:name }
+    let l:global_package = s:is_global_package(a:name)
+    if !empty(l:global_package)
+      return { 'global': l:global_package }
     endif
     if g:js_file_import_prompt_if_no_tag
       echo 'No tag found for word "'.a:name.'". Falling back to prompt.'
@@ -59,8 +60,9 @@ function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
     return l:tag_data
   endif
 
-  if s:is_global_package(l:path)
-    let l:tag_data['global'] = l:path
+  let l:global_package = s:is_global_package(l:path)
+  if !empty(l:global_package)
+    let l:tag_data['global'] = l:global_package
     return l:tag_data
   endif
 
@@ -149,13 +151,7 @@ function! s:remove_obsolete(idx, tag) abort "{{{
 endfunction "}}}
 
 function! s:append_tags_by_filename(tags, name, rgx) abort "{{{
-  let l:search = []
-  call add(l:search, substitute(a:name, '\C\(\<\u[a-z0-9]\+\|[a-z0-9]\+\)\(\u\)', '\l\1_\l\2', 'g')) "snake case
-  call add(l:search, substitute(l:search[0], '_\(\l\)', '\u\1', 'g')) "lower camel case
-  call add(l:search, substitute(l:search[0], '\(\%(\<\l\+\)\%(_\)\@=\)\|_\(\l\)', '\u\1\2', 'g')) "upper camel case
-  call uniq(sort(l:search))
-
-  for l:item in l:search
+  for l:item in s:get_name_variations(a:name)
     call s:append_filename_to_tags(a:tags, l:item, a:rgx)
   endfor
 
@@ -166,7 +162,7 @@ function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
   let l:files = []
 
   if executable('rg')
-    let l:files = jsfileimport#utils#systemlist('rg -g "'.a:name.'.js*" --files .')
+    let l:files = jsfileimport#utils#systemlist('rg -g "'.a:name.'.js*" --files')
   elseif executable('ag')
     let l:files = jsfileimport#utils#systemlist('ag -g "(/|^)'.a:name.'.js.*"')
   elseif executable('ack')
@@ -190,21 +186,23 @@ endfunction "}}}
 function! s:is_global_package(name) abort "{{{
   let l:package_json = getcwd().'/package.json'
   if !filereadable(l:package_json)
-    return 0
+    return ''
   endif
 
   let l:package_json_data = readfile(l:package_json, '')
   let l:data = json_decode(join(l:package_json_data))
 
-  if has_key(l:data, 'dependencies') && has_key(l:data['dependencies'], a:name)
-    return 1
-  endif
+  for l:name in s:get_name_variations(a:name)
+    if has_key(l:data, 'dependencies') && has_key(l:data['dependencies'], l:name)
+      return l:name
+    endif
 
-  if has_key(l:data, 'devDependencies') && has_key(l:data['devDependencies'], a:name)
-    return 1
-  endif
+    if has_key(l:data, 'devDependencies') && has_key(l:data['devDependencies'], l:name)
+      return l:name
+    endif
+  endfor
 
-  return 0
+  return ''
 endfunction "}}}
 
 function! s:check_if_global_tag(tag, name) abort "{{{
@@ -214,4 +212,14 @@ function! s:check_if_global_tag(tag, name) abort "{{{
   return ''
 endfunction "}}}
 
+function! s:get_name_variations(name) abort "{{{
+  let l:search = []
+  call add(l:search, substitute(a:name, '\C\(\<\u[a-z0-9]\+\|[a-z0-9]\+\)\(\u\)', '\l\1_\l\2', 'g')) "snake case
+  call add(l:search, substitute(l:search[0], '_\(\l\)', '\u\1', 'g')) "lower camel case
+  call add(l:search, substitute(l:search[0], '\(\%(\<\l\+\)\%(_\)\@=\)\|_\(\l\)', '\u\1\2', 'g')) "upper camel case
+  call add(l:search, tolower(a:name))
+  call add(l:search, toupper(a:name))
+  call add(l:search, a:name)
+  return uniq(sort(l:search))
+endfunction "}}}
 " vim:foldenable:foldmethod=marker:sw=2

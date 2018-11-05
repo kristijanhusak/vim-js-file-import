@@ -6,7 +6,7 @@ After:
   let g:js_file_import_sort_after_insert = 0
 
 Given javascript:
-  const Foo = require('./spec/test-sort-after-require.fixtures/foo');
+  const Foo = require('./spec/test-sort-after-require.fixtures/foo_require');
 
   const obj = new Bar();
 
@@ -14,7 +14,7 @@ Do:
   GfB,if
 
 Expect javascript:
-  const Bar = require('./spec/test-sort-after-require.fixtures/bar');
-  const Foo = require('./spec/test-sort-after-require.fixtures/foo');
+  const Bar = require('./spec/test-sort-after-require.fixtures/bar_require');
+  const Foo = require('./spec/test-sort-after-require.fixtures/foo_require');
 
   const obj = new Bar();

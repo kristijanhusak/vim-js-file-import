@@ -4,6 +4,6 @@
 !_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
-!_TAG_PROGRAM_VERSION	0.0.0	/b6031a8/
-Bar	bar.js	/^const Bar = () => {};$/;"	C
-Foo	foo.js	/^const Foo = () => {};$/;"	C
+!_TAG_PROGRAM_VERSION	0.0.0	/a794069c/
+Bar	bar_require.js	/^const Bar = () => {};$/;"	C
+Foo	foo_require.js	/^const Foo = () => {};$/;"	C

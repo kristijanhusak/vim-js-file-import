@@ -6,7 +6,7 @@ After:
   let g:js_file_import_sort_after_insert = 0
 
 Given javascript:
-  import Foo from './spec/test-sort-after-import.fixtures/foo';
+  import Foo from './spec/test-sort-after-import.fixtures/foo_import';
 
   const obj = new Bar();
 
@@ -14,7 +14,7 @@ Do:
   GfB,if
 
 Expect javascript:
-  import Bar from './spec/test-sort-after-import.fixtures/bar';
-  import Foo from './spec/test-sort-after-import.fixtures/foo';
+  import Bar from './spec/test-sort-after-import.fixtures/bar_import';
+  import Foo from './spec/test-sort-after-import.fixtures/foo_import';
 
   const obj = new Bar();
