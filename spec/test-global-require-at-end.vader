@@ -1,0 +1,20 @@
+Before:
+  set tags=./spec/test-global-require-at-end.fixtures/tags
+  let g:js_file_import_package_first = 0
+
+After:
+  let g:js_file_import_package_first = 1
+
+Given javascript:
+  const Foo = require('./spec/test-global-require.fixtures/a');
+
+  const randomNumber = lodash.random();
+
+Do:
+  Gfl,if
+
+Expect javascript:
+  const Foo = require('./spec/test-global-require.fixtures/a');
+  const lodash = require('lodash');
+
+  const randomNumber = lodash.random();

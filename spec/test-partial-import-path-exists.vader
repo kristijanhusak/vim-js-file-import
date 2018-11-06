@@ -1,0 +1,15 @@
+Before:
+  set tags=./spec/test-partial-import-path-exists.fixtures/tags
+
+Given javascript:
+  import { Foo } from './spec/test-partial-import-path-exists.fixtures/a';
+
+  const obj = new Bar();
+
+Do:
+  GfB,if
+
+  Expect javascript:
+  import { Foo, Bar } from './spec/test-partial-import-path-exists.fixtures/a';
+
+  const obj = new Bar();

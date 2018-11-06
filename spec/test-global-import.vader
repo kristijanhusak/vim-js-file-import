@@ -1,0 +1,16 @@
+Before:
+  set tags=./spec/test-global-import.fixtures/tags
+
+Given javascript:
+  import Foo from './spec/test-global-import.fixtures/a';
+
+  const randomNumber = lodash.random();
+
+Do:
+  Gfl,if
+
+Expect javascript:
+  import lodash from 'lodash';
+  import Foo from './spec/test-global-import.fixtures/a';
+
+  const randomNumber = lodash.random();

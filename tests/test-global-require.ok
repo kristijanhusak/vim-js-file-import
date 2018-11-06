@@ -1,4 +1,0 @@
-const lodash = require('lodash');
-const Foo = require('./test-global-require.fixtures/a');
-
-const randomNumber = lodash.random();

@@ -1,0 +1,22 @@
+Before:
+  set tags=./spec/test-partial-import-multiline-path-exists.fixtures/tags
+
+Given javascript:
+  import {
+    Foo,
+    Baz,
+  } from './spec/test-partial-import-multiline-path-exists.fixtures/a';
+
+  const obj = new Bar();
+
+Do:
+  GfB,if
+
+Expect javascript:
+  import {
+    Foo,
+    Baz,
+    Bar,
+  } from './spec/test-partial-import-multiline-path-exists.fixtures/a';
+
+  const obj = new Bar();

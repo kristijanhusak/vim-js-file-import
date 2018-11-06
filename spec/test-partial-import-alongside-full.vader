@@ -1,0 +1,15 @@
+Before:
+  set tags=./spec/test-partial-import-alongside-full.fixtures/tags
+
+Given javascript:
+  import Bar from './spec/test-partial-import-alongside-full.fixtures/a';
+
+  const obj = new Foo();
+
+Do:
+  GfF,if
+
+Expect javascript:
+  import Bar, { Foo } from './spec/test-partial-import-alongside-full.fixtures/a';
+
+  const obj = new Foo();

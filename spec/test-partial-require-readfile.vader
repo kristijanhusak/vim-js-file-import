@@ -1,0 +1,17 @@
+Before:
+  set tags=./spec/test-partial-require-readfile.fixtures/tags
+  let g:js_file_import_force_require = 1
+
+After:
+  let g:js_file_import_force_require = 0
+
+Given javascript:
+  const obj = new Bar();
+
+Do:
+  fB,if
+
+Expect javascript:
+  const { Bar } = require('./spec/test-partial-require-readfile.fixtures/a');
+
+  const obj = new Bar();

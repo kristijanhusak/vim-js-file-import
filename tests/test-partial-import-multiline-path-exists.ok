@@ -1,7 +1,0 @@
-import {
-  Foo,
-  Baz,
-  Bar,
-} from './test-partial-import-multiline-path-exists.fixtures/a';
-
-const obj = new Bar()

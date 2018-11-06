@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/kristijanhusak/vim-js-file-import#readme",
   "devDependencies": {
+    "lodash": "*",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0",

@@ -1,0 +1,20 @@
+Before:
+  set tags=./spec/test-sort-after-import.fixtures/tags
+  let g:js_file_import_sort_after_insert = 1
+
+After:
+  let g:js_file_import_sort_after_insert = 0
+
+Given javascript:
+  import Foo from './spec/test-sort-after-import.fixtures/foo';
+
+  const obj = new Bar();
+
+Do:
+  GfB,if
+
+Expect javascript:
+  import Bar from './spec/test-sort-after-import.fixtures/bar';
+  import Foo from './spec/test-sort-after-import.fixtures/foo';
+
+  const obj = new Bar();

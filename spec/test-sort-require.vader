@@ -1,0 +1,16 @@
+Before:
+  set tags=./spec/test-sort-import.fixtures/tags
+
+Given javascript:
+  const Foo = require('./spec/test-sort-import.fixtures/a');
+  const Bar = require('./spec/test-sort-import.fixtures/a');
+
+  const obj = new Bar();
+Do:
+  ,is
+
+Expect javascript:
+  const Bar = require('./spec/test-sort-import.fixtures/a');
+  const Foo = require('./spec/test-sort-import.fixtures/a');
+
+  const obj = new Bar();

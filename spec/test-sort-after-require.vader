@@ -1,0 +1,20 @@
+Before:
+  set tags=./spec/test-sort-after-require.fixtures/tags
+  let g:js_file_import_sort_after_insert = 1
+
+After:
+  let g:js_file_import_sort_after_insert = 0
+
+Given javascript:
+  const Foo = require('./spec/test-sort-after-require.fixtures/foo');
+
+  const obj = new Bar();
+
+Do:
+  GfB,if
+
+Expect javascript:
+  const Bar = require('./spec/test-sort-after-require.fixtures/bar');
+  const Foo = require('./spec/test-sort-after-require.fixtures/foo');
+
+  const obj = new Bar();

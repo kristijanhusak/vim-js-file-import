@@ -1,0 +1,15 @@
+Before:
+  set tags=./spec/test-partial-require-path-exists.fixtures/tags
+
+Given javascript:
+  const { Foo } = require('./spec/test-partial-require-path-exists.fixtures/a');
+
+  const obj = new Bar();
+
+Do:
+  GfB,if
+
+Expect javascript:
+  const { Foo, Bar } = require('./spec/test-partial-require-path-exists.fixtures/a');
+
+  const obj = new Bar();

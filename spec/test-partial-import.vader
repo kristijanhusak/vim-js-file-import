@@ -1,0 +1,13 @@
+Before:
+  set tags=./spec/test-partial-import.fixtures/tags
+
+Given javascript:
+  const obj = new Bar()
+
+Do:
+  fB,if
+
+Expect javascript:
+  import { Bar } from './spec/test-partial-import.fixtures/a';
+
+  const obj = new Bar()

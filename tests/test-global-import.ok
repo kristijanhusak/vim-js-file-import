@@ -1,4 +1,0 @@
-import lodash from 'lodash';
-import Foo from './test-global-import.fixtures/a';
-
-const randomNumber = lodash.random();

@@ -1,0 +1,22 @@
+Before:
+  set tags=./spec/test-partial-require-multiline-path-exists.fixtures/tags
+
+Given javascript:
+  const {
+    Foo,
+    Baz,
+  } = require('./spec/test-partial-require-multiline-path-exists.fixtures/a');
+
+  const obj = new Bar();
+
+Do:
+  GfB,if
+
+Expect javascript:
+  const {
+    Foo,
+    Baz,
+    Bar,
+  } = require('./spec/test-partial-require-multiline-path-exists.fixtures/a');
+
+  const obj = new Bar();

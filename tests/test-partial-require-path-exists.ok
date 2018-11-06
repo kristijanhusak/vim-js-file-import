@@ -1,3 +1,0 @@
-const { Foo, Bar } = require('./test-partial-require-path-exists.fixtures/a');
-
-const obj = new Bar()
