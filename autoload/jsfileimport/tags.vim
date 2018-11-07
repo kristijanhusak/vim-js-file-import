@@ -215,6 +215,7 @@ endfunction "}}}
 function! s:get_name_variations(name) abort "{{{
   let l:search = []
   call add(l:search, substitute(a:name, '\C\(\<\u[a-z0-9]\+\|[a-z0-9]\+\)\(\u\)', '\l\1_\l\2', 'g')) "snake case
+  call add(l:search, substitute(a:name, '\C\(\<\u[a-z0-9]\+\|[a-z0-9]\+\)\(\u\)', '\l\1-\l\2', 'g')) "hyphen case
   call add(l:search, substitute(l:search[0], '_\(\l\)', '\u\1', 'g')) "lower camel case
   call add(l:search, substitute(l:search[0], '\(\%(\<\l\+\)\%(_\)\@=\)\|_\(\l\)', '\u\1\2', 'g')) "upper camel case
   call add(l:search, tolower(a:name))
