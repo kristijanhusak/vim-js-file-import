@@ -22,6 +22,7 @@ handles, and [vim-import-js](https://github.com/Galooshi/vim-import-js) is missi
 * [Mappings](#mappings)
 * [Goto definition](#goto-definition)
 * [Sorting](#sorting)
+* [Removing unused imports](#removing-unused-imports)
 * [Settings](#settings)
 * [Deoplete strip file extension](#deoplete-strip-file-extension)
 * [Contributing](#contributing)
@@ -46,7 +47,7 @@ It's also recommended to install some plugin for auto-updating ctags, since this
 Add plugin to vimrc
 ```vimL
 Plug 'ludovicchabant/vim-gutentags'
-Plug 'kristijanhusak/vim-js-file-import'
+Plug 'kristijanhusak/vim-js-file-import', {'do': 'npm install'}
 ```
 
 ### Examples
@@ -146,6 +147,12 @@ and plugin will automatically sort imports after every insert
 ```vimL
 let g:js_file_import_sort_after_insert = 1
 ```
+
+### Removing unused imports
+
+Unused imports can be cleared by ising command `JsFixImport` or mapping `<Leader>ic`.
+It relies on eslint to figure out which imports are unused and clears them out.
+Make sure to do `npm install` in the plugin directory.
 
 ### Settings
 
