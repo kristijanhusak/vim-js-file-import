@@ -1,0 +1,10 @@
+Given javascript:
+  const fooValue = myFolder.Foo();
+
+Do:
+  fm,if
+
+Expect javascript:
+  import myFolder from './spec/test-find-folder-with-index-file.fixtures/myFolder';
+
+  const fooValue = myFolder.Foo();

@@ -56,7 +56,7 @@ function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
   let l:tag_data = { 'global': '', 'tag': { 'filename': l:path, 'cmd': '', 'kind': '' } }
   let l:full_path = getcwd().'/'.l:path
 
-  if filereadable(l:full_path)
+  if filereadable(l:full_path) || isdirectory(l:full_path)
     return l:tag_data
   endif
 
@@ -86,11 +86,34 @@ endfunction
 
 function! jsfileimport#tags#_generate_tags_selection_list(tags) abort
   function! s:tag_item(idx, tag) abort
-    let l:cmd = a:tag['cmd'] !=? '' ? ' - '.a:tag['cmd'] : ''
-    return printf('%d) %s', a:idx + 1, a:tag['filename'].l:cmd)
+    let l:cmd_kind = s:get_cmd_or_kind(a:tag)
+    return printf('%d) %s', a:idx + 1, a:tag['filename'].l:cmd_kind)
   endfunction
 
   return map(copy(a:tags), function('s:tag_item'))
+endfunction
+
+function! s:get_cmd_or_kind(tag) abort
+  if !empty(a:tag['cmd'])
+    return ' - '.a:tag['cmd']
+  endif
+
+  let l:kinds = {
+        \ 'f': 'Function',
+        \ 'c': 'Class',
+        \ 'm': 'Method',
+        \ 'p': 'Property',
+        \ 'C': 'Constant',
+        \ 'v': 'Global variable',
+        \ 'g': 'Generator',
+        \ 'F': 'File',
+        \ 'D': 'Directory',
+        \ }
+  if has_key(a:tag, 'kind') && has_key(l:kinds, a:tag['kind'])
+    return ' - '.l:kinds[a:tag['kind']]
+  endif
+
+  return ''
 endfunction
 
 function! jsfileimport#tags#_get_tag_in_current_file(tags, current_file_path) abort
@@ -174,9 +197,21 @@ function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
     endif
   endif
 
+  let l:dirs = finddir(a:name, '**', -1)
+
+  for l:dir in l:dirs
+    if l:dir =~? 'node_modules' || index(l:files, l:dir) > -1
+      continue
+    endif
+    if filereadable(printf('%s/index.js', l:dir))
+      call add(l:files, l:dir)
+    endif
+  endfor
+
   for l:file in l:files
     if l:file !=? '' && !s:tags_has_filename(a:tags, l:file) && expand('%:p') !=? fnamemodify(l:file, ':p')
-      call add(a:tags, { 'filename': l:file, 'name': a:name, 'kind': 'C', 'cmd': '' })
+      let l:kind = isdirectory(l:file) ? 'D' : 'F'
+      call add(a:tags, { 'filename': l:file, 'name': a:name, 'kind': l:kind, 'cmd': '' })
     endif
   endfor
 
