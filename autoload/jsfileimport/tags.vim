@@ -174,12 +174,39 @@ function! s:remove_obsolete(idx, tag) abort "{{{
 endfunction "}}}
 
 function! s:append_tags_by_filename(tags, name, rgx) abort "{{{
-  for l:item in s:get_name_variations(a:name)
+  let l:name_variations = s:get_name_variations(a:name)
+  for l:item in l:name_variations
     call s:append_filename_to_tags(a:tags, l:item, a:rgx)
   endfor
 
+  call s:append_directories_to_tags(a:name, a:tags, l:name_variations)
+
   return a:tags
 endfunction "}}}
+
+function! s:append_directories_to_tags(name, tags, name_variations) abort
+  let l:dirs = []
+  if executable('find')
+    let l:find_items = join(
+      \ map(copy(a:name_variations),
+      \ '"-name ''".v:val."'' -type d -not -path ''./node_modules/*''"'),
+      \ ' -o '
+      \ )
+    let l:dirs = jsfileimport#utils#systemlist('find . '.l:find_items)
+    let l:dirs = map(l:dirs, 'substitute(v:val, "^\.\/", "", "")')
+  else
+    for l:item in a:name_variations
+      let l:item_dirs = finddir(l:item, '**', '-1')
+      let l:dirs += filter(copy(l:item_dirs), '!empty(v:val) && v:val !~? "node_modules"')
+    endfor
+  endif
+
+  for l:dir in l:dirs
+    if !empty(l:dir) && filereadable(printf('%s/index.js', l:dir)) && !s:tags_has_filename(a:tags, l:dir)
+      call add(a:tags, { 'filename': l:dir, 'name': a:name, 'kind': 'D', 'cmd': '' })
+    endif
+  endfor
+endfunction
 
 function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
   let l:files = []
@@ -197,21 +224,9 @@ function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
     endif
   endif
 
-  let l:dirs = finddir(a:name, '**', -1)
-
-  for l:dir in l:dirs
-    if l:dir =~? 'node_modules' || index(l:files, l:dir) > -1
-      continue
-    endif
-    if filereadable(printf('%s/index.js', l:dir))
-      call add(l:files, l:dir)
-    endif
-  endfor
-
   for l:file in l:files
     if l:file !=? '' && !s:tags_has_filename(a:tags, l:file) && expand('%:p') !=? fnamemodify(l:file, ':p')
-      let l:kind = isdirectory(l:file) ? 'D' : 'F'
-      call add(a:tags, { 'filename': l:file, 'name': a:name, 'kind': l:kind, 'cmd': '' })
+      call add(a:tags, { 'filename': l:file, 'name': a:name, 'kind': 'F', 'cmd': '' })
     endif
   endfor
 
