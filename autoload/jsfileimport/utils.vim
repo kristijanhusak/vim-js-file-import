@@ -39,7 +39,7 @@ function! jsfileimport#utils#_determine_import_type() abort
 endfunction
 
 function! jsfileimport#utils#_check_python_support() abort
-  if !has('python') && !has('python3')
+  if !g:js_file_import_from_root && !has('python') && !has('python3')
     throw 'Vim js file import requires python or python3 support.'
   endif
 
@@ -47,6 +47,10 @@ function! jsfileimport#utils#_check_python_support() abort
 endfunction
 
 function! jsfileimport#utils#_get_file_path(filepath) abort
+  if g:js_file_import_from_root
+    return substitute(fnamemodify(a:filepath, ':p:r'), getcwd().'/', '', '')
+  endif
+
   let l:py_command = has('python3') ? 'py3' : 'py'
   let l:path = a:filepath
 

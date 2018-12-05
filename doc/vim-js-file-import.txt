@@ -203,6 +203,18 @@ g:js_file_import_force_require
 		Set this to `1` to force using `require()`.
 
 		Default value: 0
+					      *g:js_file_import_from_root*
+g:js_file_import_from_root
+		By default import paths are relative to the current
+		path. With this flag enabled, import paths are relative to the
+		current working directory.
+		For example, importing file from `dir2` within a file that is
+		in `dir1`, you would by default get something like this:
+		`import myClass from '../dir2/myClass'`
+		With this option enabled, you get this:
+		`import myClass from 'dir2/myClass'`
+
+		Default value: 0
 					      *g:deoplete_strip_file_extension*
 g:deoplete_strip_file_extension
 		If you are using `deoplete.nvim` and it's file autocomplete

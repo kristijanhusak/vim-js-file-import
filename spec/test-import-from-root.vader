@@ -1,0 +1,17 @@
+Before:
+  set tags=./spec/test-import-from-root.fixtures/tags
+  let g:js_file_import_from_root = 1
+
+After:
+  let g:js_file_import_from_root = 0
+
+Given javascript:
+  const obj = new Bar();
+
+Do:
+  fB,if
+
+Expect javascript:
+  import Bar from 'spec/test-import-from-root.fixtures/a';
+
+  const obj = new Bar();
