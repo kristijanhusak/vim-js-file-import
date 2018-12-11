@@ -48,7 +48,7 @@ endfunction
 
 function! jsfileimport#utils#_get_file_path(filepath) abort
   if g:js_file_import_from_root
-    return substitute(fnamemodify(a:filepath, ':p:r'), getcwd().'/', '', '')
+    return substitute(fnamemodify(a:filepath, ':p:r'), g:js_file_import_root.'/', '', '')
   endif
 
   let l:py_command = has('python3') ? 'py3' : 'py'

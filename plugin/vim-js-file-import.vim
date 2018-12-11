@@ -13,6 +13,7 @@ let g:js_file_import_no_mappings = get(g:, 'js_file_import_no_mappings', 0)
 let g:js_file_import_filters = get(g:, 'js_file_import_filters', [])
 let g:js_file_import_sort_after_fix = get(g: ,'js_file_import_sort_after_fix', 0)
 let g:js_file_import_from_root = get(g:, 'js_file_import_from_root', 0)
+let g:js_file_import_root = get(g:, 'js_file_import_root', getcwd())
 let g:deoplete_strip_file_extension = get(g:, 'deoplete_strip_file_extension', 1)
 
 command! JsFileImport call jsfileimport#word(0)
