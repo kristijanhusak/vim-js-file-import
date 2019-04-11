@@ -10,7 +10,7 @@ function! jsfileimport#utils#_determine_import_type() abort
         \ 'import': "const __FNAME__ = require('__FPATH__')",
         \ 'lastimport': '^\(const\|let\|var\)\s\_[^''"]\{-\}require(.*;\?$',
         \ 'default_export': 'module.exports\s*=.\{-\}',
-        \ 'partial_export': 'module.exports.\(\<__FNAME__\>\|\s*=\_[^{]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
+        \ 'partial_export': 'module\.exports\(\.\<__FNAME__\>\|\s*=\_[[:blank:]]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
         \ 'select_for_sort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
         \ 'import_name': '^\(const\|let\|var\)\s*\(\<[^''"]\{-\}\>\)\s*=\s*require([^)]*);\?',
         \ 'is_single_import': '^\(const\|let\|var\)\(\s\|\n\)\{-\}{\?\(\s\|\n\)\{-\}\<__FNAME__\>\(\s\|\n\)\{-\}}\?\(\s\|\n\)\{-\}=\(\s\|\n\)\{-\}require(\_[^)]\{-\});\?',
