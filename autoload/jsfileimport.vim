@@ -115,8 +115,8 @@ function! jsfileimport#_import_word(name, tag_fn_name, is_visual_mode, show_list
     call jsfileimport#utils#_check_import_exists(a:name, 1)
     let l:tag_data = call(a:tag_fn_name, [a:name, l:rgx, a:show_list])
 
-    if l:tag_data['global'] !=? ''
-      return s:process_import(a:name, l:tag_data['global'], l:rgx, 1)
+    if !empty(l:tag_data['global'])
+      return s:process_import(a:name, l:tag_data['tag']['name'], l:rgx, 1)
     endif
 
     return s:import_tag(l:tag_data['tag'], a:name, l:rgx)

@@ -3,10 +3,6 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
   call filter(l:tags, function('s:remove_tags_with_current_path'))
 
   if len(l:tags) <= 0
-    let l:global_package = s:is_global_package(a:name)
-    if !empty(l:global_package)
-      return { 'global': l:global_package }
-    endif
     if g:js_file_import_prompt_if_no_tag
       echo 'No tag found for word "'.a:name.'". Falling back to prompt.'
       return jsfileimport#tags#_get_tag_data_from_prompt(a:name, a:rgx)
@@ -15,7 +11,7 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
   endif
 
   if a:show_list == 0 && len(l:tags) == 1
-    return { 'tag': l:tags[0], 'global': s:check_if_global_tag(l:tags[0], a:name) }
+    return { 'tag': l:tags[0], 'global': s:check_if_global_tag(l:tags[0]) }
   endif
 
   let l:tag_selection_list = jsfileimport#tags#_generate_tags_selection_list(l:tags)
@@ -41,7 +37,7 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
   endif
 
   let l:selected_tag = l:tags[l:selection - 1]
-  return { 'tag': l:selected_tag, 'global': s:check_if_global_tag(l:selected_tag, a:name) }
+  return { 'tag': l:selected_tag, 'global': s:check_if_global_tag(l:selected_tag) }
 endfunction
 
 function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
@@ -60,17 +56,17 @@ function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
     return l:tag_data
   endif
 
-  let l:global_package = s:is_global_package(l:path)
-  if !empty(l:global_package)
-    let l:tag_data['global'] = l:global_package
-    return l:tag_data
+  let l:global_package_tag = s:get_global_package_tag(l:path)
+  if !empty(l:global_package_tag)
+    return { 'global': 1, 'tag': l:global_package_tag }
   endif
 
   let l:choice = confirm('File or package not found. Import as:', "&File\n&Package\n&Cancel")
   if l:choice == 3
     throw ''
   elseif l:choice == 2
-    let l:tag_data['global'] = l:path
+    let l:tag_data['global'] = 1
+    let l:tag_data['tag']['name'] = l:path
   endif
 
   return l:tag_data
@@ -80,6 +76,17 @@ function! jsfileimport#tags#_get_taglist(name, rgx) abort
   let l:tags = taglist('^'.a:name.'$')
   call filter(l:tags, function('s:remove_obsolete'))
   call s:append_tags_by_filename(l:tags, a:name, a:rgx)
+
+  let l:global_package_tag = s:get_global_package_tag(a:name)
+  if empty(l:global_package_tag)
+    return l:tags
+  endif
+
+  let l:already_in_taglist = len(filter(copy(l:tags), 'v:val.name ==? "'.l:global_package_tag.name.'"')) > 0
+
+  if !l:already_in_taglist
+    call add(l:tags, l:global_package_tag)
+  endif
 
   return l:tags
 endfunction
@@ -255,11 +262,22 @@ function! s:is_global_package(name) abort "{{{
   return ''
 endfunction "}}}
 
-function! s:check_if_global_tag(tag, name) abort "{{{
-  if a:tag['filename'] =~? 'package.json'
-    return a:name
+function! s:get_global_package_tag(name) abort "{{{
+  let l:global_package = s:is_global_package(a:name)
+  if empty(l:global_package)
+    return {}
   endif
-  return ''
+
+  let l:global_taglist = filter(taglist('^'.l:global_package.'$'), 'v:val.filename ==? "package.json"')
+  if len(l:global_taglist) > 0
+    return l:global_taglist[0]
+  endif
+
+  return {}
+endfunction "}}}
+
+function! s:check_if_global_tag(tag) abort "{{{
+  return a:tag['filename'] =~? 'package.json'
 endfunction "}}}
 
 function! s:get_name_variations(name) abort "{{{

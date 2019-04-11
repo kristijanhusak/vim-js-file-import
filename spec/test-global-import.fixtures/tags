@@ -4,6 +4,10 @@
 !_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
-!_TAG_PROGRAM_VERSION	0.0.0	/d1616530/
+!_TAG_PROGRAM_VERSION	0.0.0	/f07b0a98/
 Bar	a.js	/^export const Bar = () => {};$/;"	C
 Foo	a.js	/^export const Foo = () => {};$/;"	C
+devDependencies	package.json	/^  "devDependencies": {$/;"	o
+lodash	package.json	/^    "lodash": "*"$/;"	s	object:devDependencies
+name	package.json	/^  "name": "test",$/;"	s
+version	package.json	/^  "version": "1.0.0",$/;"	s
