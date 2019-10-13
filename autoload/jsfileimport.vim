@@ -115,11 +115,7 @@ function! jsfileimport#_import_word(name, tag_fn_name, is_visual_mode, show_list
     call jsfileimport#utils#_check_import_exists(a:name, 1)
     let l:tag_data = call(a:tag_fn_name, [a:name, l:rgx, a:show_list])
 
-    if !empty(l:tag_data['global'])
-      return s:process_import(a:name, l:tag_data['tag']['name'], l:rgx, 1)
-    endif
-
-    return s:import_tag(l:tag_data['tag'], a:name, l:rgx)
+    return s:import_tag(l:tag_data, a:name, l:rgx)
   catch /.*/
     call jsfileimport#utils#_restore_cursor_position('import')
     if v:exception !=? ''
@@ -135,21 +131,25 @@ function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
   return jsfileimport#_import_word(l:name, a:tag_fn_name, a:is_visual_mode, a:show_list)
 endfunction "}}}
 
-function! s:is_partial_import(tag, name, rgx) "{{{
+function! s:is_partial_import(tag_data, name, rgx) "{{{
+  if !empty(a:tag_data['global']) && !empty(a:tag_data['global_partial'])
+    return 1
+  endif
+  let l:tag = a:tag_data['tag']
   let l:partial_rgx = substitute(a:rgx['partial_export'], '__FNAME__', a:name, 'g')
 
   " Method or partial export
-  if a:tag['kind'] =~# '\(m\|p\)' || a:tag['cmd'] =~# l:partial_rgx
+  if l:tag['kind'] =~# '\(m\|p\)' || l:tag['cmd'] =~# l:partial_rgx
     return 1
   endif
 
-  if a:tag['cmd'] =~# a:rgx['default_export'].a:name
+  if l:tag['cmd'] =~# a:rgx['default_export'].a:name
     return 0
   endif
 
   " Read file and try finding export in case when tag points to line
   " that is not descriptive enough
-  let l:file_path = getcwd().'/'.a:tag['filename']
+  let l:file_path = getcwd().'/'.l:tag['filename']
 
   if !filereadable(l:file_path)
     return 0
@@ -162,7 +162,7 @@ function! s:is_partial_import(tag, name, rgx) "{{{
   return 0
 endfunction "}}}
 
-function! s:process_import(name, path, rgx, ...) abort "{{{
+function! s:process_import(name, path, rgx, is_global) abort "{{{
   let l:import_rgx = a:rgx['import']
   let l:import_rgx = substitute(l:import_rgx, '__FNAME__', a:name, '')
   let l:import_rgx = substitute(l:import_rgx, '__FPATH__', a:path, '')
@@ -173,7 +173,7 @@ function! s:process_import(name, path, rgx, ...) abort "{{{
 
   let l:append_to_start = 0
 
-  if a:0 > 0 && g:js_file_import_package_first
+  if a:is_global && g:js_file_import_package_first
     let l:append_to_start = 1
   endif
 
@@ -188,19 +188,24 @@ function! s:process_import(name, path, rgx, ...) abort "{{{
   return s:finish_import()
 endfunction "}}}
 
-function! s:import_tag(tag, name, rgx) abort "{{{
-  let l:is_partial = s:is_partial_import(a:tag, a:name, a:rgx)
-  let l:path = jsfileimport#utils#_get_file_path(a:tag['filename'])
+function! s:import_tag(tag_data, name, rgx) abort "{{{
+  let l:tag = a:tag_data['tag']
+  let l:is_global = !empty(a:tag_data['global'])
+  let l:is_partial = s:is_partial_import(a:tag_data, a:name, a:rgx)
+  let l:path = l:tag['name']
+  if !l:is_global
+    let l:path = jsfileimport#utils#_get_file_path(l:tag['filename'])
+  endif
   let l:current_file_path = jsfileimport#utils#_get_file_path(expand('%:p'))
 
-  if l:path ==# l:current_file_path
+  if !l:is_global && l:path ==# l:current_file_path
     throw 'Import failed. Selected import is in this file.'
   endif
 
   let l:escaped_path = escape(l:path, './')
 
   if l:is_partial == 0
-    return s:process_full_import(a:name, a:rgx, l:path)
+    return s:process_full_import(a:name, a:rgx, l:path, l:is_global)
   endif
 
   " Check if only full import exists for given path. ES6 allows partial imports alongside full import
@@ -215,7 +220,7 @@ function! s:import_tag(tag, name, rgx) abort "{{{
   let l:existing_path_rgx = substitute(a:rgx['existing_path'], '__FPATH__', l:escaped_path, '')
 
   if search(l:existing_path_rgx, 'n') <= 0
-    return s:process_import('{ '.a:name.' }', l:path, a:rgx)
+    return s:process_import('{ '.a:name.' }', l:path, a:rgx, l:is_global)
   endif
 
   call search(l:existing_path_rgx)
@@ -230,7 +235,7 @@ function! s:import_tag(tag, name, rgx) abort "{{{
   return s:process_single_line_partial_import(a:name)
 endfunction "}}}
 
-function! s:process_full_import(name, rgx, path) abort "{{{
+function! s:process_full_import(name, rgx, path, is_global) abort "{{{
   let l:esc_path = escape(a:path, './')
   let l:existing_import_rgx = substitute(a:rgx['existing_path_for_full'], '__FPATH__', l:esc_path, '')
 
@@ -240,7 +245,7 @@ function! s:process_full_import(name, rgx, path) abort "{{{
     return s:finish_import()
   endif
 
-  return s:process_import(a:name, a:path, a:rgx)
+  return s:process_import(a:name, a:path, a:rgx, a:is_global)
 endfunction "}}}
 
 function! s:process_single_line_partial_import(name) abort "{{{

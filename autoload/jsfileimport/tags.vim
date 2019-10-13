@@ -11,7 +11,7 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
   endif
 
   if a:show_list == 0 && len(l:tags) == 1
-    return { 'tag': l:tags[0], 'global': s:check_if_global_tag(l:tags[0]) }
+    return { 'tag': l:tags[0], 'global': s:check_if_global_tag(l:tags[0]), 'global_partial': 0 }
   endif
 
   let l:tag_selection_list = jsfileimport#tags#_generate_tags_selection_list(l:tags)
@@ -37,7 +37,7 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
   endif
 
   let l:selected_tag = l:tags[l:selection - 1]
-  return { 'tag': l:selected_tag, 'global': s:check_if_global_tag(l:selected_tag) }
+  return { 'tag': l:selected_tag, 'global': s:check_if_global_tag(l:selected_tag), 'global_partial': 0 }
 endfunction
 
 function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
@@ -49,7 +49,7 @@ function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
     throw 'No path entered.'
   endif
 
-  let l:tag_data = { 'global': '', 'tag': { 'filename': l:path, 'cmd': '', 'kind': '' } }
+  let l:tag_data = { 'global': '', 'global_partial': 0, 'tag': { 'filename': l:path, 'cmd': '', 'kind': '' } }
   let l:full_path = getcwd().'/'.l:path
 
   if filereadable(l:full_path) || isdirectory(l:full_path)
@@ -58,7 +58,26 @@ function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
 
   let l:global_package_tag = s:get_global_package_tag(l:path)
   if !empty(l:global_package_tag)
-    return { 'global': 1, 'tag': l:global_package_tag }
+    let l:tag_data['global'] = 1
+    let l:tag_data['tag'] = l:global_package_tag
+    if l:path ==? a:name
+      return l:tag_data
+    endif
+    let l:full_or_partial = confirm('Is import full or partial?', "&Full\n&Partial")
+    if l:full_or_partial ==? 2
+      let l:tag_data['global_partial'] = 1
+    endif
+    return l:tag_data
+  endif
+
+  if !empty(matchstr(l:path, '/'))
+    let l:global_package_nested_tag = s:get_global_package_tag(split(l:path, '/')[0])
+
+    if !empty(l:global_package_nested_tag)
+      let l:tag_data['global'] = 1
+      let l:tag_data['tag']['name'] = l:path
+      return l:tag_data
+    endif
   endif
 
   let l:choice = confirm('File or package not found. Import as:', "&File\n&Package\n&Cancel")
@@ -67,6 +86,10 @@ function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
   elseif l:choice == 2
     let l:tag_data['global'] = 1
     let l:tag_data['tag']['name'] = l:path
+    let l:full_or_partial = confirm('Is import full or partial?', "&Full\n&Partial")
+    if l:full_or_partial ==? 2
+      let l:tag_data['global_partial'] = 1
+    endif
   endif
 
   return l:tag_data
