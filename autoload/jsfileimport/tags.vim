@@ -49,7 +49,7 @@ function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
     throw 'No path entered.'
   endif
 
-  let l:tag_data = { 'global': '', 'global_partial': 0, 'tag': { 'filename': l:path, 'cmd': '', 'kind': '' } }
+  let l:tag_data = { 'global': '', 'global_partial': 0, 'tag': { 'filename': l:path, 'name': l:path, 'cmd': '', 'kind': '' } }
   let l:full_path = getcwd().'/'.l:path
 
   if filereadable(l:full_path) || isdirectory(l:full_path)
