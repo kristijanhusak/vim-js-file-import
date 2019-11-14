@@ -1,13 +1,14 @@
 let s:mark_set_from = ''
 
 function! jsfileimport#utils#_determine_import_type() abort
+  let l:quote = g:js_file_import_string_quote
   let l:require_regex = {
         \ 'type': 'require',
         \ 'check_import_exists': '^\(const\|let\|var\)\s*\_[^''"]\{-\}\<__FNAME__\>\s*\_[^''"]\{-\}=\s*require(',
         \ 'existing_path': '^\(const\|let\|var\)\s*{\s*\zs\_[^''"]\{-\}\ze\s*}\s*=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'existing_full_path_only': '^\(const\|let\|var\)\s*\zs\<[^''"]\{-\}\>\ze\s*\_[^''"]\{-\}=\s*require([''"]__FPATH__[''"]);\?$',
         \ 'existing_path_for_full': '^\(const\|let\|var\)\s*\zs{\s*\_[^''"]\{-\}\s*}\ze\s*=\s*require([''"]__FPATH__[''"]);\?$',
-        \ 'import': "const __FNAME__ = require('__FPATH__')",
+        \ 'import': printf('const __FNAME__ = require(%s__FPATH__%s)', l:quote, l:quote),
         \ 'lastimport': '^\(const\|let\|var\)\s\_[^''"]\{-\}require(.*;\?$',
         \ 'default_export': 'module.exports\s*=.\{-\}',
         \ 'partial_export': 'module\.exports\(\.\<__FNAME__\>\|\s*=\_[[:blank:]]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
@@ -22,7 +23,7 @@ function! jsfileimport#utils#_determine_import_type() abort
         \ 'existing_path': '^import\s*[^{''"]\{-\}{\s*\zs\_[^''"]\{-\}\ze\s*}\s*from\s*[''"]__FPATH__[''"];\?$',
         \ 'existing_full_path_only': '^import\s*\zs\<[^''"]\{-\}\>\ze\s*from\s*[''"]__FPATH__[''"];\?$',
         \ 'existing_path_for_full': '^import\s*\zs{\s*\_[^''"]\{-\}\s*}\ze\s*from\s*[''"]__FPATH__[''"];\?$',
-        \ 'import': "import __FNAME__ from '__FPATH__'",
+        \ 'import': printf('import __FNAME__ from %s__FPATH__%s', l:quote, l:quote),
         \ 'lastimport': '^import\s\_[^''"]\{-\}from.*;\?$',
         \ 'default_export': 'export\s*default.\{-\}',
         \ 'partial_export': 'export\s*\(const\|var\|function\|class\)\s*\<__FNAME__\>',

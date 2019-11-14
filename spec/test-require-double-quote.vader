@@ -1,0 +1,19 @@
+Before:
+  set tags=./spec/test-require.fixtures/tags
+  let g:js_file_import_string_quote = '"'
+
+After:
+  let g:js_file_import_string_quote = "'"
+
+
+Given javascript:
+  const package = require("package");
+  const obj = new Bar();
+
+Do:
+  GfB,if
+
+Expect javascript:
+  const package = require("package");
+  const Bar = require("./spec/test-require.fixtures/a");
+  const obj = new Bar();

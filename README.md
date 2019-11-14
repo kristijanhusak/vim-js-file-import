@@ -203,7 +203,14 @@ nmap <C-i> <Plug>(JsFileImport)
 nmap <C-u> <Plug>(PromptJsFileImport)
 ```
 
+#### Using double quotes
+If you want to use double quotes instead of single quotes, add this setting:
+```vimL
+let g:js_file_import_string_quote = '"'
+```
+
 Check help docs for more information.
+
 
 ### Deoplete strip file extension
 If you are using [deoplete.nvim](https://github.com/Shougo/deoplete.nvim) and it's file autocomplete to import files,
