@@ -9,6 +9,121 @@ function! jsfileimport#prompt() abort
   silent! call repeat#set("\<Plug>(PromptJsFileImport)")
 endfunction
 
+function! jsfileimport#jsdoc() abort
+  let l:name = jsfileimport#utils#_get_word(0)
+  call jsfileimport#utils#_save_cursor_position('import')
+  try
+    call jsfileimport#utils#_check_python_support()
+    let l:rgx = jsfileimport#utils#_determine_import_type()
+    let l:import_exists = jsfileimport#utils#_check_import_exists(l:name)
+    let l:tag_data = jsfileimport#tags#_get_tag(l:name, l:rgx, 0)
+
+    return s:import_jsdoc(l:tag_data, l:name, l:rgx)
+  catch /.*/
+    call jsfileimport#utils#_restore_cursor_position('import')
+    if v:exception !=? ''
+      return jsfileimport#utils#_error(v:exception)
+    endif
+    return 0
+  endtry
+endfunction
+
+function! s:import_jsdoc(tag_data, name, rgx) abort "{{{
+  " TODO:
+  " * Sorting
+  " * Make it work with variable functions
+  " * Make it work with variables (@type)
+  " * Improve finding start to not expect content or to check one liner
+  let l:tag = a:tag_data['tag']
+  let l:is_global = !empty(a:tag_data['global'])
+  let l:is_partial = s:is_partial_import(a:tag_data, a:name, a:rgx)
+  let l:path = l:tag['name']
+  if !l:is_global
+    let l:path = jsfileimport#utils#_get_file_path(l:tag['filename'])
+  endif
+  let l:current_file_path = jsfileimport#utils#_get_file_path(expand('%:p'))
+
+  if !l:is_global && l:path ==# l:current_file_path
+    throw 'Import failed. Selected import is in this file.'
+  endif
+
+  let l:mtd_rgx = '^[[:blank:]]*\(static[[:blank:]]*\)\?\(async[[:blank:]]*\)\?\(function\s\)\?\(\(const\|let\|var\)\s\)\?\<[[:alnum:]]*\>\(\s*=\s*\)\?\(function\s*\)\?('
+
+  let l:method_start_line = 0
+  let l:is_on_same_line = 0
+
+  if !empty(matchstr(getline('.'), l:mtd_rgx))
+    let l:is_on_same_line = 1
+    let l:method_start_line = line('.')
+  else
+    let l:method_start_line = search(l:mtd_rgx, 'nbeW')
+  endif
+
+  if l:method_start_line ==? 0
+    throw 'Invalid function/method.'
+  endif
+
+  let l:has_docblock = !empty(matchstr(getline(l:method_start_line - 1), '^[[:blank:]]*\*\/'))
+  let l:docblock_end_line = l:method_start_line - 1
+
+  let l:tmp_end_line = l:docblock_end_line
+  if !l:has_docblock && match(getline(l:docblock_end_line), '^[[:blank:]]*$') > -1
+    while match(getline(l:tmp_end_line), '^[[:blank:]]*$') > -1
+      let l:tmp_end_line -= 1
+      let l:has_docblock = !empty(matchstr(getline(l:tmp_end_line), '^[[:blank:]]*\*\/'))
+      if l:has_docblock
+        let l:docblock_end_line = l:tmp_end_line
+        break
+      endif
+    endwhile
+  endif
+
+  let l:docblock_start_line = l:method_start_line - 3
+
+  if l:has_docblock && empty(matchstr(getline(l:docblock_start_line), '^[[:blank:]]*\/\*\*'))
+    let l:docblock_start_line = l:docblock_end_line - 1
+    while !empty(matchstr(getline(l:docblock_start_line), '^[[:blank:]]*\*'))
+      let l:docblock_start_line -= 1
+      if !empty(matchstr(getline(l:docblock_start_line), '^[[:blank:]]*\/\*\*'))
+        break
+      endif
+    endwhile
+  endif
+
+  let l:exists = 0
+  let l:template = "* @param {import('__FPATH__')__FPARTIAL__} __FNAME__"
+  let l:template = substitute(l:template, '__FNAME__', a:name, '')
+  let l:template = substitute(l:template, '__FPATH__', l:path, '')
+  let l:template = substitute(l:template, '__FPARTIAL__', l:is_partial ? '.'.a:name : '', '')
+
+  if l:has_docblock
+    for l:line in range(l:docblock_start_line, l:docblock_end_line)
+      if !empty(matchstr(getline(l:line), '^[[:blank:]]*\'.l:template))
+        let l:exists = 1
+        break
+      endif
+    endfor
+  endif
+
+  if l:exists
+    throw 'Already exists.'
+  endif
+
+  let l:lines = [l:template]
+
+  if !l:has_docblock
+    let l:lines = ['/**']
+    let l:lines += [l:template, '*/']
+    call append(l:docblock_end_line, l:lines)
+    exe 'norm!'.(l:docblock_end_line + 1).'G=2j'
+  else
+    call append(l:docblock_end_line - 1, l:lines)
+    exe 'norm!'.l:docblock_end_line.'G=='
+  endif
+
+  return s:finish_import()
+endfunction "}}}
+
 function! jsfileimport#sort(...) abort
   call jsfileimport#utils#_save_cursor_position('sort')
 
