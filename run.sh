@@ -4,7 +4,7 @@ if [ ! -d "vader.vim" ]; then
   git clone https://github.com/junegunn/vader.vim
 fi
 
-vim -Nu <(cat << EOF
+vim -EsNu <(cat << EOF
 filetype off
 set rtp+=vader.vim
 set rtp+=.
