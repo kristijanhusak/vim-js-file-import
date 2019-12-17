@@ -232,7 +232,7 @@ function! s:append_directories_to_tags(name, tags, name_variations) abort
   endif
 
   for l:dir in l:dirs
-    if !empty(l:dir) && filereadable(printf('%s/index.js', l:dir)) && !s:tags_has_filename(a:tags, l:dir)
+    if !empty(l:dir) && (filereadable(printf('%s/index.js', l:dir)) || filereadable(printf('%s/index.ts', l:dir))) && !s:tags_has_filename(a:tags, l:dir)
       call add(a:tags, { 'filename': l:dir, 'name': a:name, 'kind': 'D', 'cmd': '' })
     endif
   endfor
@@ -240,17 +240,23 @@ endfunction
 
 function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
   let l:files = []
+  let l:is_ts = filereadable(getcwd().'/tsconfig.json')
 
   if executable('rg')
-    let l:files = jsfileimport#utils#systemlist('rg -g "'.a:name.'.js*" --files')
-  elseif executable('ag')
-    let l:files = jsfileimport#utils#systemlist('ag -g "(/|^)'.a:name.'.js.*"')
-  elseif executable('ack')
-    let l:files = jsfileimport#utils#systemlist('ack -g "(/|^)'.a:name.'.js.*"')
+    let l:files = jsfileimport#utils#systemlist('rg -g "'.a:name.'.js*" '.(l:is_ts ? '-g "'.a:name.'.ts*"' : '').' --files')
+  elseif executable('ag') || executable('ack')
+    let l:cmd = ' -g "(/|^)'.a:name.'.js.*'.(l:is_ts ? '|(/|^)'.a:name.'.ts*' : '').'"'
+    let l:files = jsfileimport#utils#systemlist(printf('%s %s', executable('ag') ? 'ag' : 'ack', l:cmd))
   else
     let l:files = [findfile(a:name.'.js', '**/*')]
+    if l:is_ts
+      call add(l:files, findfile(a:name.'.ts', '**/*'))
+    endif
     if a:rgx['type'] ==? 'import'
       call add(l:files, findfile(a:name.'.jsx', '**/*'))
+      if l:is_ts
+        call add(l:files, findfile(a:name.'.tsx', '**/*'))
+      endif
     endif
   endif
 

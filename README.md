@@ -1,6 +1,6 @@
 # Vim js file import
 
-This plugin allows importing js files using ctags. Tested only with [Universal ctags](https://github.com/universal-ctags/ctags).
+This plugin allows importing javascript and typescript files using ctags. Tested only with [Universal ctags](https://github.com/universal-ctags/ctags).
 
 It's similar to [vim-import-js](https://github.com/Galooshi/vim-import-js), but much faster because it's written in vimscript.
 
@@ -229,7 +229,7 @@ user_service [F] [js]
 MyButton [F] [jsx]
 ```
 
-This is enabled by default (only for javascript syntax). To disable this option, add this to your vimrc:
+This is enabled by default (only for javascript and typescript syntax). To disable this option, add this to your vimrc:
 ```vimL
 let g:deoplete_strip_file_extension = 0
 ```

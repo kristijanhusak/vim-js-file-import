@@ -1,0 +1,13 @@
+Before:
+  set tags=./spec/test-typescript-import.fixtures/tags
+
+Given typescript:
+  const obj = new Bar();
+
+Do:
+  fB,if
+
+Expect typescript:
+  import Bar from './spec/test-typescript-import.fixtures/a';
+
+  const obj = new Bar();

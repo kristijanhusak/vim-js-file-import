@@ -139,7 +139,7 @@ function! s:is_partial_import(tag_data, name, rgx) "{{{
   let l:partial_rgx = substitute(a:rgx['partial_export'], '__FNAME__', a:name, 'g')
 
   " Method or partial export
-  if l:tag['kind'] =~# '\(m\|p\)' || l:tag['cmd'] =~# l:partial_rgx
+  if l:tag['kind'] =~# '\(m\|p\|i\)' || l:tag['cmd'] =~# l:partial_rgx
     return 1
   endif
 

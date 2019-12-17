@@ -32,7 +32,7 @@ function! jsfileimport#utils#_determine_import_type() abort
         \ 'is_single_import': '^\import\(\s\|\n\)\{-\}{\?\(\s\|\n\)\{-\}\<__FNAME__\>\(\s\|\n\)\{-\}}\?\(\s\|\n\)\{-\}from\(\s\|\n\)\{-\}[''"][^''"]*[''"];\?',
         \ }
 
-  if g:js_file_import_force_require || search(l:require_regex['lastimport'], 'n') > 0
+  if g:js_file_import_force_require || (search(l:require_regex['lastimport'], 'n') > 0 && search(l:import_regex['lastimport'], 'n') ==? 0)
     return l:require_regex
   endif
 
