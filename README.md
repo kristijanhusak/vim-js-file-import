@@ -243,6 +243,8 @@ In case importing or jumping to definition is slow, make sure you have these set
   set wildignore+=*node_modules/**
   ``` 
   If you use [gutentags](https://github.com/ludovicchabant/vim-gutentags) it will automatically read your `wildignore` so you don't have to worry about ctags part.
+  
+  More info on [issue #5](https://github.com/kristijanhusak/vim-js-file-import/issues/5)
 
 ### Contributing
 There are no any special guidelines for contributing.
