@@ -234,6 +234,16 @@ This is enabled by default (only for javascript and typescript syntax). To disab
 let g:deoplete_strip_file_extension = 0
 ```
 
+### Performance issues
+In case importing or jumping to definition is slow, make sure you have these set up:
+* [ripgrep](https://github.com/BurntSushi/ripgrep), [silversearher](https://github.com/ggreer/the_silver_searcher) or [ack](https://linux.die.net/man/1/ack) installed. Used for finding files and directories with a matching name. If none of those are installed, falls back to vimscript `findfile()` which is much slower.
+* `node_modules` excluded from `ctags` file and added to `wildignore` option: 
+
+  ```vimL
+  set wildignore+=*node_modules/**
+  ``` 
+  If you use [gutentags](https://github.com/ludovicchabant/vim-gutentags) it will automatically read your `wildignore` so you don't have to worry about ctags part.
+
 ### Contributing
 There are no any special guidelines for contributing.
 
