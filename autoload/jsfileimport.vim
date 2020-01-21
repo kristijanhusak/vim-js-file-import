@@ -22,6 +22,38 @@ function! jsfileimport#sort(...) abort
   return 1
 endfunction
 
+function! jsfileimport#get_tag(...) abort
+  let l:is_visual_mode = (a:0 > 0 && a:1 > 0) ? 1 : 0
+  let l:name = jsfileimport#utils#_get_word(l:is_visual_mode)
+  let l:rgx = jsfileimport#utils#_determine_import_type()
+  let l:tags = jsfileimport#tags#_get_taglist(l:name, l:rgx)
+
+  if empty(l:tags)
+    return {}
+  endif
+
+  if len(l:tags) ==? 1
+    return l:tags[0]
+  endif
+
+  let l:tag_selection_list = jsfileimport#tags#_generate_tags_selection_list(l:tags)
+  let l:options = extend(['Current path: '.expand('%'), 'Select definition:'], l:tag_selection_list)
+
+  call inputsave()
+  let l:selection = inputlist(l:options)
+  call inputrestore()
+
+  if l:selection < 1
+    return {}
+  endif
+
+  if l:selection >= len(l:options) - 1
+    throw 'Wrong selection.'
+  endif
+
+  return l:tags[l:selection - 1]
+endfunction
+
 function! jsfileimport#goto(is_visual_mode, ...) abort
   try
     call jsfileimport#utils#_check_python_support()
