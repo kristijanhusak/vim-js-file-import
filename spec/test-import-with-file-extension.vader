@@ -1,0 +1,17 @@
+Before:
+  set tags=./spec/test-import.fixtures/tags
+  let g:js_file_import_strip_file_extension = 0
+
+After:
+  let g:js_file_import_strip_file_extension = 1
+
+Given javascript:
+  const obj = new Bar();
+
+Do:
+  fB,if
+
+Expect javascript:
+  import Bar from './spec/test-import.fixtures/a.js';
+
+  const obj = new Bar();

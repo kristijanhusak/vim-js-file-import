@@ -209,6 +209,12 @@ If you want to use double quotes instead of single quotes, add this setting:
 let g:js_file_import_string_quote = '"'
 ```
 
+#### Importing from files with extension
+If you want to import files with extension, add this setting:
+```vimL
+let g:js_file_import_strip_file_extension = 0
+```
+
 Check help docs for more information.
 
 
@@ -237,13 +243,13 @@ let g:deoplete_strip_file_extension = 0
 ### Performance issues
 In case importing or jumping to definition is slow, make sure you have these set up:
 * [ripgrep](https://github.com/BurntSushi/ripgrep), [silversearher](https://github.com/ggreer/the_silver_searcher) or [ack](https://linux.die.net/man/1/ack) installed. Used for finding files and directories with a matching name. If none of those are installed, falls back to vimscript `findfile()` which is much slower.
-* `node_modules` excluded from `ctags` file and added to `wildignore` option: 
+* `node_modules` excluded from `ctags` file and added to `wildignore` option:
 
   ```vimL
   set wildignore+=*node_modules/**
-  ``` 
+  ```
   If you use [gutentags](https://github.com/ludovicchabant/vim-gutentags) it will automatically read your `wildignore` so you don't have to worry about ctags part.
-  
+
   More info on [issue #5](https://github.com/kristijanhusak/vim-js-file-import/issues/5)
 
 ### Contributing

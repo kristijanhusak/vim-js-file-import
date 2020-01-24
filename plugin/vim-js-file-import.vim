@@ -16,6 +16,7 @@ let g:js_file_import_from_root = get(g:, 'js_file_import_from_root', 0)
 let g:js_file_import_root = get(g:, 'js_file_import_root', getcwd())
 let g:deoplete_strip_file_extension = get(g:, 'deoplete_strip_file_extension', 1)
 let g:js_file_import_string_quote = get(g:, 'js_file_import_string_quote', "'")
+let g:js_file_import_strip_file_extension = get(g:, 'js_file_import_strip_file_extension', 1)
 
 command! JsFileImport call jsfileimport#word(0)
 command! JsFileImportList call jsfileimport#word(0, 1)

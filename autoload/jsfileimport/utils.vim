@@ -54,6 +54,7 @@ function! jsfileimport#utils#_get_file_path(filepath) abort
 
   let l:py_command = has('python3') ? 'py3' : 'py'
   let l:path = a:filepath
+  let l:ext = fnamemodify(a:filepath, ':e')
 
   silent! exe l:py_command.' import vim, os.path'
   silent! exe l:py_command.' current_path = vim.eval("expand(''%:p:h'')")'
@@ -61,6 +62,10 @@ function! jsfileimport#utils#_get_file_path(filepath) abort
   silent! exe l:py_command.' path = os.path.splitext(os.path.relpath(tag_path, current_path))[0]'
   silent! exe l:py_command.' leading_slash = "./" if path[0] != "." else ""'
   silent! exe l:py_command.' vim.command(''let l:path = "%s%s"'' % (leading_slash, path))'
+
+  if !g:js_file_import_strip_file_extension && !empty(l:ext)
+    let l:path .= '.'.l:ext
+  endif
 
   return l:path
 endfunction
