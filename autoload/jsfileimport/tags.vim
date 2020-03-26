@@ -219,10 +219,10 @@ function! s:append_directories_to_tags(name, tags, name_variations) abort
   if executable('find')
     let l:find_items = join(
       \ map(copy(a:name_variations),
-      \ '"-name ''".v:val."'' -type d -not -path ''./node_modules/*''"'),
+      \ '"-name ''".v:val."''"'),
       \ ' -o '
       \ )
-    let l:dirs = jsfileimport#utils#systemlist('find . '.l:find_items)
+    let l:dirs = jsfileimport#utils#systemlist('find . -type d \( -path ''**/node_modules'' -o -path ''**/.git'' \) -prune -o \( '.l:find_items.' \) -print')
     let l:dirs = map(l:dirs, 'substitute(v:val, "^\.\/", "", "")')
   else
     for l:item in a:name_variations
