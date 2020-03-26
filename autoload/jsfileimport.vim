@@ -56,7 +56,6 @@ endfunction
 
 function! jsfileimport#goto(is_visual_mode, ...) abort
   try
-    call jsfileimport#utils#_check_python_support()
     let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
     let l:rgx = jsfileimport#utils#_determine_import_type()
     let l:tags = jsfileimport#tags#_get_taglist(l:name, l:rgx)
@@ -142,7 +141,6 @@ endfunction
 function! jsfileimport#_import_word(name, tag_fn_name, is_visual_mode, show_list) abort
   call jsfileimport#utils#_save_cursor_position('import')
   try
-    call jsfileimport#utils#_check_python_support()
     let l:rgx = jsfileimport#utils#_determine_import_type()
     call jsfileimport#utils#_check_import_exists(a:name, 1)
     let l:tag_data = call(a:tag_fn_name, [a:name, l:rgx, a:show_list])

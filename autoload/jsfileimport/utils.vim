@@ -39,14 +39,6 @@ function! jsfileimport#utils#_determine_import_type() abort
   return l:import_regex
 endfunction
 
-function! jsfileimport#utils#_check_python_support() abort
-  if !g:js_file_import_from_root && !has('python') && !has('python3')
-    throw 'Vim js file import requires python or python3 support.'
-  endif
-
-  return 1
-endfunction
-
 function! jsfileimport#utils#_get_file_path(filepath) abort
   if g:js_file_import_from_root
     return substitute(fnamemodify(a:filepath, ':p:r'), g:js_file_import_root.'/', '', '')
@@ -72,7 +64,7 @@ endfunction
 
 function! jsfileimport#utils#_error(msg) abort
   silent! exe 'redraw'
-  echohl Error
+  echohl ErrorMsg
   echo a:msg
   echohl NONE
   return 0
