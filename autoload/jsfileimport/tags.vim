@@ -156,15 +156,25 @@ function! jsfileimport#tags#_get_tag_in_current_file(tags, current_file_path) ab
 endfunction
 
 function! jsfileimport#tags#_jump_to_tag(tag, current_file_path, show_list) abort
-  let l:tag_path = fnamemodify(a:tag['filename'], ':p')
+  let l:filename = a:tag['filename']
+  let l:tag_path = fnamemodify(l:filename, ':p')
+  if isdirectory(l:tag_path)
+    for ext in ['js', 'ts', 'jsx', 'tsx']
+      if filereadable(l:tag_path.'index.'.ext)
+        let l:filename .= '/index.'.ext
+        break
+      endif
+    endfor
+  endif
 
-  if l:tag_path !=? a:current_file_path && bufname('%') !=? a:tag['filename']
-    silent! exe 'e '.a:tag['filename']
+  if l:tag_path !=? a:current_file_path && bufname('%') !=? l:filename
+    silent! exe 'e '.l:filename
   else
     "Sets the previous context mark to allow jumping to this location with CTRL-O
     silent! exe 'norm!m`'
   endif
   silent! exe escape(a:tag['cmd'], '[]')
+  call cursor(line('.'), 1)
   let l:repeatMapping = a:show_list ? 'JsGotoDefinitionList' : 'JsGotoDefinition'
   silent! call repeat#set("\<Plug>(".l:repeatMapping.')')
   return 1
