@@ -283,6 +283,19 @@ g:js_file_import_filters
 		Remove all tags that has a call to `container()` function.
 
 		Default value: []
+					      *g:js_file_import_filters*
+g:js_file_import_filename_filters
+		If you want certain filenames to be ignored, pass it through
+		this variable. Note that it is regex, so if you want to
+		strictly match some paths, make sure to escape what it needs
+		to be escaped.
+
+		Example:
+		`let g:js_file_import_filename_filters=['dist\/']`
+
+		Remove all tags that has a filename matching `dist/` string.
+
+		Default value: []
 					      *g:js_file_import_prompt_if_no_tag*
 g:js_file_import_prompt_if_no_tag
 		In case tag is not found for the given word,

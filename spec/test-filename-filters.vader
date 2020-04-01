@@ -1,0 +1,48 @@
+Before:
+  set tags=./spec/test-filters.fixtures/tags
+  let g:js_file_import_prompt_if_no_tag = 0
+  let g:js_file_import_filename_filters = ['main']
+
+After:
+  let g:js_file_import_prompt_if_no_tag = 1
+  let g:js_file_import_filename_filters = []
+
+Given javascript:
+  const package = require('package');
+
+  const obj = new Bar();
+
+Do:
+  2jfB,if
+
+Expect javascript:
+  const package = require('package');
+
+  const obj = new Bar();
+
+Given javascript:
+  const package = require('package');
+
+  const obj = new Foo();
+
+Do:
+  2jfF,if
+
+Expect javascript:
+  const package = require('package');
+
+  const obj = new Foo();
+
+Given javascript:
+  const package = require('package');
+
+  const str = capitalize('test')
+
+Do:
+  2jfc,if
+
+Expect javascript:
+  const package = require('package');
+  const capitalize = require('./spec/test-filters.fixtures/helpers');
+
+  const str = capitalize('test')

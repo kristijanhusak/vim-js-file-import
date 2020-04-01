@@ -18,4 +18,4 @@ set expandtab
 set breakindent
 set smartindent
 EOF
-) -c 'Vader! spec/*' && echo 'All tests passed!' || echo 'Tests failed.'
+) -c 'Vader! spec/*' && echo 'All tests passed!' || (echo 'Tests failed.' && exit 1)
