@@ -190,7 +190,7 @@ endfunction "}}}
 
 function! s:tags_has_filename(tags, filename) abort "{{{
   for l:tag in a:tags
-    if l:tag['filename'] ==? a:filename
+    if l:tag['filename'] ==? a:filename || l:tag['filename'][0] ==? '/' && l:tag['filename'] ==? getcwd().'/'.a:filename
       return 1
     endif
   endfor
