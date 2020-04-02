@@ -1,0 +1,13 @@
+Before:
+  set tags=./spec/test-import.fixtures/tags
+
+Given javascript:
+  const obj = new Foo();
+
+Execute:
+  :JsFileImport Bar
+
+Expect javascript:
+  import Bar from './spec/test-import.fixtures/a';
+
+  const obj = new Foo();

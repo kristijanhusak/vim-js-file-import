@@ -1,11 +1,13 @@
 function! jsfileimport#word(is_visual_mode, ...) abort
-  call s:do_import('jsfileimport#tags#_get_tag', a:is_visual_mode, a:0)
+  let l:show_list = get(a:, 1, 0)
+  let l:word = get(a:, 2, 0)
+  call s:do_import('jsfileimport#tags#_get_tag', a:is_visual_mode, l:show_list, l:word)
   let l:repeatMapping = a:0 > 0 ? 'JsFileImportList' : 'JsFileImport'
   silent! call repeat#set("\<Plug>(".l:repeatMapping.')')
 endfunction
 
 function! jsfileimport#prompt() abort
-  call s:do_import('jsfileimport#tags#_get_tag_data_from_prompt', 0, 0)
+  call s:do_import('jsfileimport#tags#_get_tag_data_from_prompt', 0, 0, '')
   silent! call repeat#set("\<Plug>(PromptJsFileImport)")
 endfunction
 
@@ -56,11 +58,16 @@ endfunction
 
 function! jsfileimport#goto(is_visual_mode, ...) abort
   try
-    let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
+    let l:show_list = get(a:, 1, 0) > 0
+    let l:word = get(a:, 2, '')
+    if !empty(l:word)
+      let l:name = l:word
+    else
+      let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
+    endif
     let l:rgx = jsfileimport#utils#_determine_import_type()
     let l:tags = jsfileimport#tags#_get_taglist(l:name, l:rgx)
     let l:current_file_path = expand('%:p')
-    let l:show_list = a:0 > 0
 
     if len(l:tags) == 0
       throw 'Tag not found.'
@@ -155,8 +162,12 @@ function! jsfileimport#_import_word(name, tag_fn_name, is_visual_mode, show_list
   endtry
 endfunction
 
-function! s:do_import(tag_fn_name, is_visual_mode, show_list) abort "{{{
-  let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
+function! s:do_import(tag_fn_name, is_visual_mode, show_list, word) abort "{{{
+  if !empty(a:word)
+    let l:name = a:word
+  else
+    let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
+  endif
 
   return jsfileimport#_import_word(l:name, a:tag_fn_name, a:is_visual_mode, a:show_list)
 endfunction "}}}

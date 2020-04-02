@@ -24,11 +24,11 @@ if !g:js_file_import_from_root && !has('python') && !has('python3')
   finish
 endif
 
-command! JsFileImport call jsfileimport#word(0)
-command! JsFileImportList call jsfileimport#word(0, 1)
+command! -nargs=? JsFileImport call jsfileimport#word(0, 0, <q-args>)
+command! -nargs=? JsFileImportList call jsfileimport#word(0, 1, <q-args>)
 command! PromptJsFileImport call jsfileimport#prompt()
-command! JsGotoDefinition call jsfileimport#goto(0)
-command! JsGotoDefinitionList call jsfileimport#goto(0, 1)
+command! -nargs=? JsGotoDefinition call jsfileimport#goto(0, 0, <q-args>)
+command! -nargs=? JsGotoDefinitionList call jsfileimport#goto(0, 1, <q-args>)
 command! SortJsFileImport call jsfileimport#sort()
 command! JsFindUsage call jsfileimport#findusage(0)
 command! JsFixImport call jsfileimport#fix_imports#exec()
