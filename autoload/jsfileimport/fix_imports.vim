@@ -65,9 +65,12 @@ function! jsfileimport#fix_imports#exec() abort
       silent exe l:line.'d'
     endfor
 
+    let l:old_fzf = g:js_file_import_use_fzf
+    let g:js_file_import_use_fzf = 0
     for l:missing in l:missing_list
       call s:append_missing(l:missing)
     endfor
+    let g:js_file_import_use_fzf = l:old_fzf
 
     call jsfileimport#utils#_restore_cursor_position('fix_imports')
 
@@ -156,7 +159,7 @@ function! s:append_missing(error)
     return 0
   endif
 
-  return jsfileimport#_import_word(l:match, 'jsfileimport#tags#_get_tag', 0, 0, 0)
+  return jsfileimport#_import_word(l:match, 'jsfileimport#tags#_get_tag', 0, 0)
 endfunction
 
 function! s:find_name_from_message(message)
