@@ -18,6 +18,7 @@ let g:js_file_import_root = get(g:, 'js_file_import_root', getcwd())
 let g:deoplete_strip_file_extension = get(g:, 'deoplete_strip_file_extension', 1)
 let g:js_file_import_string_quote = get(g:, 'js_file_import_string_quote', "'")
 let g:js_file_import_strip_file_extension = get(g:, 'js_file_import_strip_file_extension', 1)
+let g:js_file_import_use_fzf = get(g:, 'js_file_import_use_fzf', 0)
 
 if !g:js_file_import_from_root && !has('python') && !has('python3')
   call jsfileimport#utils#_error('Vim js file import requires python or python3 support.')

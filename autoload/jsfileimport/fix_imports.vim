@@ -156,7 +156,7 @@ function! s:append_missing(error)
     return 0
   endif
 
-  return jsfileimport#_import_word(l:match, 'jsfileimport#tags#_get_tag', 0, 0)
+  return jsfileimport#_import_word(l:match, 'jsfileimport#tags#_get_tag', 0, 0, 0)
 endfunction
 
 function! s:find_name_from_message(message)

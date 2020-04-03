@@ -1,43 +1,47 @@
-function! jsfileimport#tags#_get_tag(name, rgx, show_list) abort
+function! jsfileimport#tags#_get_tag(name, rgx, show_list, callback) abort
   let l:tags = jsfileimport#tags#_get_taglist(a:name, a:rgx)
   call filter(l:tags, function('s:remove_tags_with_current_path'))
 
   if len(l:tags) <= 0
     if g:js_file_import_prompt_if_no_tag
       echo 'No tag found for word "'.a:name.'". Falling back to prompt.'
-      return jsfileimport#tags#_get_tag_data_from_prompt(a:name, a:rgx)
+      return a:callback(jsfileimport#tags#_get_tag_data_from_prompt(a:name, a:rgx))
     endif
     throw 'No tag found.'
   endif
 
   if a:show_list == 0 && len(l:tags) == 1
-    return { 'tag': l:tags[0], 'global': s:check_if_global_tag(l:tags[0]), 'global_partial': 0 }
+    return a:callback({ 'tag': l:tags[0], 'global': s:check_if_global_tag(l:tags[0]), 'global_partial': 0 })
   endif
 
   let l:tag_selection_list = jsfileimport#tags#_generate_tags_selection_list(l:tags)
   let l:prompt_index = len(l:tag_selection_list) + 1
   let l:prompt_import = [l:prompt_index.') Enter path to file or package name manually for word "'.a:name.'"']
-  let l:options = ['Select file to import:'] + l:tag_selection_list + l:prompt_import
+  let l:options = l:tag_selection_list + l:prompt_import
 
-  call inputsave()
-  let l:selection = inputlist(l:options)
-  call inputrestore()
+  return jsfileimport#utils#inputlist(
+        \ l:options,
+        \ 'Select file to import: ',
+        \ function('s:handle_tag_selection', [l:tags, a:name, a:rgx, l:prompt_index - 1, a:callback])
+        \ )
+endfunction
 
-  if l:selection < 1
+function s:handle_tag_selection(tags, name, rgx, prompt_index, callback, selection) abort
+  if a:selection < 0
     throw ''
   endif
 
-  if l:selection >= len(l:options)
-    throw 'Wrong selection.'
-  endif
-
-  if l:selection == l:prompt_index
+  if a:selection == a:prompt_index
     silent! exe 'redraw'
-    return jsfileimport#tags#_get_tag_data_from_prompt(a:name, a:rgx)
+    " Give some time for fzf to focus command line cursor
+    if exists('*timer_start')
+      return timer_start(10, {-> a:callback(jsfileimport#tags#_get_tag_data_from_prompt(a:name, a:rgx)) })
+    endif
+    return a:callback(jsfileimport#tags#_get_tag_data_from_prompt(a:name, a:rgx))
   endif
 
-  let l:selected_tag = l:tags[l:selection - 1]
-  return { 'tag': l:selected_tag, 'global': s:check_if_global_tag(l:selected_tag), 'global_partial': 0 }
+  let l:selected_tag = a:tags[a:selection]
+  return a:callback({ 'tag': l:selected_tag, 'global': s:check_if_global_tag(l:selected_tag), 'global_partial': 0 })
 endfunction
 
 function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
