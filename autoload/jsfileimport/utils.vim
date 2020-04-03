@@ -166,6 +166,38 @@ function! jsfileimport#utils#systemlist(cmd) abort
   return l:cmd_output
 endfunction
 
+function! jsfileimport#utils#inputlist(options, prompt_text, callback) abort
+  if !g:js_file_import_use_fzf || !exists('*fzf#run')
+    return s:handle_native_inputlist(a:options, a:prompt_text, a:callback)
+  endif
+
+  return fzf#run(fzf#wrap({
+        \ 'source': a:options,
+        \ 'sink': function('s:handle_fzf_inputlist', [a:options, a:callback]),
+        \ 'options': ['--prompt', a:prompt_text]
+        \ }))
+endfunction
+
+function! s:handle_native_inputlist(options, prompt_text, callback) abort "J{{{
+  call inputsave()
+  let l:selection = inputlist([a:prompt_text] + a:options)
+  call inputrestore()
+
+  if l:selection < 1
+    return call(a:callback, [-1])
+  endif
+
+  if l:selection > len(a:options)
+    throw 'Wrong selection.'
+  endif
+
+  return call(a:callback, [l:selection - 1])
+endfunction "}}}
+
+function! s:handle_fzf_inputlist(options, callback, selected) abort
+  return call(a:callback, [index(a:options, a:selected)])
+endfunction
+
 function! s:set_shell() abort "{{{
   let l:save_shell = [&shell, &shellcmdflag, &shellredir]
 

@@ -325,6 +325,14 @@ g:js_file_import_string_quote
 		What type of quote to use for imports.
 
 		Default value: `'`
+
+					      *g:js_file_import_use_fzf*
+g:js_file_import_use_fzf
+		If set to `1`, uses FZF for prompts instead of native
+		`inputlist()`
+
+		Default value: `0`
+
 					      *g:js_file_import_strip_file_extension*
 g:js_file_import_strip_file_extension
 		Should file extension in import be removed.

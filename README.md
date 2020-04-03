@@ -209,6 +209,13 @@ If you want to use double quotes instead of single quotes, add this setting:
 let g:js_file_import_string_quote = '"'
 ```
 
+#### Using FZF for prompts
+By default, if there is a need for prompt (For example, to select from multiple import option),
+native `inputlist()` is used. If you want to use [FZF](https://github.com/junegunn/fzf), add this setting:
+```vimL
+let g:js_file_import_use_fzf = 1
+```
+
 #### Importing from files with extension
 If you want to import files with extension, add this setting:
 ```vimL

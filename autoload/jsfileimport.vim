@@ -24,38 +24,6 @@ function! jsfileimport#sort(...) abort
   return 1
 endfunction
 
-function! jsfileimport#get_tag(...) abort
-  let l:is_visual_mode = (a:0 > 0 && a:1 > 0) ? 1 : 0
-  let l:name = jsfileimport#utils#_get_word(l:is_visual_mode)
-  let l:rgx = jsfileimport#utils#_determine_import_type()
-  let l:tags = jsfileimport#tags#_get_taglist(l:name, l:rgx)
-
-  if empty(l:tags)
-    return {}
-  endif
-
-  if len(l:tags) ==? 1
-    return l:tags[0]
-  endif
-
-  let l:tag_selection_list = jsfileimport#tags#_generate_tags_selection_list(l:tags)
-  let l:options = extend(['Current path: '.expand('%'), 'Select definition:'], l:tag_selection_list)
-
-  call inputsave()
-  let l:selection = inputlist(l:options)
-  call inputrestore()
-
-  if l:selection < 1
-    return {}
-  endif
-
-  if l:selection >= len(l:options) - 1
-    throw 'Wrong selection.'
-  endif
-
-  return l:tags[l:selection - 1]
-endfunction
-
 function! jsfileimport#goto(is_visual_mode, ...) abort
   try
     let l:show_list = get(a:, 1, 0) > 0
@@ -85,28 +53,25 @@ function! jsfileimport#goto(is_visual_mode, ...) abort
       endif
     endif
 
-    let l:tag_selection_list = jsfileimport#tags#_generate_tags_selection_list(l:tags)
-    let l:options = extend(['Current path: '.expand('%'), 'Select definition:'], l:tag_selection_list)
-
-    call inputsave()
-    let l:selection = inputlist(l:options)
-    call inputrestore()
-
-    if l:selection < 1
-      return 0
-    endif
-
-    if l:selection >= len(l:options) - 1
-      throw 'Wrong selection.'
-    endif
-
-    return jsfileimport#tags#_jump_to_tag(l:tags[l:selection - 1], l:current_file_path, l:show_list)
+    return jsfileimport#utils#inputlist(
+          \ jsfileimport#tags#_generate_tags_selection_list(l:tags),
+          \ 'Select tag to jump to: ',
+          \ function('s:handle_goto_tag_selection', [l:tags, l:current_file_path, l:show_list])
+          \ )
   catch /.*/
     if v:exception !=? ''
       return jsfileimport#utils#_error(v:exception)
     endif
     return 0
   endtry
+endfunction
+
+function! s:handle_goto_tag_selection(tags, current_file_path, show_list, selection) abort
+  if a:selection < 0
+    return 0
+  endif
+
+  return jsfileimport#tags#_jump_to_tag(a:tags[a:selection], a:current_file_path, a:show_list)
 endfunction
 
 function! jsfileimport#findusage(is_visual_mode) abort
@@ -150,9 +115,12 @@ function! jsfileimport#_import_word(name, tag_fn_name, is_visual_mode, show_list
   try
     let l:rgx = jsfileimport#utils#_determine_import_type()
     call jsfileimport#utils#_check_import_exists(a:name, 1)
-    let l:tag_data = call(a:tag_fn_name, [a:name, l:rgx, a:show_list])
+    if a:tag_fn_name ==? 'jsfileimport#tags#_get_tag'
+      return call(a:tag_fn_name, [a:name, l:rgx, a:show_list, function('s:import_tag', [a:name, l:rgx])])
+    endif
 
-    return s:import_tag(l:tag_data, a:name, l:rgx)
+    let l:tag_data = call(a:tag_fn_name, [a:name, l:rgx, a:show_list])
+    return s:import_tag(a:name, l:rgx, l:tag_data)
   catch /.*/
     call jsfileimport#utils#_restore_cursor_position('import')
     if v:exception !=? ''
@@ -234,7 +202,7 @@ function! s:process_import(name, path, rgx, is_global) abort "{{{
   return s:finish_import()
 endfunction "}}}
 
-function! s:import_tag(tag_data, name, rgx) abort "{{{
+function! s:import_tag(name, rgx, tag_data) abort "{{{
   let l:tag = a:tag_data['tag']
   let l:is_global = !empty(a:tag_data['global'])
   let l:is_partial = s:is_partial_import(a:tag_data, a:name, a:rgx)
