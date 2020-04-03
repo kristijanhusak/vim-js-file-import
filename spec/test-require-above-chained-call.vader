@@ -1,0 +1,20 @@
+Before:
+  set tags=./spec/test-require.fixtures/tags
+
+Given javascript:
+  const Foo = require('myfoo');
+  const package = require('package')
+    .option('key', 'value')
+    .option('second_key', 'second_value');
+  const obj = new Bar();
+
+Do:
+  GfB,if
+
+Expect javascript:
+  const Foo = require('myfoo');
+  const Bar = require('./spec/test-require.fixtures/a');
+  const package = require('package')
+    .option('key', 'value')
+    .option('second_key', 'second_value');
+  const obj = new Bar();

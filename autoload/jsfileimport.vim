@@ -219,7 +219,12 @@ function! s:process_import(name, path, rgx, is_global) abort "{{{
   endif
 
   if search(a:rgx['lastimport'], 'be') > 0 && l:append_to_start == 0
-    call append(line('.'), l:import_rgx)
+    let l:has_chained_call = a:rgx.type ==? 'require' && getline('.') !=? ';$' && getline(line('.') + 1) =~? '^[[:blank:]]*\.'
+    if l:has_chained_call
+      call append(line('.') - 1, l:import_rgx)
+    else
+      call append(line('.'), l:import_rgx)
+    endif
   elseif search(a:rgx['lastimport']) > 0
     call append(line('.') - 1, l:import_rgx)
   else
