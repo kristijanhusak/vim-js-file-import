@@ -9,7 +9,7 @@ Given javascript:
 Do:
   GfB,if
 
-  Expect javascript:
+Expect javascript:
   import { Foo, Bar } from './spec/test-partial-import-path-exists.fixtures/a';
 
   const obj = new Bar();

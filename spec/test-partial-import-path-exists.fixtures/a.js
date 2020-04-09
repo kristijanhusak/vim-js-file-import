@@ -1,2 +1,4 @@
-export const Foo = () => {};
-export const Bar = () => {};
+const Foo = () => {};
+const Bar = () => {};
+
+export { Foo, Bar };
