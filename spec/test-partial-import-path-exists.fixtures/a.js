@@ -1,4 +1,8 @@
-const Foo = () => {};
-const Bar = () => {};
+function Foo() {
+
+}
+function Bar() {
+
+}
 
 export { Foo, Bar };
