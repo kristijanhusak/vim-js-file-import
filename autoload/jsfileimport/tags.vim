@@ -172,7 +172,7 @@ function! jsfileimport#tags#_jump_to_tag(tag, current_file_path, show_list) abor
   endif
 
   if l:tag_path !=? a:current_file_path && bufname('%') !=? l:filename
-    silent! exe 'e '.l:filename
+    exe 'e '.l:filename
   else
     "Sets the previous context mark to allow jumping to this location with CTRL-O
     silent! exe 'norm!m`'
