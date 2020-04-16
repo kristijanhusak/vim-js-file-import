@@ -158,7 +158,7 @@ function! s:is_partial_import(tag_data, name, rgx) "{{{
 
   " Read file and try finding export in case when tag points to line
   " that is not descriptive enough
-  let l:file_path = getcwd().'/'.l:tag['filename']
+  let l:file_path = fnamemodify(l:tag['filename'], ':p')
 
   if !filereadable(l:file_path)
     return 0
