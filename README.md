@@ -122,8 +122,11 @@ nnoremap <Leader>ic <Plug>(JsFixImport)
 
 ### Goto definition
 
-To jump to definition use `<Leader>ig` mapping.
-It is much smarter than default (n)vim `tag <word>` jump.
+To jump to definition use `<Leader>ig` mapping, or if you want to leverage built in
+tag jumping functionality, use provided `tagfunc` (see `:help tagfunc`):
+```vimL
+set tagfunc=jsfileimport#tagfunc
+```
 
 ### Sorting
 

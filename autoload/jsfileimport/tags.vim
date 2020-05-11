@@ -99,9 +99,9 @@ function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
   return l:tag_data
 endfunction
 
-function! jsfileimport#tags#_get_taglist(name, rgx) abort
+function! jsfileimport#tags#_get_taglist(name, rgx, ...) abort
   let l:tags = taglist('^'.a:name.'$')
-  call s:append_tags_by_filename(l:tags, a:name, a:rgx)
+  call s:append_tags_by_filename(l:tags, a:name, a:rgx, get(a:, 1, 0))
   call filter(l:tags, function('s:remove_obsolete'))
 
   let l:global_package_tag = s:get_global_package_tag(a:name)
@@ -162,14 +162,6 @@ endfunction
 function! jsfileimport#tags#_jump_to_tag(tag, current_file_path, show_list) abort
   let l:filename = a:tag['filename']
   let l:tag_path = fnamemodify(l:filename, ':p')
-  if isdirectory(l:tag_path)
-    for ext in ['js', 'ts', 'jsx', 'tsx']
-      if filereadable(l:tag_path.'index.'.ext)
-        let l:filename .= '/index.'.ext
-        break
-      endif
-    endfor
-  endif
 
   if l:tag_path !=? a:current_file_path && bufname('%') !=? l:filename
     exe 'e '.l:filename
@@ -223,18 +215,18 @@ function! s:remove_obsolete(idx, tag) abort "{{{
   return 1
 endfunction "}}}
 
-function! s:append_tags_by_filename(tags, name, rgx) abort "{{{
+function! s:append_tags_by_filename(tags, name, rgx, append_index_file) abort "{{{
   let l:name_variations = s:get_name_variations(a:name)
   for l:item in l:name_variations
     call s:append_filename_to_tags(a:tags, l:item, a:rgx)
   endfor
 
-  call s:append_directories_to_tags(a:name, a:tags, l:name_variations)
+  call s:append_directories_to_tags(a:name, a:tags, l:name_variations, a:append_index_file)
 
   return a:tags
 endfunction "}}}
 
-function! s:append_directories_to_tags(name, tags, name_variations) abort
+function! s:append_directories_to_tags(name, tags, name_variations, append_index_file) abort
   let l:dirs = []
   if executable('find')
     let l:find_items = join(
@@ -252,9 +244,21 @@ function! s:append_directories_to_tags(name, tags, name_variations) abort
   endif
 
   for l:dir in l:dirs
-    if !empty(l:dir) && (filereadable(printf('%s/index.js', l:dir)) || filereadable(printf('%s/index.ts', l:dir))) && !s:tags_has_filename(a:tags, l:dir)
-      call add(a:tags, { 'filename': l:dir, 'name': a:name, 'kind': 'D', 'cmd': '' })
+    if empty(l:dir)
+      continue
     endif
+    for ext in ['js', 'ts', 'jsx', 'tsx']
+      let l:index_file = printf('%s/index.%s', l:dir, ext)
+      if a:append_index_file
+        if filereadable(l:index_file) && !s:tags_has_filename(a:tags, l:index_file)
+          call add(a:tags, { 'filename': l:index_file, 'name': a:name, 'kind': 'D', 'cmd': '' })
+        endif
+      else
+        if filereadable(l:index_file) && !s:tags_has_filename(a:tags, l:dir)
+          call add(a:tags, { 'filename': l:dir, 'name': a:name, 'kind': 'D', 'cmd': '' })
+        endif
+      endif
+    endfor
   endfor
 endfunction
 

@@ -6,6 +6,14 @@ function! jsfileimport#word(is_visual_mode, ...) abort
   silent! call repeat#set("\<Plug>(".l:repeatMapping.')')
 endfunction
 
+function! jsfileimport#tagfunc(pattern, flags, info) abort
+  if a:flags !=? 'c'
+    return v:null
+  endif
+  let l:rgx = jsfileimport#utils#_determine_import_type()
+  return jsfileimport#tags#_get_taglist(a:pattern, l:rgx, 1)
+endfunction
+
 function! jsfileimport#prompt() abort
   call s:do_import('jsfileimport#tags#_get_tag_data_from_prompt', 0, 0, '')
   silent! call repeat#set("\<Plug>(PromptJsFileImport)")
@@ -34,7 +42,7 @@ function! jsfileimport#goto(is_visual_mode, ...) abort
       let l:name = jsfileimport#utils#_get_word(a:is_visual_mode)
     endif
     let l:rgx = jsfileimport#utils#_determine_import_type()
-    let l:tags = jsfileimport#tags#_get_taglist(l:name, l:rgx)
+    let l:tags = jsfileimport#tags#_get_taglist(l:name, l:rgx, 1)
     let l:current_file_path = expand('%:p')
 
     if len(l:tags) == 0

@@ -13,6 +13,7 @@ vim-js-file-import			    *vim-js-file-import*
 4. Mappings				    |vim-js-file-import-mappings|
 5. Internal Mappings                        |vim-js-file-import-internal-mappings|
 6. Settings				    |vim-js-file-import-settings|
+7. Functions   				    |vim-js-file-import-functions|
 
 ==============================================================================
 1. Introduction					*vim-js-file-import-introduction*
@@ -339,5 +340,19 @@ g:js_file_import_strip_file_extension
 
 		Default value: `1`
 
+==============================================================================
+4. Functions					*vim-js-file-import-functions*
+
+					      *jsfileimport#tagfunc*
+jsfileimport#tagfunc
+		To leverage built in tag jump functionality instead of using
+		provided `JsGotoDefinition` mapping/command, use this function
+		as `tagfunc` like this:
+>
+		augroup jsfi
+			autocmd!
+			autocmd FileType javascript,typescript set tagfunc=jsfileimport#tagfunc
+		augroup END
+<
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:
