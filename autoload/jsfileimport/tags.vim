@@ -106,7 +106,7 @@ function! jsfileimport#tags#_get_taglist(name, rgx, ...) abort
 
   let l:global_package_tag = s:get_global_package_tag(a:name)
   if empty(l:global_package_tag)
-    return l:tags
+    return sort(l:tags, function('s:sort_tags'))
   endif
 
   let l:already_in_taglist = len(filter(copy(l:tags), 'v:val.name ==? "'.l:global_package_tag.name.'"')) > 0
@@ -115,7 +115,7 @@ function! jsfileimport#tags#_get_taglist(name, rgx, ...) abort
     call add(l:tags, l:global_package_tag)
   endif
 
-  return l:tags
+  return sort(l:tags, function('s:sort_tags'))
 endfunction
 
 function! jsfileimport#tags#_generate_tags_selection_list(tags) abort
@@ -260,6 +260,17 @@ function! s:append_directories_to_tags(name, tags, name_variations, append_index
       endif
     endfor
   endfor
+endfunction
+
+function! s:sort_tags(a, b) abort
+  let l:current_file_path = expand('%:p')
+  if fnamemodify(a:a.filename, ':p') ==? l:current_file_path
+    return -1
+  endif
+  if fnamemodify(a:b.filename, ':p') ==? l:current_file_path
+    return 1
+  endif
+  return 0
 endfunction
 
 function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
