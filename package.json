@@ -26,6 +26,6 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-react": "^7.11.0",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.19"
   }
 }
