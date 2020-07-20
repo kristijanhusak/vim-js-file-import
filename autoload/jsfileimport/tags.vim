@@ -101,8 +101,8 @@ endfunction
 
 function! jsfileimport#tags#_get_taglist(name, rgx, ...) abort
   let l:tags = taglist('^'.a:name.'$')
-  call s:append_tags_by_filename(l:tags, a:name, a:rgx, get(a:, 1, 0))
   call filter(l:tags, function('s:remove_obsolete'))
+  call s:append_tags_by_filename(l:tags, a:name, a:rgx, get(a:, 1, 0))
 
   let l:global_package_tag = s:get_global_package_tag(a:name)
   if empty(l:global_package_tag)
