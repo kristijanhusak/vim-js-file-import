@@ -29,7 +29,7 @@ handles, and [vim-import-js](https://github.com/Galooshi/vim-import-js) is missi
 
 ### Requirements
 
-* (N)vim with python support, any version (2 or 3)
+* (N)vim with python support, any version (2 or 3) or `node` installed and available in `$PATH`
 * [Universal ctags](https://github.com/universal-ctags/ctags)
 * Tested only on Neovim and Vim8+
 

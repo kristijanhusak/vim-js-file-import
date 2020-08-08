@@ -39,7 +39,7 @@ Additional features:
 Requirements:
 
 - Universal ctags
-- `has("python3")` or `has("python3")`
+- `has("python3")` or `has("python3")`or `node` installed in $PATH.
 
 Install with `Plug`
 `Plug 'kristijanhusak/vim-js-file-import'`
