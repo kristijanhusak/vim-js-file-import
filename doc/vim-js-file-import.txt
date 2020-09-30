@@ -284,7 +284,7 @@ g:js_file_import_filters
 		Remove all tags that has a call to `container()` function.
 
 		Default value: []
-					      *g:js_file_import_filters*
+					      *g:js_file_import_filename_filters*
 g:js_file_import_filename_filters
 		If you want certain filenames to be ignored, pass it through
 		this variable. Note that it is regex, so if you want to
