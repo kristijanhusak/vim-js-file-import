@@ -26,9 +26,10 @@ Main features:
 1. Import project files using "import from 'path'" or "require('path')" syntax
 2. Import package.json dependencies
 3. Import partial dependencies (import { Dependency } from 'path')
-4. Sort dependencies automatically and manually
-5. Manually import by typing in file path or package name
-6. Smarter go to definition
+4. Import core modules (fs, assert, util, path, url, etc.)
+5. Sort dependencies automatically and manually
+6. Manually import by typing in file path or package name
+7. Smarter go to definition
 
 Additional features:
 1. Supports repeat.vim

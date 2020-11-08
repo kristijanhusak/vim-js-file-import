@@ -1,3 +1,5 @@
+let s:core_module = 'Core module'
+
 function! jsfileimport#tags#_get_tag(name, rgx, show_list, callback) abort
   let l:tags = jsfileimport#tags#_get_taglist(a:name, a:rgx)
   call filter(l:tags, function('s:remove_tags_with_current_path'))
@@ -53,7 +55,7 @@ function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
     throw 'No path entered.'
   endif
 
-  let l:tag_data = { 'global': '', 'global_partial': 0, 'tag': { 'filename': l:path, 'name': l:path, 'cmd': '', 'kind': '' } }
+  let l:tag_data = { 'global': '', 'global_partial': 0, 'tag': s:get_tag({ 'filename': l:path, 'name': l:path }) }
   let l:full_path = getcwd().'/'.l:path
 
   if filereadable(l:full_path) || isdirectory(l:full_path)
@@ -64,7 +66,7 @@ function! jsfileimport#tags#_get_tag_data_from_prompt(name, rgx, ...) abort
   if !empty(l:global_package_tag)
     let l:tag_data['global'] = 1
     let l:tag_data['tag'] = l:global_package_tag
-    if l:path ==? a:name
+    if l:path ==? a:name || l:tag_data.tag.filename ==? s:core_module
       return l:tag_data
     endif
     let l:full_or_partial = confirm('Is import full or partial?', "&Full\n&Partial")
@@ -109,7 +111,7 @@ function! jsfileimport#tags#_get_taglist(name, rgx, ...) abort
     return sort(l:tags, function('s:sort_tags'))
   endif
 
-  let l:already_in_taglist = len(filter(copy(l:tags), 'v:val.name ==? "'.l:global_package_tag.name.'"')) > 0
+  let l:already_in_taglist = len(filter(copy(l:tags), 'v:val.name ==? "'.l:global_package_tag.name.'" && v:val.filename ==? "'.l:global_package_tag.filename.'"')) > 0
 
   if !l:already_in_taglist
     call add(l:tags, l:global_package_tag)
@@ -251,11 +253,11 @@ function! s:append_directories_to_tags(name, tags, name_variations, append_index
       let l:index_file = printf('%s/index.%s', l:dir, ext)
       if a:append_index_file
         if filereadable(l:index_file) && !s:tags_has_filename(a:tags, l:index_file)
-          call add(a:tags, { 'filename': l:index_file, 'name': a:name, 'kind': 'D', 'cmd': '' })
+          call add(a:tags, s:get_tag({ 'filename': l:index_file, 'name': a:name, 'kind': 'D' }))
         endif
       else
         if filereadable(l:index_file) && !s:tags_has_filename(a:tags, l:dir)
-          call add(a:tags, { 'filename': l:dir, 'name': a:name, 'kind': 'D', 'cmd': '' })
+          call add(a:tags, s:get_tag({ 'filename': l:dir, 'name': a:name, 'kind': 'D' }))
         endif
       endif
     endfor
@@ -297,7 +299,7 @@ function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
 
   for l:file in l:files
     if l:file !=? '' && !s:tags_has_filename(a:tags, l:file) && expand('%:p') !=? fnamemodify(l:file, ':p')
-      call add(a:tags, { 'filename': l:file, 'name': a:name, 'kind': 'F', 'cmd': '' })
+      call add(a:tags, s:get_tag({ 'filename': l:file, 'name': a:name, 'kind': 'F' }))
     endif
   endfor
 
@@ -327,6 +329,20 @@ function! s:is_global_package(name) abort "{{{
 endfunction "}}}
 
 function! s:get_global_package_tag(name) abort "{{{
+  if executable('node')
+    if !exists('s:builtin_modules')
+      try
+        let s:builtin_modules = json_decode(system('node -e "process.stdout.write(JSON.stringify(Object.keys(process.binding(''natives''))))"'))
+      catch
+        let s:builtin_modules = []
+      endtry
+    endif
+
+    if index(s:builtin_modules, a:name) > -1
+      return s:get_tag({'filename': s:core_module, 'name': a:name, 'cmd': a:name })
+    endif
+  endif
+
   let l:global_package = s:is_global_package(a:name)
   if empty(l:global_package)
     return {}
@@ -341,7 +357,7 @@ function! s:get_global_package_tag(name) abort "{{{
 endfunction "}}}
 
 function! s:check_if_global_tag(tag) abort "{{{
-  return a:tag['filename'] =~? 'package.json'
+  return a:tag['filename'] =~? 'package.json' || a:tag['filename'] ==? s:core_module
 endfunction "}}}
 
 function! s:get_name_variations(name) abort "{{{
@@ -355,4 +371,8 @@ function! s:get_name_variations(name) abort "{{{
   call add(l:search, a:name)
   return uniq(sort(l:search))
 endfunction "}}}
+
+function! s:get_tag(data) abort
+  return extend({ 'filename': '', 'name': '', 'cmd': '', 'kind': '' }, a:data)
+endfunction
 " vim:foldenable:foldmethod=marker:sw=2
