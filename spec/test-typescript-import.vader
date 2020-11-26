@@ -3,11 +3,15 @@ Before:
 
 Given typescript:
   const obj = new Bar();
+  const user: User = { username: 'test', password: 'test' };
+  class Test implements Foo {}
 
 Do:
-  fB,if
+  fB,ifj^fU,ifj^fF,if
 
 Expect typescript:
-  import Bar from './spec/test-typescript-import.fixtures/a';
+  import Bar, { User, Foo } from './spec/test-typescript-import.fixtures/a';
 
   const obj = new Bar();
+  const user: User = { username: 'test', password: 'test' };
+  class Test implements Foo {}
