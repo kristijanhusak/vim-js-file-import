@@ -1,6 +1,7 @@
 # Vim js file import
 
 This plugin allows importing javascript and typescript files using ctags. Tested only with [Universal ctags](https://github.com/universal-ctags/ctags).
+There is also [partial support for Vue](#vue-support).
 
 It's similar to [vim-import-js](https://github.com/Galooshi/vim-import-js), but much faster because it's written in vimscript.
 
@@ -248,6 +249,18 @@ MyButton [F] [jsx]
 This is enabled by default (only for javascript and typescript syntax). To disable this option, add this to your vimrc:
 ```vimL
 let g:deoplete_strip_file_extension = 0
+```
+
+### Vue support
+There is some basic support for Vue:
+
+1. Supports importing js/ts files into `*.vue` file `<script>` tag
+2. Supports importing `.vue` file into another `.vue` file by matching filename. Imports may work better if custom ctags syntax file is used (https://gist.github.com/Fmajor/0024facc213087a3b4f296b50bf2c197)
+3. Webpack alias support with this config:
+```vim
+let g:js_file_import_from_root = 1
+let g:js_file_import_root = getcwd().'/src'
+let g:js_file_import_root_alias = '@/'
 ```
 
 ### Performance issues

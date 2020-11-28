@@ -1,0 +1,34 @@
+Before:
+  set tags=./spec/test-vue-import.fixtures/tags
+  let g:js_file_import_from_root = 1
+  let g:js_file_import_root = getcwd().'/spec/test-vue-import.fixtures/src'
+  let g:js_file_import_root_alias = '@/'
+
+Given vue:
+  <template>
+    <Header />
+    <button>Test</button>
+  </template>
+
+  <script>
+  TestFn(ACTION_ADD)
+  const post = new Post()
+  </script>
+
+Do:
+  jfd,if7j^fF,iff_,ifjfP,if
+
+Expect vue:
+  <template>
+    <Header />
+    <button>Test</button>
+  </template>
+
+  <script>
+  import Header from '@/components/Header';
+  import Post, { TestFn } from '@/common/helpers';
+  import { ACTION_ADD } from '@/common/constants';
+
+  TestFn(ACTION_ADD)
+  const post = new Post()
+  </script>

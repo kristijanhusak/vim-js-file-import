@@ -15,6 +15,7 @@ let g:js_file_import_filename_filters = get(g:, 'js_file_import_filename_filters
 let g:js_file_import_sort_after_fix = get(g: ,'js_file_import_sort_after_fix', 0)
 let g:js_file_import_from_root = get(g:, 'js_file_import_from_root', 0)
 let g:js_file_import_root = get(g:, 'js_file_import_root', getcwd())
+let g:js_file_import_root_alias = get(g:, 'js_file_import_root_alias', '')
 let g:deoplete_strip_file_extension = get(g:, 'deoplete_strip_file_extension', 1)
 let g:js_file_import_string_quote = get(g:, 'js_file_import_string_quote', "'")
 let g:js_file_import_strip_file_extension = get(g:, 'js_file_import_strip_file_extension', 1)

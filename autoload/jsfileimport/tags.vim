@@ -278,16 +278,33 @@ endfunction
 function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
   let l:files = []
   let l:is_ts = filereadable(getcwd().'/tsconfig.json')
+  let l:is_vue = &filetype ==? 'vue'
 
   if executable('rg')
-    let l:files = jsfileimport#utils#systemlist('rg -g "'.a:name.'.js*" '.(l:is_ts ? '-g "'.a:name.'.ts*"' : '').' --files')
+    let l:cmd = ['rg -g "'.a:name.'.js*"']
+    if l:is_ts
+      call add(l:cmd, '-g "'.a:name.'.ts*"')
+    endif
+    if l:is_vue
+      call add(l:cmd, '-g "'.a:name.'.vue*"')
+    endif
+    let l:files = jsfileimport#utils#systemlist(join(l:cmd, ' ').' --files')
   elseif executable('ag') || executable('ack')
-    let l:cmd = ' -g "(/|^)'.a:name.'.js.*'.(l:is_ts ? '|(/|^)'.a:name.'.ts*' : '').'"'
-    let l:files = jsfileimport#utils#systemlist(printf('%s %s', executable('ag') ? 'ag' : 'ack', l:cmd))
+    let l:cmd = ['"(/|^)'.a:name.'.js*']
+    if l:is_ts
+      call add(l:cmd, '(/|^)'.a:name.'.ts*')
+    endif
+    if l:is_vue
+      call add(l:cmd, '(/|^)'.a:name.'.vue*')
+    endif
+    let l:files = jsfileimport#utils#systemlist(printf('%s -g "%s"', executable('ag') ? 'ag' : 'ack', join(l:cmd, '|')))
   else
     let l:files = [findfile(a:name.'.js', '**/*')]
     if l:is_ts
       call add(l:files, findfile(a:name.'.ts', '**/*'))
+    endif
+    if l:is_vue
+      call add(l:files, findfile(a:name.'.vue', '**/*'))
     endif
     if a:rgx['type'] ==? 'import'
       call add(l:files, findfile(a:name.'.jsx', '**/*'))

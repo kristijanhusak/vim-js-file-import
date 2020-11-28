@@ -224,6 +224,21 @@ g:js_file_import_root
 		Note: Path must not end with slash.
 
 		Default value: current working directory (`getcwd()`)
+
+					      *g:js_file_import_root_alias*
+g:js_file_import_root_alias
+		Replacement for root when generating import with
+		|g:js_file_import_from_root|. Useful when using webpack
+		aliases.
+		Example settings for vue:
+>
+		let g:js_file_import_from_root = 1
+		let g:js_file_import_root = getcwd().'/src'
+		let g:js_file_import_root_alias = '@/'
+<
+
+		Default value: '' (empty string)
+
 					      *g:deoplete_strip_file_extension*
 g:deoplete_strip_file_extension
 		If you are using `deoplete.nvim` and it's file autocomplete

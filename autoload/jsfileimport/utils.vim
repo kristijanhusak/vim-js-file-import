@@ -41,7 +41,7 @@ endfunction
 
 function! jsfileimport#utils#_get_file_path(filepath) abort
   if g:js_file_import_from_root
-    return substitute(fnamemodify(a:filepath, ':p:r'), g:js_file_import_root.'/', '', '')
+    return substitute(fnamemodify(a:filepath, ':p:r'), g:js_file_import_root.'/', g:js_file_import_root_alias, '')
   endif
 
   let l:path = a:filepath

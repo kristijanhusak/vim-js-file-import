@@ -204,8 +204,12 @@ function! s:process_import(name, path, rgx, is_global) abort "{{{
   elseif search(a:rgx['lastimport']) > 0
     call append(line('.') - 1, l:import_rgx)
   else
-    call append(0, l:import_rgx)
-    call append(1, '')
+    let line_nr = 0
+    if &filetype ==? 'vue'
+      let line_nr = search('<script[^>]*>\s*$', 'wn')
+    endif
+    call append(line_nr, l:import_rgx)
+    call append(line_nr + 1, '')
   endif
   return s:finish_import()
 endfunction "}}}
