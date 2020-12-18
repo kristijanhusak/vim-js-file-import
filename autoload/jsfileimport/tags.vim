@@ -290,7 +290,7 @@ function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
     endif
     let l:files = jsfileimport#utils#systemlist(join(l:cmd, ' ').' --files')
   elseif executable('ag') || executable('ack')
-    let l:cmd = ['"(/|^)'.a:name.'.js*']
+    let l:cmd = ['(/|^)'.a:name.'.js*']
     if l:is_ts
       call add(l:cmd, '(/|^)'.a:name.'.ts*')
     endif
