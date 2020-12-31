@@ -22,6 +22,22 @@ if !hasmapto('<Plug>(JsFileImportList)', 'v') && maparg('<Leader>iF', 'v') ==? '
   silent! xmap <buffer> <unique> <silent> <Leader>iF <Plug>(JsFileImportList)
 endif
 
+if !hasmapto(':JsFileImportTypedef<CR>') && !hasmapto('<Plug>(JsFileImportTypedef)') && maparg('<Leader>it', 'n') ==? ''
+  silent! nmap <buffer> <unique> <silent> <Leader>it <Plug>(JsFileImportTypedef)
+endif
+
+if !hasmapto('<Plug>(JsFileImportTypedef)', 'v') && maparg('<Leader>it', 'v') ==? ''
+  silent! xmap <buffer> <unique> <silent> <Leader>it <Plug>(JsFileImportTypedef)
+endif
+
+if !hasmapto(':JsFileImportTypedefList<CR>') && !hasmapto('<Plug>(JsFileImportTypedefList)') && maparg('<Leader>iT', 'n') ==? ''
+  silent! nmap <buffer> <unique> <silent> <Leader>iT <Plug>(JsFileImportTypedefList)
+endif
+
+if !hasmapto('<Plug>(JsFileImportTypedefList)', 'v') && maparg('<Leader>iT', 'v') ==? ''
+  silent! xmap <buffer> <unique> <silent> <Leader>iT <Plug>(JsFileImportTypedefList)
+endif
+
 if !hasmapto(':JsGotoDefinition<CR>') && !hasmapto('<Plug>(JsGotoDefinition)') && maparg('<Leader>ig', 'n') ==? ''
   silent! nmap <buffer> <unique> <silent> <Leader>ig <Plug>(JsGotoDefinition)
 endif

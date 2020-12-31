@@ -28,6 +28,8 @@ endif
 
 command! -nargs=? JsFileImport call jsfileimport#word(0, 0, <q-args>)
 command! -nargs=? JsFileImportList call jsfileimport#word(0, 1, <q-args>)
+command! -nargs=? JsFileImportTypedef call jsfileimport#typedef(0, 0, <q-args>)
+command! -nargs=? JsFileImportTypedefList call jsfileimport#typedef(0, 1, <q-args>)
 command! PromptJsFileImport call jsfileimport#prompt()
 command! -nargs=? JsGotoDefinition call jsfileimport#goto(0, 0, <q-args>)
 command! -nargs=? JsGotoDefinitionList call jsfileimport#goto(0, 1, <q-args>)
@@ -38,8 +40,14 @@ command! JsFixImport call jsfileimport#fix_imports#exec()
 nnoremap <silent> <Plug>(JsFileImport) :<C-u>call jsfileimport#word(0)<CR>
 xnoremap <silent> <Plug>(JsFileImport) :<C-u>call jsfileimport#word(1)<CR>
 
+nnoremap <silent> <Plug>(JsFileImportTypedef) :<C-u>call jsfileimport#typedef(0)<CR>
+xnoremap <silent> <Plug>(JsFileImportTypedef) :<C-u>call jsfileimport#typedef(1)<CR>
+
 nnoremap <silent> <Plug>(JsFileImportList) :<C-u>call jsfileimport#word(0, 1)<CR>
 xnoremap <silent> <Plug>(JsFileImportList) :<C-u>call jsfileimport#word(1, 1)<CR>
+
+nnoremap <silent> <Plug>(JsFileImportTypedefList) :<C-u>call jsfileimport#typedef(0, 1)<CR>
+xnoremap <silent> <Plug>(JsFileImportTypedefList) :<C-u>call jsfileimport#typedef(1, 1)<CR>
 
 nnoremap <silent> <Plug>(JsGotoDefinition) :<C-u>call jsfileimport#goto(0)<CR>
 xnoremap <silent> <Plug>(JsGotoDefinition) :<C-u>call jsfileimport#goto(1)<CR>

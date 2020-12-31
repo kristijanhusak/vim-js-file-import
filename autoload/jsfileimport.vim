@@ -6,6 +6,55 @@ function! jsfileimport#word(is_visual_mode, ...) abort
   silent! call repeat#set("\<Plug>(".l:repeatMapping.')')
 endfunction
 
+function! jsfileimport#typedef(is_visual_mode, ...) abort
+  let l:show_list = get(a:, 1, 0)
+  let l:word = get(a:, 2, 0)
+  let l:rgx = jsfileimport#utils#_determine_import_type()
+  if empty(l:word)
+    let l:word = jsfileimport#utils#_get_word(a:is_visual_mode)
+  endif
+  call jsfileimport#utils#_save_cursor_position('typedef')
+  try
+    call jsfileimport#tags#_get_tag(l:word, l:rgx, l:show_list, function('s:import_typedef', [l:word, l:rgx]))
+    let l:repeatMapping = a:0 > 0 ? 'JsFileImportTypedefList' : 'JsFileImportTypedef'
+    silent! call repeat#set("\<Plug>(".l:repeatMapping.')')
+  catch
+    call jsfileimport#utils#_restore_cursor_position('typedef')
+    if v:exception !=? ''
+      return jsfileimport#utils#_error(v:exception)
+    endif
+    return 0
+  endtry
+endfunction
+
+function! s:import_typedef(name, rgx, tag_data) abort
+  let l:tag = a:tag_data['tag']
+  let l:is_global = !empty(a:tag_data['global'])
+  let l:is_partial = s:is_partial_import(a:tag_data, a:name, a:rgx)
+  let l:path = l:tag['name']
+  if !l:is_global
+    let l:path = jsfileimport#utils#_get_file_path(l:tag['filename'])
+  endif
+  let l:current_file_path = jsfileimport#utils#_get_file_path(expand('%:p'))
+
+  if !l:is_global && l:path ==# l:current_file_path
+    throw 'Import failed. Selected import is in this file.'
+  endif
+
+  let l:escaped_path = escape(l:path, './')
+  let line = printf(" * @typedef {import('%s')%s} %s", l:path, (l:is_partial ? '.'.a:name : ''), a:name)
+  if search(line, 'n') > 0
+    echo 'Typedef exists.'
+    return
+  endif
+  let existing_typedef = search('@typedef', 'n')
+  if existing_typedef
+    call append(existing_typedef, line)
+  else
+    call append(0, ['/**', line, ' */'])
+  endif
+endfunction
+
 function! jsfileimport#tagfunc(pattern, flags, info) abort
   if a:flags !=? 'c'
     return v:null
