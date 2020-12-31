@@ -23,6 +23,7 @@ handles, and [vim-import-js](https://github.com/Galooshi/vim-import-js) is missi
 * [Mappings](#mappings)
 * [Goto definition](#goto-definition)
 * [Sorting](#sorting)
+* [Typedef imports](#typedef-imports) - Experimental
 * [Removing unused imports](#removing-unused-imports)
 * [Settings](#settings)
 * [Deoplete strip file extension](#deoplete-strip-file-extension)
@@ -150,6 +151,39 @@ and plugin will automatically sort imports after every insert
 
 ```vimL
 let g:js_file_import_sort_after_insert = 1
+```
+### Typedef imports
+**Note**: This is still experimental.
+
+Import dependencies as typedefs. Example:
+
+```javascript
+// src/Models/User.js
+class User {}
+
+
+// index.js
+
+/**          v cursor
+ * @param {Us|er} user
+ */
+function main(user) {
+
+}
+```
+
+Doing `JsFileImportTypedef` or pressing `<leader>it` will import the `User` as typedef:
+```javascript
+/**
+ * @typedef {import('./src/Models/User')} User
+ */
+
+/**
+ * @param {User} user
+ */
+function main(user) {
+  // Lsp properly handles autocompletion for user now
+}
 ```
 
 ### Removing unused imports
