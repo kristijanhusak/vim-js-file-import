@@ -44,8 +44,7 @@ function! s:import_typedef(name, rgx, tag_data) abort
   let l:escaped_path = escape(l:path, './')
   let line = printf(" * @typedef {import('%s')%s} %s", l:path, (l:is_partial ? '.'.a:name : ''), a:name)
   if search(line, 'n') > 0
-    echo 'Typedef exists.'
-    return
+    return jsfileimport#utils#_error('Typedef exists.')
   endif
   let existing_typedef = search('@typedef', 'n')
   if existing_typedef
