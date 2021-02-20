@@ -66,11 +66,14 @@ function! jsfileimport#fix_imports#exec() abort
     endfor
 
     let l:old_fzf = g:js_file_import_use_fzf
+    let l:old_telescope = g:js_file_import_use_telescope
     let g:js_file_import_use_fzf = 0
+    let g:js_file_import_use_telescope = 0
     for l:missing in l:missing_list
       call s:append_missing(l:missing)
     endfor
     let g:js_file_import_use_fzf = l:old_fzf
+    let g:js_file_import_use_telescope = l:old_telescope
 
     call jsfileimport#utils#_restore_cursor_position('fix_imports')
 

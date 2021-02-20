@@ -22,6 +22,7 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list, callback) abort
   let l:options = l:tag_selection_list + l:prompt_import
 
   return jsfileimport#utils#inputlist(
+        \ l:tags,
         \ l:options,
         \ 'Select file to import: ',
         \ function('s:handle_tag_selection', [l:tags, a:name, a:rgx, l:prompt_index - 1, a:callback])

@@ -350,6 +350,14 @@ g:js_file_import_use_fzf
 
 		Default value: `0`
 
+					      *g:js_file_import_use_telescope*
+g:js_file_import_use_telescope
+		If set to `1`, uses telescope for prompts instead of native
+		`inputlist()`. Requires https://github.com/nvim-telescope/telescope.nvim
+		and `has('nvim-0.5') > 0`
+
+		Default value: `0`
+
 					      *g:js_file_import_strip_file_extension*
 g:js_file_import_strip_file_extension
 		Should file extension in import be removed.

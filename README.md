@@ -254,6 +254,13 @@ native `inputlist()` is used. If you want to use [FZF](https://github.com/junegu
 let g:js_file_import_use_fzf = 1
 ```
 
+#### Using Telescope for prompts
+By default, if there is a need for prompt (For example, to select from multiple import option),
+native `inputlist()` is used. If you want to use [Telescope](https://github.com/nvim-telescope/telescope.nvim), add this setting:
+```vimL
+let g:js_file_import_use_telescope = 1
+```
+
 #### Importing from files with extension
 If you want to import files with extension, add this setting:
 ```vimL

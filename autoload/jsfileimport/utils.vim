@@ -188,16 +188,27 @@ function! jsfileimport#utils#systemlist(cmd) abort
   return l:cmd_output
 endfunction
 
-function! jsfileimport#utils#inputlist(options, prompt_text, callback) abort
-  if !g:js_file_import_use_fzf || !exists('*fzf#run')
+function! jsfileimport#utils#inputlist(tags, options, prompt_text, callback) abort
+  let l:use_fzf = g:js_file_import_use_fzf && exists('*fzf#run')
+  let l:use_telescope = has('nvim-0.5') && g:js_file_import_use_telescope && luaeval('pcall(require, "telescope")')
+  if !l:use_fzf && !l:use_telescope
     return s:handle_native_inputlist(a:options, a:prompt_text, a:callback)
   endif
 
-  return fzf#run(fzf#wrap({
-        \ 'source': a:options,
-        \ 'sink': function('s:handle_fzf_inputlist', [a:options, a:callback]),
-        \ 'options': ['--prompt', a:prompt_text]
-        \ }))
+  if l:use_fzf
+    return fzf#run(fzf#wrap({
+          \ 'source': a:options,
+          \ 'sink': function('s:handle_fzf_inputlist', [a:options, a:callback]),
+          \ 'options': ['--prompt', a:prompt_text]
+          \ }))
+  end
+
+  let s:inputlist_callback = a:callback
+  return luaeval('require"vim-js-file-import".picker(_A[1], _A[2])', [a:tags, a:prompt_text])
+endfunction
+
+function! jsfileimport#utils#trigger_inputlist_callback(...)
+  return call(s:inputlist_callback, a:000)
 endfunction
 
 function! s:handle_native_inputlist(options, prompt_text, callback) abort "J{{{

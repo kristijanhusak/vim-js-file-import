@@ -110,6 +110,7 @@ function! jsfileimport#goto(is_visual_mode, ...) abort
     endif
 
     return jsfileimport#utils#inputlist(
+          \ l:tags,
           \ jsfileimport#tags#_generate_tags_selection_list(l:tags),
           \ 'Select tag to jump to: ',
           \ function('s:handle_goto_tag_selection', [l:tags, l:current_file_path, l:show_list])
