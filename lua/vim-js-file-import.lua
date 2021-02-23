@@ -24,7 +24,7 @@ local function picker(tags, prompt_text)
     },
     sorter = sorters.get_generic_fuzzy_sorter(),
     attach_mappings = function(prompt_bufnr)
-      actions._goto_file_selection:replace(function(_, _)
+      actions.select_default:replace(function(_, _)
         local selection = actions.get_selected_entry(prompt_bufnr)
         actions.close(prompt_bufnr)
         vim.defer_fn(function()
