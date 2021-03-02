@@ -18,11 +18,13 @@ function! jsfileimport#tags#_get_tag(name, rgx, show_list, callback) abort
 
   let l:tag_selection_list = jsfileimport#tags#_generate_tags_selection_list(l:tags)
   let l:prompt_index = len(l:tag_selection_list) + 1
-  let l:prompt_import = [l:prompt_index.') Enter path to file or package name manually for word "'.a:name.'"']
+  let l:custom_msg = 'Enter path to file or package name manually for word "'.a:name.'"'
+  let l:prompt_import = [l:prompt_index.') '.l:custom_msg]
   let l:options = l:tag_selection_list + l:prompt_import
+  let l:tags_options = copy(l:tags) + [s:get_tag({ 'filename': l:custom_msg })]
 
   return jsfileimport#utils#inputlist(
-        \ l:tags,
+        \ l:tags_options,
         \ l:options,
         \ 'Select file to import: ',
         \ function('s:handle_tag_selection', [l:tags, a:name, a:rgx, l:prompt_index - 1, a:callback])
