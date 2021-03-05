@@ -46,15 +46,19 @@ function! jsfileimport#utils#_get_file_path(filepath) abort
 
   let l:path = a:filepath
 
+  if l:path =~? 'index\(\.\(js\|jsx\|ts\|tsx\)\)\?$'
+    let l:path = fnamemodify(l:path, ':h')
+  endif
+
   if has('python') || has('python3')
-    let l:path = s:get_relative_path_with_python(a:filepath)
+    let l:path = s:get_relative_path_with_python(l:path)
   else
-    let l:path = s:get_relative_path_with_node(a:filepath)
+    let l:path = s:get_relative_path_with_node(l:path)
   endif
 
   let l:ext = fnamemodify(a:filepath, ':e')
 
-  if !g:js_file_import_strip_file_extension && !empty(l:ext)
+  if !g:js_file_import_strip_file_extension && !empty(l:ext) && !isdirectory(l:path)
     let l:path .= '.'.l:ext
   endif
 
