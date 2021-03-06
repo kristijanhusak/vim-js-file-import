@@ -71,9 +71,16 @@ function! jsfileimport#sort(...) abort
   call jsfileimport#utils#_save_cursor_position('sort')
 
   let l:rgx = jsfileimport#utils#_determine_import_type()
-
-  if search(l:rgx['select_for_sort'], 'be') > 0
-    silent! exe g:js_file_import_sort_command
+  keepjumps normal! gg
+  let l:start_range = search(l:rgx['lastimport'], 'nc')
+  let l:end_range = search(l:rgx['lastimport'], 'nb')
+  if l:start_range > 0 && l:end_range > 0
+    " Kept for BC
+    if !empty(g:js_file_import_sort_command)
+      silent! exe g:js_file_import_sort_command
+    else
+      silent! exe printf('%d,%dsort! /%s/', l:start_range, l:end_range, l:rgx['sort_pattern'])
+    endif
   endif
 
   call jsfileimport#utils#_restore_cursor_position('sort')

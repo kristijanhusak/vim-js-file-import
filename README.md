@@ -131,20 +131,29 @@ set tagfunc=jsfileimport#tagfunc
 ```
 
 ### Sorting
-
-To sort imports alphabetically use `SortJsFileImport` mapping `<Leader>is`:
+To sort imports by the import path use `SortJsFileImport` mapping `<Leader>is`:
 
 This:
 ```js
   import Foo from './file_path'
-  import Bar from './another_file_path'
+  import moment from 'moment'
 ```
 
 Becomes this:
 ```js
-  import Bar from './another_file_path'
+  import moment from 'moment'
   import Foo from './file_path'
 ```
+
+**Note**: Sorting is not behaving well when there are partial multi-line imports:
+```js
+ import {
+    one,
+    two,
+    three
+  } from 'four'
+```
+This is due to limitation with `:sort` command. If anyone know how to get around this, please open up an issue.
 
 If you want imports to be always sorted, add `let g:js_file_import_sort_after_insert = 1` to your vimrc
 and plugin will automatically sort imports after every insert

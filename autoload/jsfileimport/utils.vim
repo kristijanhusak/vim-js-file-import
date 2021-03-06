@@ -12,7 +12,7 @@ function! jsfileimport#utils#_determine_import_type() abort
         \ 'lastimport': '^\(const\|let\|var\)\s\_[^''"]\{-\}require(.*;\?$',
         \ 'default_export': 'module.exports\s*=.\{-\}',
         \ 'partial_export': 'module\.exports\(\.\<__FNAME__\>\|\s*=\_[[:blank:]]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
-        \ 'select_for_sort': '^\(const\|let\|var\)\s*\zs.*\ze\s*=\s*require.*;\?$',
+        \ 'sort_pattern': 'require([''"][^\.]',
         \ 'import_name': '^\(const\|let\|var\)\s*\(\<[^''"]\{-\}\>\)\s*=\s*require([^)]*);\?',
         \ 'is_single_import': '^\(const\|let\|var\)\(\s\|\n\)\{-\}{\?\(\s\|\n\)\{-\}\<__FNAME__\>\(\s\|\n\)\{-\}}\?\(\s\|\n\)\{-\}=\(\s\|\n\)\{-\}require(\_[^)]\{-\});\?',
         \ }
@@ -27,7 +27,7 @@ function! jsfileimport#utils#_determine_import_type() abort
         \ 'lastimport': '^import\s\_[^''"]\{-\}from.*;\?$',
         \ 'default_export': 'export\s*default.\{-\}',
         \ 'partial_export': 'export\s*\(\(default\)\@!\w\+\s*\<__FNAME__\>\|\_[[:blank:]]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
-        \ 'select_for_sort': '^import\s*\zs.*\ze\s*from.*;\?$',
+        \ 'sort_pattern': '^import\s*.*\s*from\s*[''"][^\.]',
         \ 'import_name': '^\(import\)\s*\(\<[^''"]\{-\}\>\)\s*from\s*',
         \ 'is_single_import': '^\import\(\s\|\n\)\{-\}{\?\(\s\|\n\)\{-\}\<__FNAME__\>\(\s\|\n\)\{-\}}\?\(\s\|\n\)\{-\}from\(\s\|\n\)\{-\}[''"][^''"]*[''"];\?',
         \ }

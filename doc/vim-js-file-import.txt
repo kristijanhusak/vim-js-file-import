@@ -331,12 +331,6 @@ g:js_file_import_no_mappings
 
 		Default value: 0
 
-					      *g:js_file_import_sort_command*
-g:js_file_import_sort_command
-		Command used for sorting imports.
-
-		Default value: `'{,'}-1sort i`
-
 					      *g:js_file_import_string_quote*
 g:js_file_import_string_quote
 		What type of quote to use for imports.
