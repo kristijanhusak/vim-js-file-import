@@ -208,7 +208,7 @@ function! jsfileimport#utils#inputlist(tags, options, prompt_text, callback) abo
   end
 
   let s:inputlist_callback = a:callback
-  return luaeval('require"vim-js-file-import".picker(_A[1], _A[2])', [a:tags, a:prompt_text])
+  return luaeval('require"vim-js-file-import".picker(_A[1], _A[2])', [deepcopy(a:tags), a:prompt_text])
 endfunction
 
 function! jsfileimport#utils#trigger_inputlist_callback(...)

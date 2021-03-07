@@ -3,9 +3,11 @@ local finders = require'telescope.finders'
 local pickers = require'telescope.pickers'
 local sorters = require'telescope.sorters'
 local previewers = require'telescope.previewers'
-local make_entry = require'telescope.make_entry'
 
 local function picker(tags, prompt_text)
+  for idx, tag in ipairs(tags) do
+    tag.index = idx
+  end
   pickers.new({}, {
     prompt_title = prompt_text,
     finder = finders.new_table {
@@ -13,8 +15,8 @@ local function picker(tags, prompt_text)
       entry_maker = function(tag)
         return {
           value = tag,
-          ordinal = tag.filename,
-          display = tag.filename,
+          ordinal = string.format('%d) %s', tag.index, tag.filename),
+          display = string.format('%d) %s', tag.index, tag.filename),
           filename = tag.filename,
           scode = tag.cmd and tag.cmd ~= '' and tag.cmd:sub(3, -2) or nil,
           lnum = 1,
