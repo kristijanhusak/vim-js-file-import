@@ -7,6 +7,6 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	0.0.0	/20c2fb8c/
-Bar	a.js	/^export const Bar = () => {};$/;"	C
-Foo	a.js	/^export const Foo = () => {};$/;"	C
-MyTestFn	a.js	/^export async function MyTestFn() {}$/;"	f
+Bar	a.mjs	/^class Bar {}$/;"	c
+CallApi	a.mjs	/^export async function CallApi() {}$/;"	f
+TestVar	a.mjs	/^export const TestVar = 'testvar';$/;"	C

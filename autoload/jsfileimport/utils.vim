@@ -26,7 +26,7 @@ function! jsfileimport#utils#_determine_import_type() abort
         \ 'import': printf('import __FNAME__ from %s__FPATH__%s', l:quote, l:quote),
         \ 'lastimport': '^import\s\_[^''"]\{-\}from.*;\?$',
         \ 'default_export': 'export\s*default.\{-\}',
-        \ 'partial_export': 'export\s*\(\(default\)\@!\w\+\s*\<__FNAME__\>\|\_[[:blank:]]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
+        \ 'partial_export': 'export\s*\(\(\(default\)\@!\w\|\s\)\+\<__FNAME__\>\|\_[[:blank:]]\{-\}{\_[^}]\{-\}\<__FNAME__\>\_[^}]\{-\}}\)',
         \ 'sort_pattern': '^import\s*.*\s*from\s*[''"][^\.]',
         \ 'import_name': '^\(import\)\s*\(\<[^''"]\{-\}\>\)\s*from\s*',
         \ 'is_single_import': '^\import\(\s\|\n\)\{-\}{\?\(\s\|\n\)\{-\}\<__FNAME__\>\(\s\|\n\)\{-\}}\?\(\s\|\n\)\{-\}from\(\s\|\n\)\{-\}[''"][^''"]*[''"];\?',

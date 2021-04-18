@@ -11,3 +11,14 @@ Expect javascript:
   import { Bar } from './spec/test-partial-import.fixtures/a';
 
   const obj = new Bar()
+
+Given javascript:
+  const obj = MyTestFn()
+
+Do:
+  fM,if
+
+Expect javascript:
+  import { MyTestFn } from './spec/test-partial-import.fixtures/a';
+
+  const obj = MyTestFn()

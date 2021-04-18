@@ -1,0 +1,17 @@
+Before:
+  set tags=./spec/test-mjs-import.fixtures/tags
+
+Given javascript:
+  const obj = new Bar();
+  const api = CallApi();
+  const myval = TestVar;
+
+Do:
+  fB,ifj^fC,ifj^fT,if
+
+Expect javascript:
+  import Bar, { CallApi, TestVar } from './spec/test-mjs-import.fixtures/a';
+
+  const obj = new Bar();
+  const api = CallApi();
+  const myval = TestVar;

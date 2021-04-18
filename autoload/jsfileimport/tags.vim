@@ -285,6 +285,11 @@ function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
 
   if executable('rg')
     let l:cmd = ['rg -g "'.a:name.'.js*"']
+
+    if a:rgx['type'] ==? 'import'
+      call add(l:cmd, '-g "'.a:name.'.mjs*"')
+    endif
+
     if l:is_ts
       call add(l:cmd, '-g "'.a:name.'.ts*"')
     endif
@@ -294,6 +299,9 @@ function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
     let l:files = jsfileimport#utils#systemlist(join(l:cmd, ' ').' --files')
   elseif executable('ag') || executable('ack')
     let l:cmd = ['(/|^)'.a:name.'.js*']
+    if a:rgx['type'] ==? 'import'
+      call add(l:cmd, '(/|^)'.a:name.'.mjs*')
+    endif
     if l:is_ts
       call add(l:cmd, '(/|^)'.a:name.'.ts*')
     endif
@@ -303,6 +311,9 @@ function! s:append_filename_to_tags(tags, name, rgx) abort "{{{
     let l:files = jsfileimport#utils#systemlist(printf('%s -g "%s"', executable('ag') ? 'ag' : 'ack', join(l:cmd, '|')))
   else
     let l:files = [findfile(a:name.'.js', '**/*')]
+    if a:rgx['type'] ==? 'import'
+      call add(l:files, findfile(a:name.'.mjs', '**/*'))
+    endif
     if l:is_ts
       call add(l:files, findfile(a:name.'.ts', '**/*'))
     endif
