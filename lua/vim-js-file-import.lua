@@ -1,4 +1,5 @@
 local actions = require'telescope.actions'
+local action_state = require "telescope.actions.state"
 local finders = require'telescope.finders'
 local pickers = require'telescope.pickers'
 local sorters = require'telescope.sorters'
@@ -27,7 +28,7 @@ local function picker(tags, prompt_text)
     sorter = sorters.get_generic_fuzzy_sorter(),
     attach_mappings = function(prompt_bufnr)
       actions.select_default:replace(function(_, _)
-        local selection = actions.get_selected_entry(prompt_bufnr)
+        local selection = action_state.get_selected_entry()
         actions.close(prompt_bufnr)
         vim.defer_fn(function()
           vim.fn['jsfileimport#utils#trigger_inputlist_callback'](selection.index - 1)
