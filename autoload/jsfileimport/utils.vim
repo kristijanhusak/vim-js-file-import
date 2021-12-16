@@ -79,12 +79,12 @@ function! s:get_relative_path_with_python(filepath)
   let l:path = a:filepath
   let l:py_command = has('python3') ? 'py3' : 'py'
 
-  silent! exe l:py_command.' import vim, os.path'
-  silent! exe l:py_command.' current_path = vim.eval("expand(''%:p:h'')")'
-  silent! exe l:py_command.' tag_path = vim.eval("fnamemodify(a:filepath, '':p'')")'
-  silent! exe l:py_command.' path = os.path.splitext(os.path.relpath(tag_path, current_path))[0]'
-  silent! exe l:py_command.' leading_slash = "./" if path[0] != "." else ""'
-  silent! exe l:py_command.' vim.command(''let l:path = "%s%s"'' % (leading_slash, path))'
+  exe l:py_command.' import vim, os.path'
+  exe l:py_command.' current_path = vim.eval("expand(''%:p:h'')")'
+  exe l:py_command.' tag_path = vim.eval("fnamemodify(a:filepath, '':p'')")'
+  exe l:py_command.' path = os.path.splitext(os.path.relpath(tag_path, current_path))[0]'
+  exe l:py_command.' leading_slash = "./" if path[0] != "." else ""'
+  exe l:py_command.' vim.command(''let l:path = "%s%s"'' % (leading_slash, path))'
   return l:path
 endfunction
 
