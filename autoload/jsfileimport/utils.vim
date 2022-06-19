@@ -46,7 +46,7 @@ function! jsfileimport#utils#_get_file_path(filepath) abort
 
   let l:path = a:filepath
 
-  if l:path =~? 'index\(\.\(js\|jsx\|ts\|tsx\)\)\?$'
+  if l:path =~? '\/index\(\.\(js\|jsx\|ts\|tsx\)\)\?$'
     let l:path = fnamemodify(l:path, ':h')
   endif
 
