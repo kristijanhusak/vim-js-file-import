@@ -358,6 +358,16 @@ g:js_file_import_strip_file_extension
 
 		Default value: `1`
 
+					      *g:js_file_import_strip_index_file*
+g:js_file_import_strip_index_file
+		Should remove `index.js` at the end of file path while importing.
+
+		Example of configuration compliant with Node.js `"type": "module"`:
+		`let g:js_file_import_strip_file_extension = 0`
+		`let g:js_file_import_strip_index_file = 0`
+
+		Default value: `1`
+
 ==============================================================================
 4. Functions					*vim-js-file-import-functions*
 
