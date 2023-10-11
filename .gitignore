@@ -1,3 +1,4 @@
 !spec/**/tags
 vader.vim
 node_modules
+package-lock.json
