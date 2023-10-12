@@ -104,12 +104,6 @@ SortJsFileImport
 
 		`:SortJsFileImport`
 
-					      *JsFixImport*
-JsFixImport
-		Remove unused and add missing imports.
-
-		`:JsFixImport`
-
 ==============================================================================
 4. Mappings					*vim-js-file-import-mappings*
 
@@ -157,13 +151,6 @@ JsFixImport
 		*|g:js_file_import_no_mappings|*.
 
 		`Modes: Normal`
-					      *<Leader>ic*
-<leader>ic
-		Mapped to *|<Plug>JsFixImport|*
-		To remove this mapping, check
-		*|g:js_file_import_no_mappings|*.
-
-		`Modes: Normal`
 
 ==============================================================================
 3. Internal mappings                      *vim-js-file-import-internal-mappings*
@@ -184,7 +171,6 @@ nnoremap <silent> <Plug>(JsFindUsage)
 xnoremap <silent> <Plug>(JsFindUsage)
 
 nnoremap <silent> <Plug>(SortJsFileImport)
-nnoremap <silent> <Plug>(JsFixImport)
 nnoremap <silent> <Plug>(PromptJsFileImport)
 
 Example usage:

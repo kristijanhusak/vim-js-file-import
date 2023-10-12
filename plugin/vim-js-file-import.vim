@@ -37,7 +37,6 @@ command! -nargs=? JsGotoDefinition call jsfileimport#goto(0, 0, <q-args>)
 command! -nargs=? JsGotoDefinitionList call jsfileimport#goto(0, 1, <q-args>)
 command! SortJsFileImport call jsfileimport#sort()
 command! JsFindUsage call jsfileimport#findusage(0)
-command! JsFixImport call jsfileimport#fix_imports#exec()
 
 nnoremap <silent> <Plug>(JsFileImport) :<C-u>call jsfileimport#word(0)<CR>
 xnoremap <silent> <Plug>(JsFileImport) :<C-u>call jsfileimport#word(1)<CR>
@@ -61,5 +60,4 @@ nnoremap <silent> <Plug>(JsFindUsage) :<C-u>call jsfileimport#findusage(0)<CR>
 xnoremap <silent> <Plug>(JsFindUsage) :<C-u>call jsfileimport#findusage(1)<CR>
 
 nnoremap <silent> <Plug>(SortJsFileImport) :<C-u>call jsfileimport#sort()<CR>
-nnoremap <silent> <Plug>(JsFixImport) :<C-u>call jsfileimport#fix_imports#exec()<CR>
 nnoremap <silent> <Plug>(PromptJsFileImport) :<C-u>call jsfileimport#prompt()<CR>

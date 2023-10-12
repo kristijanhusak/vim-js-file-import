@@ -69,7 +69,3 @@ endif
 if !hasmapto(':SortJsFileImport<CR>') && !hasmapto('<Plug>(SortJsFileImport)') && maparg('<Leader>is', 'n') ==? ''
   silent! nmap <buffer> <unique> <silent> <Leader>is <Plug>(SortJsFileImport)
 endif
-
-if !hasmapto(':JsFixImport<CR>') && !hasmapto('<Plug>(JsFixImport)') && maparg('<Leader>ic', 'n') ==? ''
-  silent! nmap <buffer> <unique> <silent> <Leader>ic <Plug>(JsFixImport)
-endif

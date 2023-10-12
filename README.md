@@ -49,7 +49,7 @@ It's also recommended to install some plugin for auto-updating ctags, since this
 Add plugin to vimrc
 ```vimL
 Plug 'ludovicchabant/vim-gutentags'
-Plug 'kristijanhusak/vim-js-file-import', {'do': 'npm install'}
+Plug 'kristijanhusak/vim-js-file-import'
 ```
 
 ### Examples
@@ -118,8 +118,6 @@ nnoremap <Leader>iG <Plug>(JsGotoDefinition)
 nnoremap <Leader>ip <Plug>(PromptJsFileImport)
 
 nnoremap <Leader>is <Plug>(SortJsFileImport)
-
-nnoremap <Leader>ic <Plug>(JsFixImport)
 ```
 
 ### Goto definition
@@ -194,12 +192,6 @@ function main(user) {
   // Lsp properly handles autocompletion for user now
 }
 ```
-
-### Removing unused imports
-
-Unused imports can be cleared by ising command `JsFixImport` or mapping `<Leader>ic`.
-It relies on eslint to figure out which imports are unused and clears them out.
-Make sure to do `npm install` in the plugin directory.
 
 ### Settings
 
